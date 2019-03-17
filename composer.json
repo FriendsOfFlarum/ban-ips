@@ -1,0 +1,36 @@
+{
+  "name": "fof/ban-ips",
+  "description": "Adds the option to ban IP addresses.",
+  "keywords": [
+    "flarum"
+  ],
+  "type": "flarum-extension",
+  "license": "MIT",
+  "require": {
+    "flarum/core": "^0.1.0-beta.8"
+  },
+  "authors": [
+    {
+      "name": "Kvothe",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "FoF\\BanIPs\\": "src/"
+    }
+  },
+  "extra": {
+    "flarum-extension": {
+      "title": "Ban IPs",
+      "icon": {
+        "name": "fas fa-ban",
+        "backgroundColor": "#333",
+        "color": "#9f0000"
+      }
+    },
+    "flagrow": {
+      "discuss": ""
+    }
+  }
+}
