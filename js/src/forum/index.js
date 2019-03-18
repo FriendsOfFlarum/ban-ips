@@ -19,10 +19,10 @@ app.initializers.add('fof-ban-ips', () => {
 				items.add(
 		            'banip',
 		            Button.component({
-		                children: app.translator.trans('ban-ips.forum.button') + ": " + post.data.attributes.ipAddress,
+		                children: app.translator.trans('fof-ban-ips.forum.button') + ": " + post.data.attributes.ipAddress,
 		                className: 'Button Button--link',
 		                onclick: () => {
-		                    if (!confirm(app.translator.trans('ban-ips.forum.ban-ip-confirmation'))) return;
+		                    if (!confirm(app.translator.trans('fof-ban-ips.forum.ban-ip-confirmation'))) return;
 
 		                    app.request({
 		                        url: `${app.forum.attribute('apiUrl')}/posts/${post.id()}/banip`,
@@ -34,7 +34,7 @@ app.initializers.add('fof-ban-ips', () => {
 			}
 			else{
 				items.add('banip', Button.component({
-					children:app.translator.trans('ban-ips.forum.already-banned') + ": " + post.data.attributes.ipAddress,
+					children:app.translator.trans('fof-ban-ips.forum.already-banned') + ": " + post.data.attributes.ipAddress,
 					className: 'Button Button--link banip-banned',
 				}));
 			}
