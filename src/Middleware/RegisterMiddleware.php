@@ -10,7 +10,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
-use Zend\Diactoros\Uri;
 
 class RegisterMiddleware implements MiddlewareInterface
 {
@@ -31,7 +30,6 @@ class RegisterMiddleware implements MiddlewareInterface
         $requestUri = $request->getUri()->getPath();
 
         if ($requestUri === $registerUri || $requestUri === $loginUri) {
-            $data = $request->getParsedBody();
             $serverParams = $request->getServerParams();
             if (isset($serverParams['HTTP_CF_CONNECTING_IP'])) {
                 $ipAddress = $serverParams['HTTP_CF_CONNECTING_IP'];
