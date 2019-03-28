@@ -2,7 +2,7 @@ fof-ban-ips:
   forum:
     button: Ban IP
     ban-ip-confirmation: "Are you sure you want to \n Prevent this IP from logging in and registering new users?"
-    already-banned: IP banned
+    already-banned: IP Banned
   admin:
     settings:
       title: Ban IP Settings

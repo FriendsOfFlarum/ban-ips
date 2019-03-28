@@ -17,9 +17,10 @@ export default function () {
       // TODO: Check for permission AND if ip is already in banlist
       if (!banlist.includes(postIP)) {
         items.add('banip', Button.component({
-            children: app.translator.trans('fof-ban-ips.forum.button') + ": " + post.data.attributes.ipAddress,
+            children: app.translator.trans('fof-ban-ips.forum.button'),
             className: 'Button Button--link',
             icon: 'fas fa-ban',
+            title: postIP,
             onclick: () => {
               if (!confirm(app.translator.trans('fof-ban-ips.forum.ban-ip-confirmation'))) return;
 
@@ -32,9 +33,10 @@ export default function () {
         );
       } else {
         items.add('banip', Button.component({
-          children: app.translator.trans('fof-ban-ips.forum.already-banned') + ": " + post.data.attributes.ipAddress,
+          children: app.translator.trans('fof-ban-ips.forum.already-banned'),
           className: 'Button Button--link banip-banned',
           icon: 'fas fa-ban',
+          title: postIP,
         }));
       }
     }
