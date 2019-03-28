@@ -1,10 +1,9 @@
 <?php
+
 namespace FoF\BanIPs\Middleware;
-use Flarum\Api\Handler\IlluminateValidationExceptionHandler;
+
 use Flarum\Api\JsonApiResponse;
 use Flarum\Settings\SettingsRepositoryInterface;
-
-use Illuminate\Contracts\Validation\ValidationException;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -12,9 +11,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 use Zend\Diactoros\Uri;
+
 class RegisterMiddleware implements MiddlewareInterface
 {
     protected $settings;
+
     /**
      * @param SettingsRepositoryInterface $settings
      */
@@ -22,6 +23,7 @@ class RegisterMiddleware implements MiddlewareInterface
     {
         $this->settings = $settings;
     }
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $registerUri = '/register';
@@ -32,14 +34,15 @@ class RegisterMiddleware implements MiddlewareInterface
             $data = $request->getParsedBody();
             $serverParams = $request->getServerParams();
             if (isset($serverParams['HTTP_CF_CONNECTING_IP'])) {
-                 $ipAddress = $serverParams['HTTP_CF_CONNECTING_IP'];
+                $ipAddress = $serverParams['HTTP_CF_CONNECTING_IP'];
             } else {
-                 $ipAddress = $serverParams['REMOTE_ADDR'];
+                $ipAddress = $serverParams['REMOTE_ADDR'];
             }
             $settings = app(SettingsRepositoryInterface::class);
-            $banlist = (array) json_decode($settings->get('fof-ban-ips.ips'));
+            $banlist = (array)json_decode($settings->get('fof-ban-ips.ips'));
 
             if (in_array($ipAddress, $banlist)) {
+                $translator = app('translator');
                 $error = new ResponseBag('422', [
                     [
                         'status' => '422',
@@ -47,7 +50,8 @@ class RegisterMiddleware implements MiddlewareInterface
                         'source' => [
                             'pointer' => '/data/attributes/username'
                         ],
-                        'detail' => 'Your IP has been flagged as a source of spam'
+
+                        'detail' => $translator->trans('fof-ban-ips.error')
                     ]
                 ]);
                 $document = new Document();

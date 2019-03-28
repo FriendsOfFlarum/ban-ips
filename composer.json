@@ -2,7 +2,11 @@
   "name": "fof/ban-ips",
   "description": "Adds the option to ban IP addresses.",
   "keywords": [
-    "flarum"
+    "flarum",
+    "ban",
+    "banned",
+    "ips",
+    "ip"
   ],
   "type": "flarum-extension",
   "license": "MIT",
@@ -12,6 +16,10 @@
   "authors": [
     {
       "name": "Kvothe",
+      "role": "Developer"
+    },
+    {
+      "name": "Christian Lopez",
       "role": "Developer"
     }
   ],

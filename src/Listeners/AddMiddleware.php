@@ -1,8 +1,11 @@
 <?php
+
 namespace FoF\BanIPs\Listeners;
+
 use Flarum\Event\ConfigureMiddleware;
 use Illuminate\Contracts\Events\Dispatcher;
 use FoF\BanIPs\Middleware\RegisterMiddleware;
+
 class AddMiddleware
 {
     /**
@@ -14,6 +17,7 @@ class AddMiddleware
     {
         $events->listen(ConfigureMiddleware::class, [$this, 'addMiddleware']);
     }
+
     public function addMiddleware(ConfigureMiddleware $event)
     {
         $event->pipe(app(RegisterMiddleware::class));

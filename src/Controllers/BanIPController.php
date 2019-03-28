@@ -3,7 +3,6 @@
 namespace FoF\BanIPs\Controllers;
 
 use Flarum\User\AssertPermissionTrait;
-use Flarum\User\User;
 use Flarum\Post\Post;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -16,6 +15,7 @@ class BanIPController implements RequestHandlerInterface
     use AssertPermissionTrait;
 
     protected $settings;
+
     /**
      * @param SettingsRepositoryInterface $settings
      */
@@ -23,6 +23,7 @@ class BanIPController implements RequestHandlerInterface
     {
         $this->settings = $settings;
     }
+
     /**
      * Handle the request and return a response.
      *
@@ -30,15 +31,14 @@ class BanIPController implements RequestHandlerInterface
      *
      * @return ResponseInterface
      */
-    public function handle(ServerRequestInterface $request) : ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $actor = $request->getAttribute('actor');
         $postId = array_get($request->getQueryParams(), 'id');
         $post = Post::findOrFail($postId);
-        $banlist = (array) json_decode($this->settings->get('fof-ban-ips.ips'), true);
+        $banlist = (array)json_decode($this->settings->get('fof-ban-ips.ips'), true);
         array_push($banlist, $post->ip_address);
         $this->settings->set('fof-ban-ips.ips', json_encode($banlist));
-        
+
         return (new Response())->withStatus(204);
     }
 }

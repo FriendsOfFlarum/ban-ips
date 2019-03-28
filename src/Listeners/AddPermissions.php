@@ -15,6 +15,7 @@ class AddPermissions
     {
         $events->listen(Serializing::class, [$this, 'serializing']);
     }
+
     /**
      * @param Serializing $event
      */

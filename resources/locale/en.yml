@@ -1,10 +1,11 @@
 fof-ban-ips:
   forum:
     button: Ban IP
-    ban-ip-confirmation: "Are you sure you want to \n• Prevent this IP from logging in and registering new users?"
+    ban-ip-confirmation: "Are you sure you want to \n Prevent this IP from logging in and registering new users?"
     already-banned: IP banned
   admin:
     settings:
       title: Ban IP Settings
       delete: Delete
       ip: IP Address
+  error: Your IP has been flagged as a source of spam and has been banned.

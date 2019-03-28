@@ -1,4 +1,5 @@
 <?php
+
 namespace FoF\BanIPs\Access;
 
 use Flarum\User\AbstractPolicy;
@@ -10,6 +11,7 @@ class UserPolicy extends AbstractPolicy
      * {@inheritdoc}
      */
     protected $model = User::class;
+
     /**
      * @param User $actor
      * @param User $user
