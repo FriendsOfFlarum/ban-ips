@@ -13,7 +13,6 @@ namespace FoF\BanIPs;
 
 use Flarum\Extend;
 use Illuminate\Contracts\Events\Dispatcher;
-use FoF\BanIPs\Api\Controller\ListBannedIPsController;
 
 return [
     (new Extend\Frontend('forum'))
@@ -24,7 +23,7 @@ return [
         ->css(__DIR__.'/resources/less/admin.less'),
     new Extend\Locales(__DIR__ . '/resources/locale'),
     (new Extend\Routes('api'))
-        ->get('/bannedips', 'bannedips.index', ListBannedIPsController::class),
+        ->get('/bannedips', 'fof.bannedips.index', Api\Controller\ListBannedIPsController::class),
     function (Dispatcher $events) {
     	$events->subscribe(Listeners\AddMiddleware::class);
         $events->subscribe(Listeners\InjectSettings::class);
