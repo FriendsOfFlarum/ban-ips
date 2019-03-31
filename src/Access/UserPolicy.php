@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\BanIPs\Access;
 
 use Flarum\User\AbstractPolicy;
@@ -18,9 +27,9 @@ class UserPolicy extends AbstractPolicy
      *
      * @return bool|null
      */
-    public function spamblock(User $actor, User $user)
+    public function banIP(User $actor, User $user)
     {
-        if ($actor->id === $user->id || $user->can('user.ipblock')) {
+        if ($actor->id === $user->id || $user->can('fof.banips.banIP')) {
             return false;
         }
     }

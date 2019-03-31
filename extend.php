@@ -16,18 +16,15 @@ use Illuminate\Contracts\Events\Dispatcher;
 
 return [
     (new Extend\Frontend('forum'))
-        ->js(__DIR__.'/js/dist/forum.js')
-        ->css(__DIR__.'/resources/less/forum.less'),
+        ->js(__DIR__ . '/js/dist/forum.js'),
     (new Extend\Frontend('admin'))
-        ->js(__DIR__.'/js/dist/admin.js')
-        ->css(__DIR__.'/resources/less/admin.less'),
+        ->js(__DIR__ . '/js/dist/admin.js'),
     new Extend\Locales(__DIR__ . '/resources/locale'),
     (new Extend\Routes('api'))
         ->get('/bannedips', 'fof.bannedips.index', Api\Controller\ListBannedIPsController::class),
     function (Dispatcher $events) {
-    	$events->subscribe(Listeners\AddMiddleware::class);
-        $events->subscribe(Listeners\InjectSettings::class);
-        $events->subscribe(Listeners\AddPermissions::class);
+        $events->subscribe(Listener\AddApiAttributes::class);
+        $events->subscribe(Listener\AddMiddleware::class);
         $events->subscribe(Access\UserPolicy::class);
     }
 

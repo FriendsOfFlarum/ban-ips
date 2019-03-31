@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\BanIPs\Middleware;
 
 use Flarum\Api\JsonApiResponse;
@@ -13,6 +22,9 @@ use Tobscure\JsonApi\Exception\Handler\ResponseBag;
 
 class RegisterMiddleware implements MiddlewareInterface
 {
+    /**
+     * @var SettingsRepositoryInterface
+     */
     protected $settings;
 
     /**
@@ -23,6 +35,11 @@ class RegisterMiddleware implements MiddlewareInterface
         $this->settings = $settings;
     }
 
+    /**
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
+     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $registerUri = '/register';
@@ -49,7 +66,7 @@ class RegisterMiddleware implements MiddlewareInterface
                             'pointer' => '/data/attributes/username'
                         ],
 
-                        'detail' => $translator->trans('fof-ban-ips.error')
+                        'detail' => $translator->trans('fof-ban-ips.error.banned_ip_message')
                     ]
                 ]);
                 $document = new Document();
