@@ -21,10 +21,10 @@ return [
         ->js(__DIR__ . '/js/dist/admin.js'),
     new Extend\Locales(__DIR__ . '/resources/locale'),
     (new Extend\Routes('api'))
-        ->get('/bannedips', 'fof.bannedips.index', Api\Controller\ListBannedIPsController::class),
+        ->get('/bannedips', 'fof.bannedips.index', Api\Controllers\ListBannedIPsController::class),
     function (Dispatcher $events) {
-        $events->subscribe(Listener\AddApiAttributes::class);
-        $events->subscribe(Listener\AddMiddleware::class);
+        $events->subscribe(Listeners\AddApiAttributes::class);
+        $events->subscribe(Listeners\AddMiddleware::class);
         $events->subscribe(Access\UserPolicy::class);
     }
 

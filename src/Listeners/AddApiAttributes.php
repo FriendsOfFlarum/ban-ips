@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\BanIPs\Listener;
+namespace FoF\BanIPs\Listeners;
 
 use Flarum\Api\Event\Serializing;
 use Flarum\Api\Serializer\PostSerializer;

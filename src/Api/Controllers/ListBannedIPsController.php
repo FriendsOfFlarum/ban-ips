@@ -9,10 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\BanIPs\Api\Controller;
+namespace FoF\BanIPs\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractListController;
-use FoF\BanIPs\Api\Serializer\BanIPSerializer;
+use Flarum\User\Exception\PermissionDeniedException;
+use FoF\BanIPs\Api\Serializers\BanIPSerializer;
 use FoF\BanIPs\BanIP;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tobscure\JsonApi\Document;
@@ -28,9 +29,13 @@ class ListBannedIPsController extends AbstractListController
      * @param Request $request
      * @param Document $document
      * @return BanIP[]|\Illuminate\Database\Eloquent\Collection|mixed
+     * @throws PermissionDeniedException
      */
     protected function data(Request $request, Document $document)
     {
+        if ($request->getAttribute('actor')->cannot('fof.banips.viewBannedIPList')) {
+            throw new PermissionDeniedException();
+        }
         return BanIP::all();
     }
 }

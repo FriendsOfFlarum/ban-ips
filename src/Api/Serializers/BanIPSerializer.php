@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\BanIPs\Api\Serializer;
+namespace FoF\BanIPs\Api\Serializers;
 
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\BasicUserSerializer;

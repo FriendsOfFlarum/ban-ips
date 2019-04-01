@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\BanIPs\Listener;
+namespace FoF\BanIPs\Listeners;
 
 use Flarum\Event\ConfigureMiddleware;
 use Illuminate\Contracts\Events\Dispatcher;
