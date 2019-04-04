@@ -11,17 +11,21 @@
 
 namespace FoF\BanIPs\Api\Controllers;
 
-use Flarum\Api\Controller\AbstractDeleteController;
+use Flarum\Api\Controller\AbstractShowController;
+use FoF\BanIPs\Api\Serializers\BanIPSerializer;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
-use FoF\BanIPs\Commands\DeleteBannedIP;
+use FoF\BanIPs\Commands\EditBannedIP;
+use Tobscure\JsonApi\Document;
 
-class DeleteBannedIPController extends AbstractDeleteController
+class UpdateBannedIPController extends AbstractShowController
 {
+    public $serializer = BanIPSerializer::class;
     /**
      * @var Dispatcher
      */
     protected $bus;
+
     /**
      * @param Dispatcher $bus
      */
@@ -29,13 +33,17 @@ class DeleteBannedIPController extends AbstractDeleteController
     {
         $this->bus = $bus;
     }
+
     /**
      * @param ServerRequestInterface $request
+     * @param Document $document
+     *
+     * @return mixed
      */
-    protected function delete(ServerRequestInterface $request)
+    protected function data(ServerRequestInterface $request, Document $document)
     {
-        $this->bus->dispatch(
-            new DeleteBannedIP(array_get($request->getQueryParams(), 'id'), $request->getAttribute('actor'))
+        return $this->bus->dispatch(
+            new EditBannedIP(array_get($request->getQueryParams(), 'id'), $request->getAttribute('actor'), array_get($request->getParsedBody(), 'data', []))
         );
     }
 }

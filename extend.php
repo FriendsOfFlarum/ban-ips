@@ -22,8 +22,9 @@ return [
     new Extend\Locales(__DIR__ . '/resources/locale'),
     (new Extend\Routes('api'))
         ->get('/bannedips', 'fof.bannedips.index', Api\Controllers\ListBannedIPsController::class)
-        ->get('/bannedips/{id}', 'fof.bannedips.show', Api\Controllers\ShowBannedIPController::class)
         ->post('/banip', 'fof.bannedips.store', Api\Controllers\CreateBannedIPController::class)
+        ->get('/bannedips/{id}', 'fof.bannedips.show', Api\Controllers\ShowBannedIPController::class)
+        ->patch('/bannedips/{id}', 'fof.bannedips.update', Api\Controllers\UpdateBannedIPController::class)
         ->delete('/bannedips/{id}', 'fof.bannedips.delete', Api\Controllers\DeleteBannedIPController::class),
     function (Dispatcher $events) {
         $events->subscribe(Listeners\AddApiAttributes::class);

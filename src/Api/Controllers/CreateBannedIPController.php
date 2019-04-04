@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\BanIPs\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractCreateController;
@@ -27,7 +36,7 @@ class CreateBannedIPController extends AbstractCreateController
         return BanIP::create([
             'post_id' => array_get($attributes, 'postID'),
             'user_id' => array_get($attributes, 'userID'),
-            'ip_address' => array_get($attributes, 'ipAddress', "::1")
+            'ip_address' => array_get($attributes, 'ipAddress', "::1"),
         ]);
     }
 }

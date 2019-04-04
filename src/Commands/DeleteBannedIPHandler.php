@@ -1,27 +1,41 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\BanIPs\Commands;
 
-use Flarum\User\User;
+use Flarum\User\AssertPermissionTrait;
+use Flarum\User\Exception\PermissionDeniedException;
+use FoF\BanIPs\BanIP;
 
-class DeleteBannedIP
+class DeleteBannedIPHandler
 {
-    /**
-     * @var int
-     */
-    public $bannedId;
-    /**
-     * @var User
-     */
-    public $actor;
+    use AssertPermissionTrait;
 
     /**
-     * @param int $bannedId
-     * @param User $actor
+     * @param DeleteBannedIP $command
+     *
+     * @throws PermissionDeniedException
+     *
+     * @return BanIP
      */
-    public function __construct($bannedId, User $actor)
+    public function handle(DeleteBannedIP $command)
     {
-        $this->bannedId = $bannedId;
-        $this->actor = $actor;
+        $actor = $command->actor;
+
+        $this->assertAdmin($actor);
+
+        $banIP = BanIP::where('id', $command->bannedId)->firstOrFail();
+
+        $banIP->delete();
+
+        return $banIP;
     }
 }
