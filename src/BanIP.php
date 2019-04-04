@@ -26,7 +26,10 @@ class BanIP extends AbstractModel
      */
     protected $dates = ['created_at'];
 
-
+    /**
+     * @var array
+     */
+    protected $guarded = [];
     /**
      *
      */
@@ -34,7 +37,6 @@ class BanIP extends AbstractModel
     {
         $this->belongsTo(Post::class);
     }
-
     /**
      *
      */
