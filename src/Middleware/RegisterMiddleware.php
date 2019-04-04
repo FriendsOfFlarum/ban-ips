@@ -54,7 +54,7 @@ class RegisterMiddleware implements MiddlewareInterface
             } else {
                 $ipAddress = $serverParams['REMOTE_ADDR'];
             }
-            $bannedIPAddress = BanIP::where('ip_address', $ipAddress)->first();
+            $bannedIPAddress = BanIP::where('ip_address', $ipAddress)->get();
 
             if ($bannedIPAddress) {
                 $translator = app('translator');
