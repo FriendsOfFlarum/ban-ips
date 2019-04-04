@@ -13,6 +13,7 @@ namespace FoF\BanIPs\Middleware;
 
 use Flarum\Api\JsonApiResponse;
 use Flarum\Settings\SettingsRepositoryInterface;
+use FoF\BanIPs\BanIP;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -53,10 +54,9 @@ class RegisterMiddleware implements MiddlewareInterface
             } else {
                 $ipAddress = $serverParams['REMOTE_ADDR'];
             }
-            $settings = app(SettingsRepositoryInterface::class);
-            $banlist = (array)json_decode($settings->get('fof-ban-ips.ips'));
+            $bannedIPAddress = BanIP::where('ip_address', $ipAddress)->first();
 
-            if (in_array($ipAddress, $banlist)) {
+            if ($bannedIPAddress) {
                 $translator = app('translator');
                 $error = new ResponseBag('422', [
                     [
