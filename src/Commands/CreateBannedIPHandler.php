@@ -16,7 +16,7 @@ use Flarum\User\Exception\PermissionDeniedException;
 use FoF\BanIPs\BanIP;
 use FoF\BanIPs\Validators\BanIPValidator;
 
-class CreateRankHandler
+class CreateBannedIPHandler
 {
     use AssertPermissionTrait;
 
