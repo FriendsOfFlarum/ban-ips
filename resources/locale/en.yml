@@ -15,4 +15,4 @@ fof-ban-ips:
       delete: Delete
       ip: IP Address
   error:
-    banned_ip_message: Your IP has been flagged as a source of spam and has been banned.
+    banned_ip_message: Authorization failed.
