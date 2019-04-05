@@ -14,7 +14,7 @@ namespace FoF\BanIPs\Commands;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
 use FoF\BanIPs\BanIP;
-use FoF\BanIPs\Validators\BanIPValidator;
+use FoF\BanIPs\BanIPValidator;
 
 class EditBannedIPHandler
 {
@@ -50,13 +50,13 @@ class EditBannedIPHandler
 
         $banIP = BanIP::where('id', $command->banId)->firstOrFail();
 
-        if (isset($attributes['userID']) && '' !== $attributes['userID']) {
-            $validate['userID'] = $attributes['userID'];
-            $banIP->updateUserID($attributes['userID']);
+        if (isset($attributes['userId']) && '' !== $attributes['userId']) {
+            $validate['userId'] = $attributes['userId'];
+            $banIP->updateUserId($attributes['userId']);
         }
-        if (isset($attributes['postID']) && '' !== $attributes['postID']) {
-            $validate['postID'] = $attributes['postID'];
-            $banIP->updatePostID($attributes['postID']);
+        if (isset($attributes['postId']) && '' !== $attributes['postId']) {
+            $validate['postId'] = $attributes['postId'];
+            $banIP->updatePostId($attributes['postId']);
         }
         if (isset($attributes['ipAddress']) && '' !== $attributes['ipAddress']) {
             $validate['ipAddress'] = $attributes['ipAddress'];

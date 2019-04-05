@@ -12,8 +12,7 @@
 namespace FoF\BanIPs\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractShowController;
-use FoF\BanIPs\Api\Serializers\BanIPSerializer;
-use FoF\BanIPs\BanIP;
+use FoF\BanIPs\BanIPRepository;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tobscure\JsonApi\Document;
 
@@ -22,17 +21,21 @@ class ShowBannedIPController extends AbstractShowController
     /**
      * @var string
      */
-    public $serializer = BanIPSerializer::class;
+    public $serializer = 'FoF\BanIPs\Api\Serializers\BanIPSerializer';
 
-    /**
-     * @param Request $request
-     * @param Document $document
-     * @return mixed
-     */
+    protected $banIP;
+
+    public function __construct(BanIPRepository $banIP)
+    {
+        $this->banIP = $banIP;
+    }
+
     protected function data(Request $request, Document $document)
     {
         $id = array_get($request->getQueryParams(), 'id');
 
-        return BanIP::findOrFail($id);
+        $actor = $request->getAttribute('actor');
+
+        return $this->banIP->findOrFail($id, $actor);
     }
 }

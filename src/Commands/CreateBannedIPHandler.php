@@ -13,7 +13,7 @@ namespace FoF\BanIPs\Commands;
 
 use Flarum\User\AssertPermissionTrait;
 use FoF\BanIPs\BanIP;
-use FoF\BanIPs\Validators\BanIPValidator;
+use FoF\BanIPs\BanIPValidator;
 
 class CreateBannedIPHandler
 {
@@ -47,8 +47,8 @@ class CreateBannedIPHandler
         $this->assertAdmin($actor);
 
         $banIP = BanIP::build(
-            array_get($data, 'attributes.userID'),
-            array_get($data, 'attributes.postID'),
+            array_get($data, 'attributes.userId'),
+            array_get($data, 'attributes.postId'),
             array_get($data, 'attributes.ipAddress')
         );
 

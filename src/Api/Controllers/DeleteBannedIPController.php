@@ -22,6 +22,7 @@ class DeleteBannedIPController extends AbstractDeleteController
      * @var Dispatcher
      */
     protected $bus;
+
     /**
      * @param Dispatcher $bus
      */
@@ -29,6 +30,7 @@ class DeleteBannedIPController extends AbstractDeleteController
     {
         $this->bus = $bus;
     }
+
     /**
      * @param ServerRequestInterface $request
      */

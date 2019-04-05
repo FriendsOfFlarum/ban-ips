@@ -30,8 +30,8 @@ class BanIPSerializer extends AbstractSerializer
     protected function getDefaultAttributes($banIP)
     {
         return [
-            'userID' => $banIP->user_id,
-            'postID' => $banIP->post_id,
+            'userId' => $banIP->user_id,
+            'postId' => $banIP->post_id,
             'ipAddress' => $banIP->ip_address,
             'createdAt' => $this->formatDate($banIP->created_at),
         ];

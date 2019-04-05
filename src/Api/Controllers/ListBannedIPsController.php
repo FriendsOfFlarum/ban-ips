@@ -13,8 +13,7 @@ namespace FoF\BanIPs\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractListController;
 use Flarum\User\Exception\PermissionDeniedException;
-use FoF\BanIPs\Api\Serializers\BanIPSerializer;
-use FoF\BanIPs\BanIP;
+use FoF\BanIPs\BanIPRepository;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tobscure\JsonApi\Document;
 
@@ -23,19 +22,36 @@ class ListBannedIPsController extends AbstractListController
     /**
      * @var string
      */
-    public $serializer = BanIPSerializer::class;
+    public $serializer = 'FoF\BanIPs\Api\Serializers\BanIPSerializer';
+
+    /**
+     * @var BanIPRepository
+     */
+    protected $banIP;
+
+    /**
+     * ListBannedIPsController constructor.
+     * @param BanIPRepository $banIP
+     */
+    public function __construct(BanIPRepository $banIP)
+    {
+        $this->banIP = $banIP;
+    }
 
     /**
      * @param Request $request
      * @param Document $document
-     * @return BanIP[]|\Illuminate\Database\Eloquent\Collection|mixed
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|mixed
      * @throws PermissionDeniedException
      */
     protected function data(Request $request, Document $document)
     {
+        $query = $this->banIP->query();
+
         if ($request->getAttribute('actor')->cannot('fof.banips.viewBannedIPList')) {
             throw new PermissionDeniedException();
         }
-        return BanIP::all();
+
+        return $query->get();
     }
 }

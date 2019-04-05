@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\BanIPs\Validators;
+namespace FoF\BanIPs;
 
 use Flarum\Foundation\AbstractValidator;
 
 class BanIPValidator extends AbstractValidator
 {
     protected $rules = [
-        'userID' => ['required', 'integer'],
-        'postID' => ['required', 'integer'],
+        'userId' => ['required', 'integer'],
+        'postId' => ['required', 'integer'],
         'ipAddress' => ['required', 'ip'],
     ];
 }
