@@ -25,7 +25,7 @@ class CreateBannedIPHandler
     protected $validator;
 
     /**
-     * CreateRankHandler constructor.
+     * CreateBannedIPHandler constructor.
      * @param BanIPValidator $validator
      */
     public function __construct(BanIPValidator $validator)
