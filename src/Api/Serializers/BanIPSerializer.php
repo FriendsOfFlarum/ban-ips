@@ -14,6 +14,7 @@ namespace FoF\BanIPs\Api\Serializers;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\BasicUserSerializer;
 use Flarum\Api\Serializer\PostSerializer;
+use Tobscure\JsonApi\Relationship;
 
 class BanIPSerializer extends AbstractSerializer
 {
@@ -23,32 +24,32 @@ class BanIPSerializer extends AbstractSerializer
     protected $type = 'banned_ip_addresses';
 
     /**
-     * @param array|object $bannedIPAddress
+     * @param array|object $banIP
      * @return array
      */
-    protected function getDefaultAttributes($bannedIPAddress)
+    protected function getDefaultAttributes($banIP)
     {
         return [
-            'userID' => $bannedIPAddress->user_id,
-            'postID' => $bannedIPAddress->post_id,
-            'ipAddress' => $bannedIPAddress->ip_address,
-            'createdAt' => $this->formatDate($bannedIPAddress->created_at),
+            'userID' => $banIP->user_id,
+            'postID' => $banIP->post_id,
+            'ipAddress' => $banIP->ip_address,
+            'createdAt' => $this->formatDate($banIP->created_at),
         ];
     }
 
     /**
-     * @param $bannedIPAddress
-     * @return \Tobscure\JsonApi\Relationship
+     * @param $banIP
+     * @return Relationship
      */
-    protected function post($bannedIPAddress) {
-        return $this->hasOne($bannedIPAddress, PostSerializer::class);
+    protected function post($banIP) {
+        return $this->hasOne($banIP, PostSerializer::class);
     }
 
     /**
-     * @param $bannedIPAddress
-     * @return \Tobscure\JsonApi\Relationship
+     * @param $banIP
+     * @return Relationship
      */
-    protected function user($bannedIPAddress) {
-        return $this->hasOne($bannedIPAddress, BasicUserSerializer::class);
+    protected function user($banIP) {
+        return $this->hasOne($banIP, BasicUserSerializer::class);
     }
 }

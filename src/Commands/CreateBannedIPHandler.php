@@ -12,7 +12,6 @@
 namespace FoF\BanIPs\Commands;
 
 use Flarum\User\AssertPermissionTrait;
-use Flarum\User\Exception\PermissionDeniedException;
 use FoF\BanIPs\BanIP;
 use FoF\BanIPs\Validators\BanIPValidator;
 
@@ -37,7 +36,7 @@ class CreateBannedIPHandler
     /**
      * @param CreateBannedIP $command
      * @return mixed
-     * @throws PermissionDeniedException
+     * @throws \Flarum\User\Exception\PermissionDeniedException
      * @throws \Illuminate\Validation\ValidationException
      */
     public function handle(CreateBannedIP $command)
