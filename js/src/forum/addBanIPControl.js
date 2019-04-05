@@ -14,7 +14,7 @@ export default function () {
   extend(PostControls, 'userControls', function (items, post) {
     const postIP = post.data.attributes.ipAddress;
     // TODO: Get Banned IP Addresses from banned_ip_addresses table.
-    const banList = false;
+    const banList = true;
 
     // Removes ability to ban thyself and also does permission check.
     if (!post.canBanIP || post.isHidden() || post.user() === app.session.user || post.contentType() !== 'comment') return;
