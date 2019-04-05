@@ -27,9 +27,23 @@ class BanIP extends AbstractModel
     protected $dates = ['created_at'];
 
     /**
-     * @var array
+     * @param $userID
+     * @param $postID
+     * @param $ipAddress
+     * @return BanIP
      */
-    protected $guarded = [];
+    public static function build($userID, $postID, $ipAddress)
+    {
+        $banIP = new static();
+
+        $banIP->user_id = $userID;
+        $banIP->post_id = $postID;
+        $banIP->ip_address = $ipAddress;
+
+        return $banIP;
+    }
+
+
     /**
      *
      */
@@ -37,6 +51,7 @@ class BanIP extends AbstractModel
     {
         $this->belongsTo(Post::class);
     }
+
     /**
      *
      */

@@ -12,8 +12,8 @@
 namespace FoF\BanIPs\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractCreateController;
-use FoF\BanIPs\Api\Serializers\BanIPSerializer;
-use FoF\BanIPs\BanIP;
+use FoF\BanIPs\Commands\CreateBannedIP;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tobscure\JsonApi\Document;
 
@@ -22,7 +22,21 @@ class CreateBannedIPController extends AbstractCreateController
     /**
      * @var string
      */
-    public $serializer = BanIPSerializer::class;
+    public $serializer = 'FoF\BanIPs\Api\Serializers\BanIPSerializer';
+
+    /**
+     * @var Dispatcher
+     */
+    protected $bus;
+
+    /**
+     * CreateBannedIPController constructor.
+     * @param Dispatcher $bus
+     */
+    public function __construct(Dispatcher $bus)
+    {
+        $this->bus = $bus;
+    }
 
     /**
      * @param Request $request
@@ -31,12 +45,8 @@ class CreateBannedIPController extends AbstractCreateController
      */
     protected function data(Request $request, Document $document)
     {
-        $attributes = array_get($request->getParsedBody(), 'data.attributes');
-
-        return BanIP::create([
-            'post_id' => array_get($attributes, 'postID'),
-            'user_id' => array_get($attributes, 'userID'),
-            'ip_address' => array_get($attributes, 'ipAddress', "::1"),
-        ]);
+        return $this->bus->dispatch(
+            new CreateBannedIP($request->getAttribute('actor'), array_get($request->getParsedBody(), 'data'))
+        );
     }
 }
