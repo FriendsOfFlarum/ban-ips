@@ -46,7 +46,7 @@ class EditBannedIPHandler
 
         $validate = [];
 
-        $this->assertAdmin($actor);
+        $this->assertCan($actor, 'fof.banips.banIP');
 
         $banIP = BanIP::where('id', $command->banId)->firstOrFail();
 

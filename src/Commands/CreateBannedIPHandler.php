@@ -44,7 +44,7 @@ class CreateBannedIPHandler
         $actor = $command->actor;
         $data = $command->data;
 
-        $this->assertAdmin($actor);
+        $this->assertCan($actor, 'fof.banips.banIP');
 
         $banIP = BanIP::build(
             array_get($data, 'attributes.userId'),

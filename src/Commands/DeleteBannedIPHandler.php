@@ -30,7 +30,7 @@ class DeleteBannedIPHandler
     {
         $actor = $command->actor;
 
-        $this->assertAdmin($actor);
+        $this->assertCan($actor, 'fof.banips.banIP');
 
         $banIP = BanIP::where('id', $command->bannedId)->firstOrFail();
 
