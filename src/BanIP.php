@@ -20,7 +20,7 @@ use Flarum\User\User;
  * @property integer userId
  * @property integer postId
  * @property string ipAddress
- * @property Carbon time
+ * @property \Carbon\Carbon|null $created_at
  */
 
 class BanIP extends AbstractModel
@@ -48,9 +48,20 @@ class BanIP extends AbstractModel
         $banIP->user_id = $userId;
         $banIP->post_id = $postId;
         $banIP->ip_address = $ipAddress;
-        $banIP->created_at = time();
+        $banIP->created_at = Carbon::now();
 
         return $banIP;
+    }
+
+    /**
+     * @param $ipAddress
+     * @return $this
+     */
+    public function updateIPAddress($ipAddress)
+    {
+        $this->ip_address = $ipAddress;
+
+        return $this;
     }
 
     /**

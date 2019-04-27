@@ -30,31 +30,41 @@ class BanIPRepository
      * Find a banned IP address by ID.
      *
      * @param int $id
-     * @param User $user
+     * @param User $actor
      *
      * @return BanIP
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      */
-    public function findOrFail($id, User $user = null)
+    public function findOrFail($id, User $actor = null)
     {
         $query = BanIP::where('id', $id);
 
-        return $this->scopeVisibleTo($query, $user)->firstOrFail();
+        return $this->scopeVisibleTo($query, $actor)->firstOrFail();
+    }
+
+    /**
+     * Find a user by IP Address.
+     *
+     * @param string $ipAddress
+     * @return User|null
+     */
+    public function findByEmail($ipAddress)
+    {
+        return BanIP::where('ip_address', $ipAddress)->first();
     }
 
     /**
      * Scope a query to only include records that are visible to a user.
      *
      * @param Builder $query
-     * @param User $user
-     *
+     * @param User $actor
      * @return Builder
      */
-    protected function scopeVisibleTo(Builder $query, User $user = null)
+    protected function scopeVisibleTo(Builder $query, User $actor = null)
     {
-        if ($user !== null && !$user->isAdmin()) {
-            $query->whereIsHidden(0);
+        if ($actor !== null) {
+            $query->whereVisibleTo($actor);
         }
         return $query;
     }

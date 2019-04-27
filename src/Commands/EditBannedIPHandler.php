@@ -62,6 +62,7 @@ class EditBannedIPHandler
             $validate['ipAddress'] = $attributes['ipAddress'];
             $banIP->updateIPAddress($attributes['ipAddress']);
         }
+
         $this->validator->assertValid(array_merge($banIP->getDirty(), $validate));
 
         $banIP->save();
