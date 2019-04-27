@@ -44,12 +44,12 @@ class BanIPRepository
     }
 
     /**
-     * Find a user by IP Address.
+     * Find by IP Address.
      *
      * @param string $ipAddress
      * @return User|null
      */
-    public function findByEmail($ipAddress)
+    public function findByIPAddress($ipAddress)
     {
         return BanIP::where('ip_address', $ipAddress)->first();
     }
