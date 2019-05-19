@@ -12,23 +12,21 @@
 namespace FoF\BanIPs;
 
 use Flarum\Extend;
-use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Events\Dispatcher;
 
 return [
     (new Extend\Frontend('forum'))
-        ->js(__DIR__.'/js/dist/forum.js')
-        ->css(__DIR__.'/resources/less/forum.less'),
+        ->js(__DIR__.'/js/dist/forum.js'),
     (new Extend\Frontend('admin'))
-        ->js(__DIR__.'/js/dist/admin.js')
-        ->css(__DIR__.'/resources/less/admin.less'),
-    new Extend\Locales(__DIR__ . '/resources/locale'),
+        ->js(__DIR__.'/js/dist/admin.js'),
+    new Extend\Locales(__DIR__ . '/locale'),
     (new Extend\Routes('api'))
-    	->post('/posts/{id}/banip', 'posts.banip', Controllers\BanIPController::class),
+        ->get('/fof/ban-ips/check-other-users/{user}', 'fof.ban-ips.check', Api\Controllers\CheckIPsController::class)
+        ->post('/fof/ban-ips/bans', 'fof.ban-ips.store', Api\Controllers\CreateBannedIPController::class)
+        ->post('/fof/ban-ips/bans/chunk', 'fof.ban-ips.store.chunk', Api\Controllers\CreateBannedIPsController::class),
     function (Dispatcher $events) {
-    	$events->subscribe(Listeners\AddMiddleware::class);
-        $events->subscribe(Listeners\InjectSettings::class);
-        $events->subscribe(Listeners\AddPermissions::class);
         $events->subscribe(Access\UserPolicy::class);
-    }
 
+        $events->subscribe(Listeners\AddApiAttributes::class);
+    }
 ];

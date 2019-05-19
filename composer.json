@@ -1,6 +1,6 @@
 {
   "name": "fof/ban-ips",
-  "description": "Adds the option to ban IP addresses.",
+  "description": "Ban IP addresses from your forum",
   "keywords": [
     "flarum"
   ],
@@ -11,7 +11,8 @@
   },
   "authors": [
     {
-      "name": "Kvothe",
+      "name": "David Sevilla Martín",
+      "email": "david.s@redevs.org",
       "role": "Developer"
     }
   ],
@@ -22,11 +23,11 @@
   },
   "extra": {
     "flarum-extension": {
-      "title": "Ban IPs",
+      "title": "FoF Ban IPs",
       "icon": {
         "name": "fas fa-ban",
-        "backgroundColor": "#333",
-        "color": "#9f0000"
+        "backgroundColor": "#e74c3c",
+        "color": "#fff"
       }
     },
     "flagrow": {
