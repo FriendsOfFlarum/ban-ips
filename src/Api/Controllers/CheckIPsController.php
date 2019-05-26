@@ -6,6 +6,7 @@ use Flarum\Api\Controller\AbstractListController;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\User\AssertPermissionTrait;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use Illuminate\Support\Arr;
@@ -48,7 +49,7 @@ class CheckIPsController extends AbstractListController
 
         $this->assertCan($request->getAttribute('actor'), 'banIP', $user);
 
-//        if (isset($ip) && $this->bannedIPs->findByIPAddress($ip) != null) throw new RouteNotFoundException();
+        if (isset($ip) && $this->bannedIPs->findByIPAddress($ip) != null) throw new PermissionDeniedException();
         if (!isset($ip) && !isset($user)) throw new RouteNotFoundException();
 
         $ips = Arr::wrap(

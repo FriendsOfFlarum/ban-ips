@@ -42,8 +42,6 @@ class AddApiAttributes
         }
 
         if ($event->isSerializer(UserSerializer::class)) {
-            if ($event->model->id == 1) return;
-
             $event->attributes['isBanned'] = $this->bannedIPs->isUserBanned($event->model);
         }
     }
