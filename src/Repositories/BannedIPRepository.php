@@ -1,8 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\BanIPs\Repositories;
-
 
 use Flarum\Post\Post;
 use Flarum\User\User;
@@ -27,12 +34,12 @@ class BannedIPRepository
     /**
      * Find a banned IP address by ID.
      *
-     * @param int $id
+     * @param int  $id
      * @param User $actor
      *
-     * @return BannedIP
      * @throws ModelNotFoundException
      *
+     * @return BannedIP
      */
     public function findOrFail($id, User $actor = null)
     {
@@ -45,6 +52,7 @@ class BannedIPRepository
      * Find by IP Address.
      *
      * @param string $ipAddress
+     *
      * @return BannedIP|null
      */
     public function findByIPAddress($ipAddress)
@@ -53,12 +61,16 @@ class BannedIPRepository
     }
 
     /**
-     * @param User $user
+     * @param User     $user
      * @param string[] $ips
+     *
      * @return Collection
      */
-    public function findOtherUsers(User $user, $ips) {
-        if (empty($ips)) return [];
+    public function findOtherUsers(User $user, $ips)
+    {
+        if (empty($ips)) {
+            return [];
+        }
 
         return $this->findUsers($ips)
             ->where('id', '!=', $user->id);
@@ -66,9 +78,11 @@ class BannedIPRepository
 
     /**
      * @param array|string $ips
+     *
      * @return Collection
      */
-    public function findUsers($ips) {
+    public function findUsers($ips)
+    {
         return Post::whereIn('ip_address', Arr::wrap($ips))
             ->with('user')
             ->get()
@@ -83,11 +97,13 @@ class BannedIPRepository
     /**
      * @param User $user
      */
-    public function isUserBanned(User $user) {
+    public function isUserBanned(User $user)
+    {
         return $user->cannot('banIP') && BannedIP::where('address', $this->getUserIPs($user)->toArray())->exists();
     }
 
-    public function getUserIPs(User $user) {
+    public function getUserIPs(User $user)
+    {
         return $user->posts()->whereNotNull('ip_address')->pluck('ip_address')->unique();
     }
 
@@ -95,7 +111,8 @@ class BannedIPRepository
      * Scope a query to only include records that are visible to a user.
      *
      * @param Builder $query
-     * @param User $actor
+     * @param User    $actor
+     *
      * @return Builder
      */
     protected function scopeVisibleTo(Builder $query, User $actor = null)

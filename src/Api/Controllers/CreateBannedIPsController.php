@@ -1,8 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\BanIPs\Api\Controllers;
-
 
 use Flarum\Api\Controller\AbstractListController;
 use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
@@ -25,6 +32,7 @@ class CreateBannedIPsController extends AbstractListController
 
     /**
      * CreateBannedIPController constructor.
+     *
      * @param Dispatcher $bus
      */
     public function __construct(Dispatcher $bus)
@@ -36,7 +44,8 @@ class CreateBannedIPsController extends AbstractListController
      * Get the data to be serialized and assigned to the response document.
      *
      * @param ServerRequestInterface $request
-     * @param Document $document
+     * @param Document               $document
+     *
      * @return mixed
      */
     protected function data(ServerRequestInterface $request, Document $document)

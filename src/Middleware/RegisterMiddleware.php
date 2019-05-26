@@ -1,10 +1,17 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\BanIPs\Middleware;
 
 use Flarum\Api\JsonApiResponse;
-use Flarum\Foundation\ValidationException;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -49,12 +56,12 @@ class RegisterMiddleware implements MiddlewareInterface
                 $error = new ResponseBag('422', [
                     [
                         'status' => '422',
-                        'code' => 'validation_error',
+                        'code'   => 'validation_error',
                         'source' => [
-                            'pointer' => '/data/attributes/ip'
+                            'pointer' => '/data/attributes/ip',
                         ],
-                        'detail' => app('translator')->trans('fof-ban-ips.error.banned_ip_message')
-                    ]
+                        'detail' => app('translator')->trans('fof-ban-ips.error.banned_ip_message'),
+                    ],
                 ]);
 
                 $document = new Document();

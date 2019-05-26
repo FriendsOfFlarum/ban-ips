@@ -20,7 +20,7 @@ return [
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
         ->css(__DIR__.'/resources/less/admin.less'),
-    new Extend\Locales(__DIR__ . '/resources/locale'),
+    new Extend\Locales(__DIR__.'/resources/locale'),
     (new Extend\Routes('api'))
         ->get('/fof/ban-ips/check-users', 'fof.ban-ips.check', Api\Controllers\CheckIPsController::class)
         ->get('/fof/ban-ips/check-users/{user}', 'fof.ban-ips.check-other-users', Api\Controllers\CheckIPsController::class)
@@ -32,5 +32,5 @@ return [
         $events->subscribe(Listeners\AddApiAttributes::class);
         $events->subscribe(Listeners\AddMiddleware::class);
         $events->subscribe(Listeners\RemoveAccessToBannedUsers::class);
-    }
+    },
 ];

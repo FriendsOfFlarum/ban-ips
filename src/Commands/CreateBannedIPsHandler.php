@@ -1,5 +1,13 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\BanIPs\Commands;
 
@@ -33,8 +41,9 @@ class CreateBannedIPsHandler
 
     /**
      * CreateBannedIPHandler constructor.
-     * @param Dispatcher $bus
-     * @param DispatcherEvents $events
+     *
+     * @param Dispatcher        $bus
+     * @param DispatcherEvents  $events
      * @param BannedIPValidator $validator
      */
     public function __construct(Dispatcher $bus, DispatcherEvents $events, BannedIPValidator $validator)
@@ -46,6 +55,7 @@ class CreateBannedIPsHandler
 
     /**
      * @param CreateBannedIPs $command
+     *
      * @return mixed
      */
     public function handle(CreateBannedIPs $command)

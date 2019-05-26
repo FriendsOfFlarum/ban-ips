@@ -1,10 +1,20 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\BanIPs;
 
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\User;
+
 /**
  * @property User $creator
  * @property User $user
@@ -33,6 +43,7 @@ class BannedIP extends AbstractModel
      * @param $userId
      * @param $address
      * @param null $reason
+     *
      * @return BannedIP
      */
     public static function build($creatorId, $userId, $address, $reason = null)

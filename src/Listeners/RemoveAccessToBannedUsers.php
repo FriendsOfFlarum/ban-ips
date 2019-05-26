@@ -1,8 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\BanIPs\Listeners;
-
 
 use Flarum\Http\SessionAuthenticator;
 use Flarum\User\User;
@@ -38,12 +45,13 @@ class RemoveAccessToBannedUsers
         $events->listen(IPWasBanned::class, [$this, 'removeAccess']);
     }
 
-    public function removeAccess(IPWasBanned $event) {
+    public function removeAccess(IPWasBanned $event)
+    {
         $bannedIP = $event->bannedIP;
         $users = $this->bannedIPs->findUsers($bannedIP->address);
 
         foreach ($users as $user) {
-            /**
+            /*
              * @var User $user
              */
 

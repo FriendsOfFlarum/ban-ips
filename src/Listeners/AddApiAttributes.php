@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\BanIPs\Listeners;
 
 use Flarum\Api\Controller\ShowForumController;
@@ -46,7 +55,8 @@ class AddApiAttributes
         }
     }
 
-    public function addRelationship(GetApiRelationship $event) {
+    public function addRelationship(GetApiRelationship $event)
+    {
         if ($event->isRelationship(ForumSerializer::class, 'banned_ips')) {
             return $event->serializer->hasMany($event->model, BannedIPSerializer::class, 'banned_ips');
         }

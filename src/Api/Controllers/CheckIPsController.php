@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\BanIPs\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractListController;
@@ -36,7 +45,8 @@ class CheckIPsController extends AbstractListController
      * Get the data to be serialized and assigned to the response document.
      *
      * @param ServerRequestInterface $request
-     * @param Document $document
+     * @param Document               $document
+     *
      * @return mixed
      */
     protected function data(ServerRequestInterface $request, Document $document)
@@ -49,9 +59,12 @@ class CheckIPsController extends AbstractListController
 
         $this->assertCan($request->getAttribute('actor'), 'banIP', $user);
 
-        if (isset($ip) && $this->bannedIPs->findByIPAddress($ip) != null) throw new PermissionDeniedException();
-        if (!isset($ip) && !isset($user)) throw new RouteNotFoundException();
-
+        if (isset($ip) && $this->bannedIPs->findByIPAddress($ip) != null) {
+            throw new PermissionDeniedException();
+        }
+        if (!isset($ip) && !isset($user)) {
+            throw new RouteNotFoundException();
+        }
         $ips = Arr::wrap(
             $ip ?? $user->posts()->whereNotNull('ip_address')->pluck('ip_address')->unique()
         );
