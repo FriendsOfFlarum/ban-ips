@@ -189,15 +189,15 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = (function () {
   Object(flarum_extend__WEBPACK_IMPORTED_MODULE_0__["extend"])(flarum_utils_PostControls__WEBPACK_IMPORTED_MODULE_1___default.a, 'userControls', function (items, post) {
-    var postIP = post.ipAddress(); // TODO: Get Banned IP Addresses from banned_ip_addresses table.
-
-    var isBanned = false; // Removes ability to ban thyself and also does permission check.
+    var postIP = post.ipAddress();
+    var isBanned = post.user().isBanned(); // Removes ability to ban thyself and also does permission check.
 
     if (!post.canBanIP() || post.isHidden() || post.user() === app.session.user || post.contentType() !== 'comment') return;
     items.add('banip', flarum_components_Button__WEBPACK_IMPORTED_MODULE_2___default.a.component({
       children: app.translator.trans(!isBanned ? 'fof-ban-ips.forum.ban_ip_button' : 'fof-ban-ips.forum.already_banned_ip_button'),
       className: 'Button Button--link',
       icon: 'fas fa-ban',
+      disabled: isBanned,
       onclick: function onclick() {
         return app.modal.show(new _components_BanIPModal__WEBPACK_IMPORTED_MODULE_3__["default"]({
           post: post
@@ -263,7 +263,7 @@ function (_Modal) {
   };
 
   _proto.title = function title() {
-    return app.translator.trans('fof-ban-ips.forum.modal.title');
+    return app.translator.trans('fof-ban-ips.lib.modal.title');
   };
 
   _proto.content = function content() {
@@ -275,7 +275,7 @@ function (_Modal) {
     });
     return m("div", {
       className: "Modal-body"
-    }, m("p", null, app.translator.trans('fof-ban-ips.forum.modal.ban_ip_confirmation')), m("div", {
+    }, m("p", null, app.translator.trans('fof-ban-ips.forum.ban_ip_confirmation')), m("div", {
       className: "Form-group"
     }, this.banOptions.map(function (key) {
       return m("div", null, m("input", {
@@ -299,12 +299,12 @@ function (_Modal) {
       className: "FormControl",
       bidi: this.reason
     })), otherUsersBanned ? otherUsersBanned.length ? flarum_components_Alert__WEBPACK_IMPORTED_MODULE_3___default.a.component({
-      children: app.translator.trans('fof-ban-ips.forum.modal.ban_ip_users', {
+      children: app.translator.trans('fof-ban-ips.lib.modal.ban_ip_users', {
         users: flarum_helpers_punctuateSeries__WEBPACK_IMPORTED_MODULE_4___default()(usernames)
       }),
       dismissible: false
     }) : flarum_components_Alert__WEBPACK_IMPORTED_MODULE_3___default.a.component({
-      children: 'No one else will be banned',
+      children: app.translator.trans('fof-ban-ips.forum.modal.ban_ip_no_users'),
       dismissible: false,
       type: 'success'
     }) : '', otherUsersBanned && m("br", null), m("div", {
@@ -313,7 +313,7 @@ function (_Modal) {
       className: "Button Button--primary",
       type: "submit",
       loading: this.loading
-    }, usernames ? app.translator.trans('fof-ban-ips.forum.modal.submit_button') : app.translator.trans('fof-ban-ips.forum.modal.check_button'))));
+    }, usernames ? app.translator.trans('fof-ban-ips.lib.modal.submit_button') : app.translator.trans('fof-ban-ips.lib.modal.check_button'))));
   };
 
   _proto.onsubmit = function onsubmit(e) {
@@ -349,7 +349,7 @@ function (_Modal) {
     if (this.banOption() === 'only') data.ip = this.post.ipAddress();
     app.request({
       data: data,
-      url: app.forum.attribute('apiUrl') + "/fof/ban-ips/check-other-users/" + this.user.id(),
+      url: app.forum.attribute('apiUrl') + "/fof/ban-ips/check-users/" + this.user.id(),
       method: 'GET',
       errorHandler: this.onerror.bind(this)
     }).then(function (res) {
@@ -379,16 +379,21 @@ function (_Modal) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var flarum_Model__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! flarum/Model */ "flarum/Model");
 /* harmony import */ var flarum_Model__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(flarum_Model__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _addBanIPControl__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./addBanIPControl */ "./src/forum/addBanIPControl.js");
-/* harmony import */ var _common_models_BannedIP__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../common/models/BannedIP */ "./src/common/models/BannedIP.js");
+/* harmony import */ var flarum_models_Forum__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flarum/models/Forum */ "flarum/models/Forum");
+/* harmony import */ var flarum_models_Forum__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flarum_models_Forum__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _addBanIPControl__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./addBanIPControl */ "./src/forum/addBanIPControl.js");
+/* harmony import */ var _common_models_BannedIP__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../common/models/BannedIP */ "./src/common/models/BannedIP.js");
+
 
 
 
 app.initializers.add('fof/ban-ips', function () {
   app.store.models.posts.prototype.canBanIP = flarum_Model__WEBPACK_IMPORTED_MODULE_0___default.a.attribute('canBanIP');
   app.store.models.posts.prototype.ipAddress = flarum_Model__WEBPACK_IMPORTED_MODULE_0___default.a.attribute('ipAddress');
-  app.store.models.banned_ips = _common_models_BannedIP__WEBPACK_IMPORTED_MODULE_2__["default"];
-  Object(_addBanIPControl__WEBPACK_IMPORTED_MODULE_1__["default"])();
+  app.store.models.users.prototype.isBanned = flarum_Model__WEBPACK_IMPORTED_MODULE_0___default.a.attribute('isBanned');
+  app.store.models.banned_ips = _common_models_BannedIP__WEBPACK_IMPORTED_MODULE_3__["default"];
+  flarum_models_Forum__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.bannedIPs = flarum_Model__WEBPACK_IMPORTED_MODULE_0___default.a.hasMany('banned_ips');
+  Object(_addBanIPControl__WEBPACK_IMPORTED_MODULE_2__["default"])();
 });
 
 /***/ }),
@@ -467,6 +472,17 @@ module.exports = flarum.core.compat['helpers/punctuateSeries'];
 /***/ (function(module, exports) {
 
 module.exports = flarum.core.compat['helpers/username'];
+
+/***/ }),
+
+/***/ "flarum/models/Forum":
+/*!*****************************************************!*\
+  !*** external "flarum.core.compat['models/Forum']" ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = flarum.core.compat['models/Forum'];
 
 /***/ }),
 

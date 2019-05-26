@@ -9,6 +9,8 @@ use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 
 class BannedIPRepository
 {
@@ -53,20 +55,40 @@ class BannedIPRepository
     /**
      * @param User $user
      * @param string[] $ips
-     * @return array
+     * @return Collection
      */
     public function findOtherUsers(User $user, $ips) {
         if (empty($ips)) return [];
 
-        return Post::whereIn('ip_address', $ips)
-            ->where('user_id', '!=', $user->id)
+        return $this->findUsers($ips)
+            ->where('id', '!=', $user->id);
+    }
+
+    /**
+     * @param array|string $ips
+     * @return Collection
+     */
+    public function findUsers($ips) {
+        return Post::whereIn('ip_address', Arr::wrap($ips))
             ->with('user')
             ->get()
             ->pluck('user')
+            ->unique()
+            ->filter()
             ->filter(function (User $user) {
                 return $user->cannot('banIP');
-            })
-            ->unique();
+            });
+    }
+
+    /**
+     * @param User $user
+     */
+    public function isUserBanned(User $user) {
+        return $user->cannot('banIP') && BannedIP::where('address', $this->getUserIPs($user)->toArray())->exists();
+    }
+
+    public function getUserIPs(User $user) {
+        return $user->posts()->whereNotNull('ip_address')->pluck('ip_address')->unique();
     }
 
     /**

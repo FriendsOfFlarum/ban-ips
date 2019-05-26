@@ -11,7 +11,6 @@ use FoF\BanIPs\Repositories\BannedIPRepository;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
-use InvalidArgumentException;
 
 class CheckIPsController extends AbstractListController
 {
@@ -20,11 +19,11 @@ class CheckIPsController extends AbstractListController
     /**
      * @var BannedIPRepository
      */
-    private $bannedIps;
+    private $bannedIPs;
 
-    public function __construct(BannedIPRepository $bannedIps)
+    public function __construct(BannedIPRepository $bannedIPs)
     {
-        $this->bannedIps = $bannedIps;
+        $this->bannedIPs = $bannedIPs;
     }
 
     /**
@@ -43,19 +42,21 @@ class CheckIPsController extends AbstractListController
     {
         $this->assertCan($request->getAttribute('actor'), 'banIP');
 
-        $userId = $request->getQueryParams()['user'];
-        $user = User::where('id', $userId)->orWhere('username', $userId)->firstOrFail();
+        $userId = Arr::get($request->getQueryParams(), 'user');
+        $user = $userId != null ? User::where('id', $userId)->orWhere('username', $userId)->first() : null;
         $ip = Arr::get($request->getQueryParams(), 'ip');
 
         $this->assertCan($request->getAttribute('actor'), 'banIP', $user);
 
-        if (isset($ip) && $this->bannedIps->findByIPAddress($ip) != null) throw new RouteNotFoundException();
+//        if (isset($ip) && $this->bannedIPs->findByIPAddress($ip) != null) throw new RouteNotFoundException();
+        if (!isset($ip) && !isset($user)) throw new RouteNotFoundException();
 
         $ips = Arr::wrap(
             $ip ?? $user->posts()->whereNotNull('ip_address')->pluck('ip_address')->unique()
         );
 
-
-        return $this->bannedIps->findOtherUsers($user, $ips);
+        return $user != null
+            ? $this->bannedIPs->findOtherUsers($user, $ips)
+            : $this->bannedIPs->findUsers($ips);
     }
 }

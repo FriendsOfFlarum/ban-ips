@@ -23,7 +23,7 @@ export default class BanIPModal extends Modal {
     }
 
     title() {
-        return app.translator.trans('fof-ban-ips.forum.modal.title');
+        return app.translator.trans('fof-ban-ips.lib.modal.title');
     }
 
     content() {
@@ -33,7 +33,7 @@ export default class BanIPModal extends Modal {
 
         return (
             <div className="Modal-body">
-                <p>{app.translator.trans('fof-ban-ips.forum.modal.ban_ip_confirmation')}</p>
+                <p>{app.translator.trans('fof-ban-ips.forum.ban_ip_confirmation')}</p>
 
                 <div className="Form-group">
                     {this.banOptions.map(key => (
@@ -64,11 +64,11 @@ export default class BanIPModal extends Modal {
                 {otherUsersBanned
                     ? otherUsersBanned.length
                         ? Alert.component({
-                              children: app.translator.trans('fof-ban-ips.forum.modal.ban_ip_users', { users: punctuateSeries(usernames) }),
+                              children: app.translator.trans('fof-ban-ips.lib.modal.ban_ip_users', { users: punctuateSeries(usernames) }),
                               dismissible: false,
                           })
                         : Alert.component({
-                              children: 'No one else will be banned',
+                              children: app.translator.trans('fof-ban-ips.forum.modal.ban_ip_no_users'),
                               dismissible: false,
                               type: 'success',
                           })
@@ -79,8 +79,8 @@ export default class BanIPModal extends Modal {
                 <div className="Form-group">
                     <Button className="Button Button--primary" type="submit" loading={this.loading}>
                         {usernames
-                            ? app.translator.trans('fof-ban-ips.forum.modal.submit_button')
-                            : app.translator.trans('fof-ban-ips.forum.modal.check_button')}
+                            ? app.translator.trans('fof-ban-ips.lib.modal.submit_button')
+                            : app.translator.trans('fof-ban-ips.lib.modal.check_button')}
                     </Button>
                 </div>
             </div>
@@ -130,7 +130,7 @@ export default class BanIPModal extends Modal {
 
         app.request({
             data,
-            url: `${app.forum.attribute('apiUrl')}/fof/ban-ips/check-other-users/${this.user.id()}`,
+            url: `${app.forum.attribute('apiUrl')}/fof/ban-ips/check-users/${this.user.id()}`,
             method: 'GET',
             errorHandler: this.onerror.bind(this),
         })

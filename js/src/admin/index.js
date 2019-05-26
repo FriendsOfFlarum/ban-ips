@@ -1,22 +1,15 @@
-import { extend } from 'flarum/extend';
-import PermissionGrid from 'flarum/components/PermissionGrid';
+import Model from 'flarum/Model';
+import Forum from 'flarum/models/Forum';
 
 import BannedIP from '../common/models/BannedIP';
+import addPermissions from './addPermissions';
+import addSettingsPage from './addSettingsPage';
 
 app.initializers.add('fof/ban-ips', () => {
     app.store.models.banned_ips = BannedIP;
 
-    extend(PermissionGrid.prototype, 'moderateItems', items => {
-        items.add('viewBannedIPList', {
-            icon: 'fas fa-ban',
-            label: app.translator.trans('fof-ban-ips.admin.permissions.view_banned_ip_list_label'),
-            permission: 'fof.ban-ips.viewBannedIPList',
-        });
+    Forum.prototype.bannedIPs = Model.hasMany('banned_ips');
 
-        items.add('banIP', {
-            icon: 'fas fa-ban',
-            label: app.translator.trans('fof-ban-ips.admin.permissions.ban_ip_label'),
-            permission: 'fof.ban-ips.banIP',
-        });
-    });
+    addPermissions();
+    addSettingsPage();
 });

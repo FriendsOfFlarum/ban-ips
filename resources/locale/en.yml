@@ -1,0 +1,36 @@
+fof-ban-ips:
+  forum:
+    ban_ip_button: => fof-ban-ips.ref.ban_ip_button
+    already_banned_ip_button: IP is Already Banned
+
+    modal:
+      ban_options_only_ip: Only ban current IP (<code>{ip}</code>)
+      ban_options_all_ip: Ban all IPs used by <i>{username}</i>
+      ban_ip: No one else will be banned
+
+  admin:
+    permissions:
+      ban_ip_label: => fof-ban-ips.ref.ban_ip_addresses
+      view_banned_ip_list_label: View banned IP address list
+
+    page:
+      about_text: => fof-ban-ips.ref.ban_ip_addresses
+      create_button: => fof-ban-ips.ref.ban_ip_button
+
+    modal:
+      ban_ip_no_users: No one will be banned
+
+  error:
+    banned_ip_message: Authorization failed.
+
+  lib:
+    modal:
+      title: Ban IP Address
+      ban_ip_confirmation: "Are you sure you want to block this IP address from use on the forum? This will block users with this IP address(es) from logging in and registering."
+      check_button: Check
+      ban_ip_users: Users {users} will be banned
+      submit_button: Ban
+
+  ref:
+    ban_ip_addresses: Ban IP addresses
+    ban_ip_button: Ban IP

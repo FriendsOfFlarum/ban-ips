@@ -119,11 +119,11 @@ function _inheritsLoose(subClass, superClass) {
 
 /***/ }),
 
-/***/ "./src/admin/index.js":
-/*!****************************!*\
-  !*** ./src/admin/index.js ***!
-  \****************************/
-/*! no exports provided */
+/***/ "./src/admin/addPermissions.js":
+/*!*************************************!*\
+  !*** ./src/admin/addPermissions.js ***!
+  \*************************************/
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -132,12 +132,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var flarum_extend__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(flarum_extend__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var flarum_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flarum/components/PermissionGrid */ "flarum/components/PermissionGrid");
 /* harmony import */ var flarum_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flarum_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _common_models_BannedIP__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../common/models/BannedIP */ "./src/common/models/BannedIP.js");
 
 
-
-app.initializers.add('fof/ban-ips', function () {
-  app.store.models.banned_ips = _common_models_BannedIP__WEBPACK_IMPORTED_MODULE_2__["default"];
+/* harmony default export */ __webpack_exports__["default"] = (function () {
   Object(flarum_extend__WEBPACK_IMPORTED_MODULE_0__["extend"])(flarum_components_PermissionGrid__WEBPACK_IMPORTED_MODULE_1___default.a.prototype, 'moderateItems', function (items) {
     items.add('viewBannedIPList', {
       icon: 'fas fa-ban',
@@ -150,6 +147,291 @@ app.initializers.add('fof/ban-ips', function () {
       permission: 'fof.ban-ips.banIP'
     });
   });
+});
+
+/***/ }),
+
+/***/ "./src/admin/addSettingsPage.js":
+/*!**************************************!*\
+  !*** ./src/admin/addSettingsPage.js ***!
+  \**************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var flarum_extend__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! flarum/extend */ "flarum/extend");
+/* harmony import */ var flarum_extend__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(flarum_extend__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var flarum_components_AdminNav__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flarum/components/AdminNav */ "flarum/components/AdminNav");
+/* harmony import */ var flarum_components_AdminNav__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flarum_components_AdminNav__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var flarum_components_AdminLinkButton__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! flarum/components/AdminLinkButton */ "flarum/components/AdminLinkButton");
+/* harmony import */ var flarum_components_AdminLinkButton__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(flarum_components_AdminLinkButton__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _components_SettingsPage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/SettingsPage */ "./src/admin/components/SettingsPage.js");
+
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = (function () {
+  app.routes['fof-ban-ips'] = {
+    path: '/fof/ban-ips',
+    component: _components_SettingsPage__WEBPACK_IMPORTED_MODULE_3__["default"].component()
+  };
+
+  app.extensionSettings['fof-ban-ips'] = function () {
+    return m.route(app.route('fof-ban-ips'));
+  };
+
+  Object(flarum_extend__WEBPACK_IMPORTED_MODULE_0__["extend"])(flarum_components_AdminNav__WEBPACK_IMPORTED_MODULE_1___default.a.prototype, 'items', function (items) {
+    items.add('fof-ban-ips', flarum_components_AdminLinkButton__WEBPACK_IMPORTED_MODULE_2___default.a.component({
+      href: app.route('fof-ban-ips'),
+      icon: 'fas fa-ban',
+      children: app.translator.trans('fof-ban-ips.admin.nav.title'),
+      description: app.translator.trans('fof-ban-ips.admin.nav.desc')
+    }));
+  });
+});
+
+/***/ }),
+
+/***/ "./src/admin/components/BanIPModal.js":
+/*!********************************************!*\
+  !*** ./src/admin/components/BanIPModal.js ***!
+  \********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return BanIPModal; });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var flarum_components_Modal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flarum/components/Modal */ "flarum/components/Modal");
+/* harmony import */ var flarum_components_Modal__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flarum_components_Modal__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var flarum_components_Button__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! flarum/components/Button */ "flarum/components/Button");
+/* harmony import */ var flarum_components_Button__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(flarum_components_Button__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var flarum_components_Alert__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! flarum/components/Alert */ "flarum/components/Alert");
+/* harmony import */ var flarum_components_Alert__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(flarum_components_Alert__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var flarum_helpers_punctuateSeries__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! flarum/helpers/punctuateSeries */ "flarum/helpers/punctuateSeries");
+/* harmony import */ var flarum_helpers_punctuateSeries__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(flarum_helpers_punctuateSeries__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var flarum_helpers_username__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! flarum/helpers/username */ "flarum/helpers/username");
+/* harmony import */ var flarum_helpers_username__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(flarum_helpers_username__WEBPACK_IMPORTED_MODULE_5__);
+
+
+
+
+
+
+
+var BanIPModal =
+/*#__PURE__*/
+function (_Modal) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(BanIPModal, _Modal);
+
+  function BanIPModal() {
+    return _Modal.apply(this, arguments) || this;
+  }
+
+  var _proto = BanIPModal.prototype;
+
+  _proto.init = function init() {
+    this.address = m.prop('');
+    this.reason = m.prop('');
+    this.usersBanned = {};
+    this.loading = false;
+  };
+
+  _proto.className = function className() {
+    return 'Modal--medium';
+  };
+
+  _proto.title = function title() {
+    return app.translator.trans('fof-ban-ips.lib.modal.title');
+  };
+
+  _proto.content = function content() {
+    var usersBanned = this.usersBanned[this.address()];
+    var usernames = usersBanned && usersBanned.map(flarum_helpers_username__WEBPACK_IMPORTED_MODULE_5___default.a);
+    return m("div", {
+      className: "Modal-body"
+    }, m("p", null, app.translator.trans('fof-ban-ips.lib.modal.ban_ip_confirmation')), m("div", {
+      className: "Form-group"
+    }, m("label", {
+      className: "label"
+    }, "IP Address"), m("input", {
+      type: "text",
+      className: "FormControl",
+      bidi: this.address,
+      required: true,
+      pattern: "^([0-9]{1,3}\\.){3}[0-9]{1,3}$"
+    })), m("div", {
+      className: "Form-group"
+    }, m("label", {
+      className: "label"
+    }, "Reason"), m("input", {
+      type: "text",
+      className: "FormControl",
+      bidi: this.reason
+    })), usersBanned ? usersBanned.length ? flarum_components_Alert__WEBPACK_IMPORTED_MODULE_3___default.a.component({
+      children: app.translator.trans('fof-ban-ips.lib.modal.ban_ip_users', {
+        users: flarum_helpers_punctuateSeries__WEBPACK_IMPORTED_MODULE_4___default()(usernames)
+      }),
+      dismissible: false
+    }) : flarum_components_Alert__WEBPACK_IMPORTED_MODULE_3___default.a.component({
+      children: app.translator.trans('fof-ban-ips.admin.modal.ban_ip_no_users'),
+      dismissible: false,
+      type: 'success'
+    }) : '', usersBanned && m("br", null), m("div", {
+      className: "Form-group"
+    }, m(flarum_components_Button__WEBPACK_IMPORTED_MODULE_2___default.a, {
+      className: "Button Button--primary",
+      type: "submit",
+      loading: this.loading,
+      disabled: app.store.getBy('banned_ips', 'address', this.address())
+    }, usernames ? app.translator.trans('fof-ban-ips.lib.modal.submit_button') : app.translator.trans('fof-ban-ips.lib.modal.check_button'))));
+  };
+
+  _proto.onsubmit = function onsubmit(e) {
+    e.preventDefault();
+    if (!this.address()) return;
+    this.loading = true;
+    if (typeof this.usersBanned[this.address()] === 'undefined') return this.getOtherUsers();
+    var attrs = {
+      address: this.address(),
+      reason: this.reason()
+    };
+    app.store.createRecord('banned_ips').save(attrs).then(this.hide.bind(this), this.onerror.bind(this), this.loaded.bind(this));
+  };
+
+  _proto.getOtherUsers = function getOtherUsers() {
+    var _this = this;
+
+    var data = {
+      ip: this.address()
+    };
+    app.request({
+      data: data,
+      url: app.forum.attribute('apiUrl') + "/fof/ban-ips/check-users",
+      method: 'GET',
+      errorHandler: this.onerror.bind(this)
+    }).then(function (res) {
+      _this.usersBanned[_this.address()] = res.data.map(function (e) {
+        return app.store.pushObject(e);
+      });
+      _this.loading = false;
+      m.lazyRedraw();
+    })["catch"](function () {}).then(this.loaded.bind(this));
+  };
+
+  return BanIPModal;
+}(flarum_components_Modal__WEBPACK_IMPORTED_MODULE_1___default.a);
+
+
+
+/***/ }),
+
+/***/ "./src/admin/components/SettingsPage.js":
+/*!**********************************************!*\
+  !*** ./src/admin/components/SettingsPage.js ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return SettingsPage; });
+/* harmony import */ var _babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/esm/inheritsLoose */ "./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js");
+/* harmony import */ var flarum_components_Button__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flarum/components/Button */ "flarum/components/Button");
+/* harmony import */ var flarum_components_Button__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flarum_components_Button__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var flarum_components_Page__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! flarum/components/Page */ "flarum/components/Page");
+/* harmony import */ var flarum_components_Page__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(flarum_components_Page__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var flarum_helpers_username__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! flarum/helpers/username */ "flarum/helpers/username");
+/* harmony import */ var flarum_helpers_username__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(flarum_helpers_username__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _BanIPModal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./BanIPModal */ "./src/admin/components/BanIPModal.js");
+
+
+
+
+
+
+var SettingsPage =
+/*#__PURE__*/
+function (_Page) {
+  Object(_babel_runtime_helpers_esm_inheritsLoose__WEBPACK_IMPORTED_MODULE_0__["default"])(SettingsPage, _Page);
+
+  function SettingsPage() {
+    return _Page.apply(this, arguments) || this;
+  }
+
+  var _proto = SettingsPage.prototype;
+
+  _proto.init = function init() {
+    var bannedIPs = app.store.all('banned_ips');
+    this.page = 0;
+    this.pageSize = 20;
+    this.pageNumber = Math.ceil(bannedIPs.length / this.pageSize);
+  };
+
+  _proto.view = function view() {
+    return m("div", {
+      className: "BannedIPsPage"
+    }, m("div", {
+      className: "BannedIPsPage-header"
+    }, m("div", {
+      className: "container"
+    }, m("p", null, app.translator.trans('fof-ban-ips.admin.page.about_text')), flarum_components_Button__WEBPACK_IMPORTED_MODULE_1___default.a.component({
+      className: 'Button Button--primary',
+      icon: 'fas fa-plus',
+      children: app.translator.trans('fof-ban-ips.admin.page.create_button'),
+      onclick: function onclick() {
+        return app.modal.show(new _BanIPModal__WEBPACK_IMPORTED_MODULE_4__["default"]());
+      }
+    }))), m("br", null), m("div", {
+      className: "BannedIpsPage-table"
+    }, m("div", {
+      className: "container"
+    }, m("table", {
+      style: {
+        width: '100%',
+        textAlign: 'left'
+      },
+      "class": "table"
+    }, m("thead", null, m("tr", null, m("th", null, "#"), m("th", null, "Creator"), m("th", null, "User"), m("th", null, "Address"), m("th", null, "Reason"), m("th", null, "Date"))), m("tbody", null, app.store.all('banned_ips').slice(this.page, this.page + this.pageSize).map(function (b) {
+      return m("tr", null, m("td", null, b.id()), m("td", null, flarum_helpers_username__WEBPACK_IMPORTED_MODULE_3___default()(b.creator())), m("td", null, flarum_helpers_username__WEBPACK_IMPORTED_MODULE_3___default()(b.user())), m("td", null, b.address()), m("td", null, b.reason()), m("td", null, b.createdAt().toLocaleDateString()));
+    }))))));
+  };
+
+  return SettingsPage;
+}(flarum_components_Page__WEBPACK_IMPORTED_MODULE_2___default.a);
+
+
+
+/***/ }),
+
+/***/ "./src/admin/index.js":
+/*!****************************!*\
+  !*** ./src/admin/index.js ***!
+  \****************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var flarum_Model__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! flarum/Model */ "flarum/Model");
+/* harmony import */ var flarum_Model__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(flarum_Model__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var flarum_models_Forum__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! flarum/models/Forum */ "flarum/models/Forum");
+/* harmony import */ var flarum_models_Forum__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flarum_models_Forum__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _common_models_BannedIP__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../common/models/BannedIP */ "./src/common/models/BannedIP.js");
+/* harmony import */ var _addPermissions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./addPermissions */ "./src/admin/addPermissions.js");
+/* harmony import */ var _addSettingsPage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./addSettingsPage */ "./src/admin/addSettingsPage.js");
+
+
+
+
+
+app.initializers.add('fof/ban-ips', function () {
+  app.store.models.banned_ips = _common_models_BannedIP__WEBPACK_IMPORTED_MODULE_2__["default"];
+  flarum_models_Forum__WEBPACK_IMPORTED_MODULE_1___default.a.prototype.bannedIPs = flarum_Model__WEBPACK_IMPORTED_MODULE_0___default.a.hasMany('banned_ips');
+  Object(_addPermissions__WEBPACK_IMPORTED_MODULE_3__["default"])();
+  Object(_addSettingsPage__WEBPACK_IMPORTED_MODULE_4__["default"])();
 });
 
 /***/ }),
@@ -213,6 +495,72 @@ module.exports = flarum.core.compat['Model'];
 
 /***/ }),
 
+/***/ "flarum/components/AdminLinkButton":
+/*!*******************************************************************!*\
+  !*** external "flarum.core.compat['components/AdminLinkButton']" ***!
+  \*******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = flarum.core.compat['components/AdminLinkButton'];
+
+/***/ }),
+
+/***/ "flarum/components/AdminNav":
+/*!************************************************************!*\
+  !*** external "flarum.core.compat['components/AdminNav']" ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = flarum.core.compat['components/AdminNav'];
+
+/***/ }),
+
+/***/ "flarum/components/Alert":
+/*!*********************************************************!*\
+  !*** external "flarum.core.compat['components/Alert']" ***!
+  \*********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = flarum.core.compat['components/Alert'];
+
+/***/ }),
+
+/***/ "flarum/components/Button":
+/*!**********************************************************!*\
+  !*** external "flarum.core.compat['components/Button']" ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = flarum.core.compat['components/Button'];
+
+/***/ }),
+
+/***/ "flarum/components/Modal":
+/*!*********************************************************!*\
+  !*** external "flarum.core.compat['components/Modal']" ***!
+  \*********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = flarum.core.compat['components/Modal'];
+
+/***/ }),
+
+/***/ "flarum/components/Page":
+/*!********************************************************!*\
+  !*** external "flarum.core.compat['components/Page']" ***!
+  \********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = flarum.core.compat['components/Page'];
+
+/***/ }),
+
 /***/ "flarum/components/PermissionGrid":
 /*!******************************************************************!*\
   !*** external "flarum.core.compat['components/PermissionGrid']" ***!
@@ -232,6 +580,39 @@ module.exports = flarum.core.compat['components/PermissionGrid'];
 /***/ (function(module, exports) {
 
 module.exports = flarum.core.compat['extend'];
+
+/***/ }),
+
+/***/ "flarum/helpers/punctuateSeries":
+/*!****************************************************************!*\
+  !*** external "flarum.core.compat['helpers/punctuateSeries']" ***!
+  \****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = flarum.core.compat['helpers/punctuateSeries'];
+
+/***/ }),
+
+/***/ "flarum/helpers/username":
+/*!*********************************************************!*\
+  !*** external "flarum.core.compat['helpers/username']" ***!
+  \*********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = flarum.core.compat['helpers/username'];
+
+/***/ }),
+
+/***/ "flarum/models/Forum":
+/*!*****************************************************!*\
+  !*** external "flarum.core.compat['models/Forum']" ***!
+  \*****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = flarum.core.compat['models/Forum'];
 
 /***/ }),
 

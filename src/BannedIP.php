@@ -8,6 +8,7 @@ use Flarum\User\User;
 /**
  * @property User $creator
  * @property User $user
+ * @property int $id
  * @property int $creator_id
  * @property int $user_id
  * @property string $address
@@ -48,11 +49,11 @@ class BannedIP extends AbstractModel
 
     public function creator()
     {
-        $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'creator_id');
     }
 
     public function user()
     {
-        $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

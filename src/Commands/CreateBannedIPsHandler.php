@@ -6,8 +6,10 @@ namespace FoF\BanIPs\Commands;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
+use FoF\BanIPs\Events\IPWasBanned;
 use FoF\BanIPs\Validators\BannedIPValidator;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Events\Dispatcher as DispatcherEvents;
 use Illuminate\Support\Arr;
 
 class CreateBannedIPsHandler
@@ -20,6 +22,11 @@ class CreateBannedIPsHandler
     private $bus;
 
     /**
+     * @var DispatcherEvents
+     */
+    private $events;
+
+    /**
      * @var BannedIPValidator
      */
     protected $validator;
@@ -27,11 +34,13 @@ class CreateBannedIPsHandler
     /**
      * CreateBannedIPHandler constructor.
      * @param Dispatcher $bus
+     * @param DispatcherEvents $events
      * @param BannedIPValidator $validator
      */
-    public function __construct(Dispatcher $bus, BannedIPValidator $validator)
+    public function __construct(Dispatcher $bus, DispatcherEvents $events, BannedIPValidator $validator)
     {
         $this->bus = $bus;
+        $this->events = $events;
         $this->validator = $validator;
     }
 
@@ -65,6 +74,10 @@ class CreateBannedIPsHandler
             $this->validator->assertValid($bannedIP->getAttributes());
 
             $bannedIP->save();
+
+            $this->events->fire(
+                new IPWasBanned($bannedIP, $actor)
+            );
 
             $bannedIPs[] = $bannedIP;
         }
