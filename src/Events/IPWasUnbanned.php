@@ -14,7 +14,7 @@ namespace FoF\BanIPs\Events;
 use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
 
-class IPWasBanned
+class IPWasUnbanned
 {
     /**
      * @var User
@@ -24,15 +24,15 @@ class IPWasBanned
     /**
      * @var BannedIP
      */
-    public $bannedIP;
+    public $unbannedIP;
 
     /**
-     * @param BannedIP $bannedIP
+     * @param BannedIP $unbannedIP
      * @param User     $actor
      */
-    public function __construct(BannedIP $bannedIP, User $actor)
+    public function __construct(BannedIP $unbannedIP, User $actor)
     {
-        $this->bannedIP = $bannedIP;
+        $this->unbannedIP = $unbannedIP;
         $this->actor = $actor;
     }
 }

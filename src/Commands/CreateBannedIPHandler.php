@@ -34,8 +34,6 @@ class CreateBannedIPHandler
     private $events;
 
     /**
-     * CreateBannedIPHandler constructor.
-     *
      * @param Dispatcher        $events
      * @param BannedIPValidator $validator
      */

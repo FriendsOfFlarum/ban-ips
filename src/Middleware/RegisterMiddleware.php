@@ -12,13 +12,17 @@
 namespace FoF\BanIPs\Middleware;
 
 use Flarum\Api\JsonApiResponse;
+use Flarum\User\User;
+use Flarum\User\UserRepository;
 use FoF\BanIPs\Repositories\BannedIPRepository;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Tobscure\JsonApi\Document;
 use Tobscure\JsonApi\Exception\Handler\ResponseBag;
+use Zend\Diactoros\Response\RedirectResponse;
 
 class RegisterMiddleware implements MiddlewareInterface
 {
@@ -28,11 +32,18 @@ class RegisterMiddleware implements MiddlewareInterface
     private $bannedIPs;
 
     /**
-     * @param BannedIPRepository $bannedIPs
+     * @var UserRepository
      */
-    public function __construct(BannedIPRepository $bannedIPs)
+    private $users;
+
+    /**
+     * @param BannedIPRepository $bannedIPs
+     * @param UserRepository $users
+     */
+    public function __construct(BannedIPRepository $bannedIPs, UserRepository $users)
     {
         $this->bannedIPs = $bannedIPs;
+        $this->users = $users;
     }
 
     /**
@@ -46,6 +57,8 @@ class RegisterMiddleware implements MiddlewareInterface
     {
         $registerUri = app('flarum.forum.routes')->getPath('register');
         $loginUri = app('flarum.forum.routes')->getPath('login');
+        $logoutUri = app('flarum.forum.routes')->getPath('logout');
+        $actor = $request->getAttribute('actor');
         $requestUri = $request->getUri()->getPath();
 
         if ($requestUri === $registerUri || $requestUri === $loginUri) {
@@ -53,6 +66,14 @@ class RegisterMiddleware implements MiddlewareInterface
             $bannedIP = $ipAddress != null ? $this->bannedIPs->findByIPAddress($ipAddress) : null;
 
             if ($bannedIP != null && $bannedIP->deleted_at == null) {
+                if ($requestUri === $loginUri && $identification = Arr::get($request->getParsedBody(), 'identification')) {
+                    $user = $this->users->findByIdentification($identification);
+
+                    if ($user != null && !$this->bannedIPs->isUserBanned($user)) {
+                        return $handler->handle($request);
+                    }
+                }
+
                 $error = new ResponseBag('422', [
                     [
                         'status' => '422',
@@ -70,6 +91,13 @@ class RegisterMiddleware implements MiddlewareInterface
                 return new JsonApiResponse($document, $error->getStatus());
             }
         }
+
+        if (!$actor->isGuest() && $requestUri !== $logoutUri && $this->bannedIPs->isUserBanned($actor)) {
+            $token = $request->getAttribute('session')->token();
+
+            return new RedirectResponse($logoutUri . '?token=' . $token);
+        }
+
 
         return $handler->handle($request);
     }

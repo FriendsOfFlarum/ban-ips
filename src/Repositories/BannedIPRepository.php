@@ -83,12 +83,14 @@ class BannedIPRepository
      */
     public function findUsers($ips)
     {
-        return Post::whereIn('ip_address', Arr::wrap($ips))
-            ->with('user')
+        return User
+            ::join('posts', function ($join) use ($ips) {
+                $join->on('users.id', '=', 'posts.user_id')
+                    ->whereIn('posts.ip_address', Arr::wrap($ips));
+            })
+            ->select('users.*', 'posts.ip_address')
+            ->distinct()
             ->get()
-            ->pluck('user')
-            ->unique()
-            ->filter()
             ->filter(function (User $user) {
                 return $user->cannot('banIP');
             });
@@ -99,12 +101,17 @@ class BannedIPRepository
      */
     public function isUserBanned(User $user)
     {
-        return $user->cannot('banIP') && BannedIP::where('address', $this->getUserIPs($user)->toArray())->exists();
+        return $user->cannot('banIP') && $this->getUserBannedIPs($user)->exists();
     }
 
     public function getUserIPs(User $user)
     {
         return $user->posts()->whereNotNull('ip_address')->pluck('ip_address')->unique();
+    }
+
+    public function getUserBannedIPs(User $user) : Builder
+    {
+        return BannedIP::where('address', $this->getUserIPs($user)->toArray());
     }
 
     /**

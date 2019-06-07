@@ -5,7 +5,6 @@ import BanIPModal from './components/BanIPModal';
 
 export default () => {
     extend(PostControls, 'userControls', function(items, post) {
-        const postIP = post.ipAddress();
         const isBanned = post.user().isBanned();
 
         // Removes ability to ban thyself and also does permission check.
@@ -16,7 +15,7 @@ export default () => {
             Button.component({
                 children: app.translator.trans(!isBanned ? 'fof-ban-ips.forum.ban_ip_button' : 'fof-ban-ips.forum.already_banned_ip_button'),
                 className: 'Button Button--link',
-                icon: 'fas fa-ban',
+                icon: 'fas fa-gavel',
                 disabled: isBanned,
                 onclick: () => app.modal.show(new BanIPModal({ post })),
             })

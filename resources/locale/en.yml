@@ -8,6 +8,9 @@ fof-ban-ips:
       ban_options_all_ip: Ban all IPs used by <i>{username}</i>
       ban_ip: No one else will be banned
 
+    user_badge:
+      banned_tooltip: Banned
+
   admin:
     permissions:
       ban_ip_label: => fof-ban-ips.ref.ban_ip_addresses
@@ -19,6 +22,10 @@ fof-ban-ips:
 
     modal:
       ban_ip_no_users: No one will be banned
+
+    nav:
+      title: Ban IPs
+      desc: Add, remove, and list the banned IPs
 
   error:
     banned_ip_message: Authorization failed.

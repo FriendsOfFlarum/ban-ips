@@ -51,7 +51,7 @@ class RemoveAccessToBannedUsers
         $users = $this->bannedIPs->findUsers($bannedIP->address);
 
         foreach ($users as $user) {
-            /*
+            /**
              * @var User $user
              */
 

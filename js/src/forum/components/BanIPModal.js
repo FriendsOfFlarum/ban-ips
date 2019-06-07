@@ -33,7 +33,7 @@ export default class BanIPModal extends Modal {
 
         return (
             <div className="Modal-body">
-                <p>{app.translator.trans('fof-ban-ips.forum.ban_ip_confirmation')}</p>
+                <p>{app.translator.trans('fof-ban-ips.lib.modal.ban_ip_confirmation')}</p>
 
                 <div className="Form-group">
                     {this.banOptions.map(key => (
@@ -95,7 +95,6 @@ export default class BanIPModal extends Modal {
         if (typeof this.otherUsersBanned[this.banOption()] === 'undefined') return this.getOtherUsers();
 
         const attrs = {
-            userId: this.user.id(),
             reason: this.reason(),
         };
 
@@ -113,7 +112,7 @@ export default class BanIPModal extends Modal {
                         attributes: attrs,
                     },
                 },
-                url: `${app.forum.attribute('apiUrl')}/fof/ban-ips/bans/chunk`,
+                url: `${app.forum.attribute('apiUrl')}${this.user.apiEndpoint()}/ban`,
                 method: 'POST',
                 errorHandler: this.onerror.bind(this),
             })

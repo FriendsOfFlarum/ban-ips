@@ -25,7 +25,7 @@
     "flarum-extension": {
       "title": "FoF Ban IPs",
       "icon": {
-        "name": "fas fa-ban",
+        "name": "fas fa-gavel",
         "backgroundColor": "#e74c3c",
         "color": "#fff"
       }

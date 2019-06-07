@@ -11,14 +11,13 @@
 
 namespace FoF\BanIPs\Api\Controllers;
 
-use Flarum\Api\Controller\AbstractListController;
+use Flarum\Api\Controller\AbstractDeleteController;
 use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
-use FoF\BanIPs\Commands\CreateBannedIPs;
+use FoF\BanIPs\Commands\UnbanUser;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
-use Tobscure\JsonApi\Document;
 
-class CreateBannedIPsController extends AbstractListController
+class UnbanUserController extends AbstractDeleteController
 {
     /**
      * @var string
@@ -31,8 +30,6 @@ class CreateBannedIPsController extends AbstractListController
     protected $bus;
 
     /**
-     * CreateBannedIPController constructor.
-     *
      * @param Dispatcher $bus
      */
     public function __construct(Dispatcher $bus)
@@ -41,17 +38,12 @@ class CreateBannedIPsController extends AbstractListController
     }
 
     /**
-     * Get the data to be serialized and assigned to the response document.
-     *
      * @param ServerRequestInterface $request
-     * @param Document               $document
-     *
-     * @return mixed
      */
-    protected function data(ServerRequestInterface $request, Document $document)
+    protected function delete(ServerRequestInterface $request)
     {
         return $this->bus->dispatch(
-            new CreateBannedIPs($request->getAttribute('actor'), array_get($request->getParsedBody(), 'data'))
+            new UnbanUser($request->getAttribute('actor'), array_get($request->getQueryParams(), 'id'))
         );
     }
 }

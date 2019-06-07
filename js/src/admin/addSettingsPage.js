@@ -14,7 +14,7 @@ export default () => {
             'fof-ban-ips',
             AdminLinkButton.component({
                 href: app.route('fof-ban-ips'),
-                icon: 'fas fa-ban',
+                icon: 'fas fa-gavel',
                 children: app.translator.trans('fof-ban-ips.admin.nav.title'),
                 description: app.translator.trans('fof-ban-ips.admin.nav.desc'),
             })

@@ -9,12 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\BanIPs\Events;
+namespace FoF\BanIPs\Commands;
 
 use Flarum\User\User;
-use FoF\BanIPs\BannedIP;
 
-class IPWasBanned
+class BanUser
 {
     /**
      * @var User
@@ -22,17 +21,24 @@ class IPWasBanned
     public $actor;
 
     /**
-     * @var BannedIP
+     * @var int
      */
-    public $bannedIP;
+    public $userId;
 
     /**
-     * @param BannedIP $bannedIP
-     * @param User     $actor
+     * @var array
      */
-    public function __construct(BannedIP $bannedIP, User $actor)
+    public $data;
+
+    /**
+     * @param User $actor
+     * @param int $userId
+     * @param array $data
+     */
+    public function __construct(User $actor, int $userId, array $data)
     {
-        $this->bannedIP = $bannedIP;
         $this->actor = $actor;
+        $this->userId = $userId;
+        $this->data = $data;
     }
 }

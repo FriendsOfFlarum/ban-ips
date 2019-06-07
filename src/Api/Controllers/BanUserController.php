@@ -11,15 +11,14 @@
 
 namespace FoF\BanIPs\Api\Controllers;
 
-use Flarum\Api\Controller\AbstractCreateController;
+use Flarum\Api\Controller\AbstractListController;
 use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
-use FoF\BanIPs\Commands\CreateBannedIP;
+use FoF\BanIPs\Commands\BanUser;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
-class CreateBannedIPController extends AbstractCreateController
+class BanUserController extends AbstractListController
 {
     /**
      * @var string
@@ -50,7 +49,7 @@ class CreateBannedIPController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return $this->bus->dispatch(
-            new CreateBannedIP($request->getAttribute('actor'), Arr::get($request->getParsedBody(), 'data', []))
+            new BanUser($request->getAttribute('actor'), array_get($request->getQueryParams(), 'id'), array_get($request->getParsedBody(), 'data'))
         );
     }
 }

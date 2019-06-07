@@ -13,25 +13,25 @@ namespace FoF\BanIPs\Commands;
 
 use Flarum\User\User;
 
-class CreateBannedIPs
+class UnbanUser
 {
+    /**
+     * @var int
+     */
+    public $userId;
+
     /**
      * @var User
      */
     public $actor;
 
     /**
-     * @var array
+     * @param User $actor
+     * @param int $userId
      */
-    public $data;
-
-    /**
-     * @param User  $actor
-     * @param array $data
-     */
-    public function __construct(User $actor, array $data)
+    public function __construct(User $actor, int $userId)
     {
         $this->actor = $actor;
-        $this->data = $data;
+        $this->userId = $userId;
     }
 }
