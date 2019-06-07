@@ -31,8 +31,8 @@ class BanUser
     public $data;
 
     /**
-     * @param User $actor
-     * @param int $userId
+     * @param User  $actor
+     * @param int   $userId
      * @param array $data
      */
     public function __construct(User $actor, int $userId, array $data)

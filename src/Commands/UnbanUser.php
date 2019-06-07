@@ -27,7 +27,7 @@ class UnbanUser
 
     /**
      * @param User $actor
-     * @param int $userId
+     * @param int  $userId
      */
     public function __construct(User $actor, int $userId)
     {

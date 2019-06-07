@@ -46,10 +46,10 @@ class BanUserHandler
     private $validator;
 
     /**
-     * @param Dispatcher $bus
-     * @param DispatcherEvents $events
+     * @param Dispatcher         $bus
+     * @param DispatcherEvents   $events
      * @param BannedIPRepository $bannedIPs
-     * @param BannedIPValidator $validator
+     * @param BannedIPValidator  $validator
      */
     public function __construct(Dispatcher $bus, DispatcherEvents $events, BannedIPRepository $bannedIPs, BannedIPValidator $validator)
     {

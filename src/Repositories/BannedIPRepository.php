@@ -11,7 +11,6 @@
 
 namespace FoF\BanIPs\Repositories;
 
-use Flarum\Post\Post;
 use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
 use Illuminate\Database\Eloquent\Builder;

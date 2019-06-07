@@ -1,8 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\BanIPs\Commands;
-
 
 use Flarum\User\AssertPermissionTrait;
 use FoF\BanIPs\BannedIP;
@@ -25,7 +32,7 @@ class EditBannedIPHandler
 
     /**
      * @param BannedIPRepository $bannedIPs
-     * @param BannedIPValidator $validator
+     * @param BannedIPValidator  $validator
      */
     public function __construct(BannedIPRepository $bannedIPs, BannedIPValidator $validator)
     {
@@ -35,6 +42,7 @@ class EditBannedIPHandler
 
     /**
      * @param EditBannedIP $command
+     *
      * @return BannedIP
      */
     public function handle(EditBannedIP $command)

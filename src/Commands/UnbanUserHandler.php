@@ -11,11 +11,8 @@
 
 namespace FoF\BanIPs\Commands;
 
-use Carbon\Carbon;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
-use FoF\BanIPs\BannedIP;
-use FoF\BanIPs\Events\IPWasBanned;
 use FoF\BanIPs\Events\IPWasUnbanned;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Validators\BannedIPValidator;
@@ -48,10 +45,10 @@ class UnbanUserHandler
     private $validator;
 
     /**
-     * @param Dispatcher $bus
-     * @param DispatcherEvents $events
+     * @param Dispatcher         $bus
+     * @param DispatcherEvents   $events
      * @param BannedIPRepository $bannedIPs
-     * @param BannedIPValidator $validator
+     * @param BannedIPValidator  $validator
      */
     public function __construct(Dispatcher $bus, DispatcherEvents $events, BannedIPRepository $bannedIPs, BannedIPValidator $validator)
     {

@@ -12,7 +12,6 @@
 namespace FoF\BanIPs\Middleware;
 
 use Flarum\Api\JsonApiResponse;
-use Flarum\User\User;
 use Flarum\User\UserRepository;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use Illuminate\Support\Arr;
@@ -38,7 +37,7 @@ class RegisterMiddleware implements MiddlewareInterface
 
     /**
      * @param BannedIPRepository $bannedIPs
-     * @param UserRepository $users
+     * @param UserRepository     $users
      */
     public function __construct(BannedIPRepository $bannedIPs, UserRepository $users)
     {
@@ -95,9 +94,8 @@ class RegisterMiddleware implements MiddlewareInterface
         if (!$actor->isGuest() && $requestUri !== $logoutUri && $this->bannedIPs->isUserBanned($actor)) {
             $token = $request->getAttribute('session')->token();
 
-            return new RedirectResponse($logoutUri . '?token=' . $token);
+            return new RedirectResponse($logoutUri.'?token='.$token);
         }
-
 
         return $handler->handle($request);
     }
