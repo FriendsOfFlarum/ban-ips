@@ -96,6 +96,7 @@ export default class BanIPModal extends Modal {
 
         const attrs = {
             reason: this.reason(),
+            userId: this.user.id(),
         };
 
         if (this.banOption() === 'only') {

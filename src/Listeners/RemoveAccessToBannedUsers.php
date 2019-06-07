@@ -54,9 +54,6 @@ class RemoveAccessToBannedUsers
             /*
              * @var User $user
              */
-
-            // TODO: invalidate sessions (how to obtain them ?)
-
             $user->accessTokens()->delete();
         }
     }

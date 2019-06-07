@@ -70,7 +70,7 @@ class CreateBannedIPHandler
         $bannedIP->save();
 
         $this->events->fire(
-            new IPWasBanned($bannedIP, $actor)
+            new IPWasBanned($actor, $bannedIP)
         );
 
         return $bannedIP;

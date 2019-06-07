@@ -27,12 +27,12 @@ class IPWasBanned
     public $bannedIP;
 
     /**
-     * @param BannedIP $bannedIP
      * @param User     $actor
+     * @param BannedIP $bannedIP
      */
-    public function __construct(BannedIP $bannedIP, User $actor)
+    public function __construct(User $actor, BannedIP $bannedIP)
     {
-        $this->bannedIP = $bannedIP;
         $this->actor = $actor;
+        $this->bannedIP = $bannedIP;
     }
 }

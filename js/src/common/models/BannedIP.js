@@ -10,6 +10,6 @@ export default class BannedIP extends mixin(Model, {
     deletedAt: Model.attribute('deletedAt', Model.transformDate),
 }) {
     apiEndpoint() {
-        return `/fof/ban-ips/bans${this.exists ? `/${this.id()}` : ''}`;
+        return `/fof/ban-ips${this.exists ? `/${this.id()}` : ''}`;
     }
 }
