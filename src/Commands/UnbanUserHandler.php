@@ -18,7 +18,6 @@ use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Validators\BannedIPValidator;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Events\Dispatcher as DispatcherEvents;
-use Illuminate\Support\Arr;
 
 class UnbanUserHandler
 {

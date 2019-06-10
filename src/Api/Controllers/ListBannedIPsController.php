@@ -47,7 +47,7 @@ class ListBannedIPsController extends AbstractListController
 
     /**
      * @param BannedIPSearcher $searcher
-     * @param UrlGenerator $url
+     * @param UrlGenerator     $url
      */
     public function __construct(BannedIPSearcher $searcher, UrlGenerator $url)
     {

@@ -18,7 +18,6 @@ use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
 use FoF\BanIPs\Repositories\BannedIPRepository;
-use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -72,7 +71,7 @@ class CheckIPsController extends AbstractListController
 
         if (empty($ips)) {
             throw new ValidationException([
-                app('translator')->trans('fof-ban-ips.error.no_ips_found_message')
+                app('translator')->trans('fof-ban-ips.error.no_ips_found_message'),
             ]);
         }
 

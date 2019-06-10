@@ -26,7 +26,6 @@ use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
 use FoF\BanIPs\BannedIP;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use Illuminate\Events\Dispatcher;
-use Reflar\Gamification\Api\Controllers\OrderByPointsController;
 
 class AddApiAttributes
 {
@@ -61,7 +60,8 @@ class AddApiAttributes
         }
     }
 
-    public function addModelRelationship(GetModelRelationship $event) {
+    public function addModelRelationship(GetModelRelationship $event)
+    {
         if ($event->isRelationship(User::class, 'banned_ips')) {
             return $event->model->hasOne(BannedIP::class);
         }

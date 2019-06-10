@@ -15,7 +15,6 @@ use Flarum\Api\Controller\AbstractListController;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
 use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
-use FoF\BanIPs\BannedIP;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;

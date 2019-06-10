@@ -1,8 +1,15 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) 2019 FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
 namespace FoF\BanIPs\Search;
-
 
 use Flarum\Search\ApplySearchParametersTrait;
 use Flarum\Search\GambitManager;
@@ -25,7 +32,7 @@ class BannedIPSearcher
     protected $bannedIPs;
 
     /**
-     * @param GambitManager $gambits
+     * @param GambitManager      $gambits
      * @param BannedIPRepository $bannedIPs
      */
     public function __construct(GambitManager $gambits, BannedIPRepository $bannedIPs)

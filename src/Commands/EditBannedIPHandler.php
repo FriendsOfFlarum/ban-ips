@@ -59,9 +59,9 @@ class EditBannedIPHandler
         $this->assertCan($actor, 'banIP');
 
         if ($bannedIP !== null && $actor === $bannedIP->creator) {
-            throw new PermissionDeniedException;
-        } else if ($bannedIP == null) {
-            throw new RouteNotFoundException;
+            throw new PermissionDeniedException();
+        } elseif ($bannedIP == null) {
+            throw new RouteNotFoundException();
         }
 
         if (isset($attributes['userId'])) {
