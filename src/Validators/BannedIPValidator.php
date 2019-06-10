@@ -17,7 +17,7 @@ class BannedIPValidator extends AbstractValidator
 {
     protected $rules = [
         'userId'  => ['required', 'integer'],
-        'address' => ['required', 'ip'],
+        'address' => ['required', 'ip', 'unique:banned_ips,address'],
         'reason'  => ['nullable', 'string'],
     ];
 }
