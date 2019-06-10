@@ -1,40 +1,22 @@
-import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
 import Alert from 'flarum/components/Alert';
 import punctuateSeries from 'flarum/helpers/punctuateSeries';
 import username from 'flarum/helpers/username';
 
-export default class BanIPModal extends Modal {
-    init() {
-        this.post = this.props.post;
-        this.user = this.props.user || this.post.user();
+import BanIPModal from './BanIPModal';
 
-        this.banOptions = !!this.post ? ['only', 'all'] : ['all'];
-
-        this.banOption = m.prop(this.banOptions[0]);
-        this.reason = m.prop('');
-
-        this.otherUsers = {};
-
-        this.loading = false;
-    }
-
-    className() {
-        return 'Modal--medium';
-    }
-
+export default class UnbanIPModal extends BanIPModal {
     title() {
-        return app.translator.trans('fof-ban-ips.lib.modal.title');
+        return app.translator.trans('fof-ban-ips.lib.modal.unban_title');
     }
 
     content() {
-        const otherUsersBanned = this.otherUsers[this.banOption()];
-        const usernames =
-            otherUsersBanned && otherUsersBanned.map(u => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));
+        const otherUsers = this.otherUsers[this.banOption()];
+        const usernames = otherUsers && otherUsers.map(u => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));
 
         return (
             <div className="Modal-body">
-                <p>{app.translator.trans('fof-ban-ips.lib.modal.ban_ip_confirmation')}</p>
+                <p>{app.translator.trans('fof-ban-ips.lib.modal.unban_ip_confirmation')}</p>
 
                 <div className="Form-group">
                     {this.banOptions.map(key => (
@@ -48,7 +30,7 @@ export default class BanIPModal extends Modal {
                             />
                             &nbsp;
                             <label htmlFor={`ban-option-${key}`}>
-                                {app.translator.trans(`fof-ban-ips.forum.modal.ban_options_${key}_ip`, {
+                                {app.translator.trans(`fof-ban-ips.forum.modal.unban_options_${key}_ip`, {
                                     user: this.user,
                                     ip: this.post && this.post.ipAddress(),
                                 })}
@@ -57,27 +39,22 @@ export default class BanIPModal extends Modal {
                     ))}
                 </div>
 
-                <div className="Form-group">
-                    <label className="label">Reason</label>
-                    <input type="text" className="FormControl" bidi={this.reason} />
-                </div>
-
-                {otherUsersBanned
-                    ? otherUsersBanned.length
+                {otherUsers
+                    ? otherUsers.length
                         ? Alert.component({
-                              children: app.translator.transChoice('fof-ban-ips.lib.modal.ban_ip_users', usernames.length, {
+                              children: app.translator.transChoice('fof-ban-ips.lib.modal.unban_ip_users', usernames.length, {
                                   users: punctuateSeries(usernames),
                               }),
                               dismissible: false,
                           })
                         : Alert.component({
-                              children: app.translator.trans('fof-ban-ips.forum.modal.ban_ip_no_users'),
+                              children: app.translator.trans('fof-ban-ips.forum.modal.unban_ip_no_users'),
                               dismissible: false,
                               type: 'success',
                           })
                     : ''}
 
-                {otherUsersBanned && <br />}
+                {otherUsers && <br />}
 
                 <div className="Form-group">
                     <Button className="Button Button--primary" type="submit" loading={this.loading}>
@@ -97,18 +74,16 @@ export default class BanIPModal extends Modal {
 
         if (typeof this.otherUsers[this.banOption()] === 'undefined') return this.getOtherUsers();
 
-        const attrs = {
-            reason: this.reason(),
-            userId: this.user.id(),
-        };
+        const attrs = {};
 
         if (this.banOption() === 'only') {
             attrs.address = this.post.ipAddress();
 
-            app.store
-                .createRecord('banned_ips')
-                .save(attrs)
-                .then(this.done.bind(this))
+            const bannedIP = this.post.bannedIP();
+
+            bannedIP
+                .delete()
+                .then(this.done.bind(this, bannedIP))
                 .then(this.hide.bind(this), this.onerror.bind(this), this.loaded.bind(this));
         } else if (this.banOption() === 'all') {
             app.request({
@@ -117,11 +92,11 @@ export default class BanIPModal extends Modal {
                         attributes: attrs,
                     },
                 },
-                url: `${app.forum.attribute('apiUrl')}${this.user.apiEndpoint()}/ban`,
+                url: `${app.forum.attribute('apiUrl')}${this.user.apiEndpoint()}/unban`,
                 method: 'POST',
                 errorHandler: this.onerror.bind(this),
             })
-                .then(res => app.store.pushPayload(res).forEach(this.done.bind(this)))
+                .then(this.done.bind(this))
                 .then(this.hide.bind(this))
                 .catch(() => {})
                 .then(this.loaded.bind(this));
@@ -140,26 +115,28 @@ export default class BanIPModal extends Modal {
             errorHandler: this.onerror.bind(this),
         })
             .then(res => {
-                this.otherUsers[this.banOption()] = res.data.map(e => app.store.pushObject(e)).filter(e => e.bannedIPs().length === 0);
+                const data = app.store.pushPayload(res);
+
+                this.otherUsers[this.banOption()] = data.filter(e => e.bannedIPs().length === 1);
                 this.loading = false;
+
+                m.lazyRedraw();
             })
             .catch(() => {})
             .then(this.loaded.bind(this));
     }
 
     done(bannedIP) {
-        const obj = {
-            type: 'banned_ips',
-            id: bannedIP.id(),
-        };
+        if (bannedIP) {
+            delete this.post.data.relationships.banned_ip;
 
-        if (this.post) {
-            this.post.data.relationships.banned_ip = {
-                data: obj,
-            };
+            this.user.data.relationships.banned_ips.data = this.user.data.relationships.banned_ips.data.filter(e => e.id !== bannedIP.id());
+            this.user.data.attributes.isBanned = false;
+        } else {
+            this.user.data.relationships.banned_ips.data = [];
+            this.user.data.attributes.isBanned = false;
+
+            if (this.post) delete this.post.data.relationships.banned_ip;
         }
-
-        this.user.data.relationships.banned_ips.data.push(obj);
-        this.user.data.attributes.isBanned = true;
     }
 }

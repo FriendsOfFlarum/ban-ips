@@ -24,6 +24,7 @@ return [
     (new Extend\Routes('api'))
         ->post('/users/{id}/ban', 'fof.ban-ips.users.ban', Api\Controllers\BanUserController::class)
         ->post('/users/{id}/unban', 'fof.ban-ips.users.unban', Api\Controllers\UnbanUserController::class)
+        ->get('/users/{id}/banned-ips', 'fof.ban-ips.users.banned-ips', Api\Controllers\ListUserBannedIPsController::class)
         ->get('/fof/ban-ips/check-users', 'fof.ban-ips.check', Api\Controllers\CheckIPsController::class)
         ->get('/fof/ban-ips/check-users/{user}', 'fof.ban-ips.check.others', Api\Controllers\CheckIPsController::class)
         ->get('/fof/ban-ips', 'fof.ban-ips.show', Api\Controllers\ListBannedIPsController::class)

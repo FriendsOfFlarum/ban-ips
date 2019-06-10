@@ -13,6 +13,7 @@ namespace FoF\BanIPs\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractListController;
 use Flarum\Api\Serializer\UserSerializer;
+use Flarum\Foundation\ValidationException;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
@@ -24,6 +25,11 @@ use Tobscure\JsonApi\Document;
 class CheckIPsController extends AbstractListController
 {
     use AssertPermissionTrait;
+
+    /**
+     * {@inheritdoc}
+     */
+    public $include = ['banned_ips'];
 
     /**
      * @var BannedIPRepository
@@ -62,9 +68,13 @@ class CheckIPsController extends AbstractListController
             throw new RouteNotFoundException();
         }
 
-        $ips = Arr::wrap(
-            $ip ?? $user->posts()->whereNotNull('ip_address')->pluck('ip_address')->unique()
-        );
+        $ips = $this->bannedIPs->getUserIPs($user)->toArray();
+
+        if (empty($ips)) {
+            throw new ValidationException([
+                app('translator')->trans('fof-ban-ips.error.no_ips_found_message')
+            ]);
+        }
 
         $users = $user != null
             ? $this->bannedIPs->findOtherUsers($user, $ips)

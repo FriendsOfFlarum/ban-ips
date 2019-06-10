@@ -66,10 +66,8 @@ class UnbanUserHandler
     public function handle(UnbanUser $command)
     {
         $actor = $command->actor;
-        $data = $command->data;
 
-        $userId = Arr::get($data, 'attributes.userId');
-        $user = User::where('id', $userId)->orWhere('username', $userId)->firstOrFail();
+        $user = User::where('id', $command->userId)->orWhere('username', $command->userId)->firstOrFail();
 
         $this->assertCan($actor, 'banIP', $user);
 

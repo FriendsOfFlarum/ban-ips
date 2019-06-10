@@ -68,7 +68,7 @@ class BannedIPRepository
     public function findOtherUsers(User $user, $ips)
     {
         if (empty($ips)) {
-            return [];
+            return collect();
         }
 
         return $this->findUsers($ips)
@@ -103,14 +103,16 @@ class BannedIPRepository
         return $user->cannot('banIP') && $this->getUserBannedIPs($user)->exists();
     }
 
-    public function getUserIPs(User $user)
+    public function getUserIPs(User $user) : Collection
     {
         return $user->posts()->whereNotNull('ip_address')->pluck('ip_address')->unique();
     }
 
     public function getUserBannedIPs(User $user) : Builder
     {
-        return BannedIP::where('address', $this->getUserIPs($user)->toArray());
+        $ips = $this->getUserIPs($user)->toArray();
+
+        return BannedIP::where('user_id', $user->id)->orWhere('address', empty($ips) ? null : $this->getUserIPs($user)->toArray());
     }
 
     /**
