@@ -58,9 +58,9 @@ class CheckIPsController extends AbstractListController
     {
         $this->assertCan($request->getAttribute('actor'), 'banIP');
 
-        $userId = Arr::get($request->getQueryParams(), 'user');
+        $userId = array_get($request->getQueryParams(), 'user');
         $user = $userId != null ? User::where('id', $userId)->orWhere('username', $userId)->first() : null;
-        $ip = Arr::get($request->getQueryParams(), 'ip');
+        $ip = array_get($request->getQueryParams(), 'ip');
 
         $this->assertCan($request->getAttribute('actor'), 'banIP', $user);
 
@@ -68,7 +68,7 @@ class CheckIPsController extends AbstractListController
             throw new RouteNotFoundException();
         }
 
-        $ips = $this->bannedIPs->getUserIPs($user)->toArray();
+        $ips = array_wrap(array_get($request->getQueryParams(), 'ip') ?? $this->bannedIPs->getUserIPs($user)->toArray());
 
         if (empty($ips)) {
             throw new ValidationException([

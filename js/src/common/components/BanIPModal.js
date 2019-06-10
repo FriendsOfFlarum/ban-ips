@@ -6,10 +6,20 @@ import username from 'flarum/helpers/username';
 
 export default class BanIPModal extends Modal {
     init() {
+        this.address = this.props.address;
         this.post = this.props.post;
-        this.user = this.props.user || this.post.user();
+        this.user = this.props.user || (this.post && this.post.user());
 
-        this.banOptions = !!this.post ? ['only', 'all'] : ['all'];
+        if (!this.user && this.address) {
+            const bannedIP = app.store.getBy('banned_ips', 'address', this.address);
+
+            if (bannedIP) this.user = bannedIP.user();
+        }
+
+        this.banOptions = [];
+
+        if (this.post || this.address) this.banOptions.push('only');
+        if (this.user) this.banOptions.push('all');
 
         this.banOption = m.prop(this.banOptions[0]);
         this.reason = m.prop('');
@@ -50,7 +60,7 @@ export default class BanIPModal extends Modal {
                             <label htmlFor={`ban-option-${key}`}>
                                 {app.translator.trans(`fof-ban-ips.forum.modal.ban_options_${key}_ip`, {
                                     user: this.user,
-                                    ip: this.post && this.post.ipAddress(),
+                                    ip: this.address || (this.post && this.post.ipAddress()),
                                 })}
                             </label>
                         </div>
@@ -58,7 +68,7 @@ export default class BanIPModal extends Modal {
                 </div>
 
                 <div className="Form-group">
-                    <label className="label">Reason</label>
+                    <label className="label">{app.translator.trans('fof-ban-ips.lib.modal.reason_label')}</label>
                     <input type="text" className="FormControl" bidi={this.reason} />
                 </div>
 
@@ -131,7 +141,7 @@ export default class BanIPModal extends Modal {
     getOtherUsers() {
         const data = {};
 
-        if (this.banOption() === 'only') data.ip = this.post.ipAddress();
+        if (this.banOption() === 'only') data.ip = this.address || this.post.ipAddress();
 
         app.request({
             data,

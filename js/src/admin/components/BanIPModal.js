@@ -31,19 +31,21 @@ export default class BanIPModal extends Modal {
                 <p>{app.translator.trans('fof-ban-ips.lib.modal.ban_ip_confirmation')}</p>
 
                 <div className="Form-group">
-                    <label className="label">IP Address</label>
+                    <label className="label">{app.translator.trans('fof-ban-ips.lib.modal.address_label')}</label>
                     <input type="text" className="FormControl" bidi={this.address} required pattern="^([0-9]{1,3}\.){3}[0-9]{1,3}$" />
                 </div>
 
                 <div className="Form-group">
-                    <label className="label">Reason</label>
+                    <label className="label">{app.translator.trans('fof-ban-ips.lib.modal.reason_label')}</label>
                     <input type="text" className="FormControl" bidi={this.reason} />
                 </div>
 
                 {usersBanned
                     ? usersBanned.length
                         ? Alert.component({
-                              children: app.translator.trans('fof-ban-ips.lib.modal.ban_ip_users', { users: punctuateSeries(usernames) }),
+                              children: app.translator.transChoice('fof-ban-ips.lib.modal.ban_ip_users', usernames.length, {
+                                  users: punctuateSeries(usernames),
+                              }),
                               dismissible: false,
                           })
                         : Alert.component({

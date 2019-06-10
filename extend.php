@@ -27,7 +27,7 @@ return [
         ->get('/users/{id}/banned-ips', 'fof.ban-ips.users.banned-ips', Api\Controllers\ListUserBannedIPsController::class)
         ->get('/fof/ban-ips/check-users', 'fof.ban-ips.check', Api\Controllers\CheckIPsController::class)
         ->get('/fof/ban-ips/check-users/{user}', 'fof.ban-ips.check.others', Api\Controllers\CheckIPsController::class)
-        ->get('/fof/ban-ips', 'fof.ban-ips.show', Api\Controllers\ListBannedIPsController::class)
+        ->get('/fof/ban-ips', 'fof.ban-ips.index', Api\Controllers\ListBannedIPsController::class)
         ->post('/fof/ban-ips', 'fof.ban-ips.store', Api\Controllers\CreateBannedIPController::class)
         ->patch('/fof/ban-ips/{id}', 'fof.ban-ips.update', Api\Controllers\UpdateBannedIPController::class)
         ->delete('/fof/ban-ips/{id}', 'fof.ban-ips.delete', Api\Controllers\DeleteBannedIPController::class),

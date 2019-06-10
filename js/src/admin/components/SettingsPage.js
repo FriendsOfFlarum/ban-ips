@@ -1,19 +1,48 @@
 import Button from 'flarum/components/Button';
+import LoadingIndicator from 'flarum/components/LoadingIndicator';
+import Placeholder from 'flarum/components/Placeholder';
 import Page from 'flarum/components/Page';
 
-import username from 'flarum/helpers/username';
 import BanIPModal from './BanIPModal';
+import SettingsPageItem from './SettingsPageItem';
 
 export default class SettingsPage extends Page {
     init() {
-        const bannedIPs = app.store.all('banned_ips');
+        super.init();
+
+        this.loading = true;
 
         this.page = 0;
         this.pageSize = 20;
-        this.pageNumber = Math.ceil(bannedIPs.length / this.pageSize);
+    }
+
+    config(isInitialized) {
+        super.config(...arguments);
+
+        if (isInitialized) return;
+
+        this.refresh();
     }
 
     view() {
+        let next, prev;
+
+        if (this.nextResults === true) {
+            next = Button.component({
+                className: 'Button Button--PageList-next',
+                icon: 'fas fa-angle-right',
+                onclick: this.loadNext.bind(this),
+            });
+        }
+
+        if (this.prevResults === true) {
+            prev = Button.component({
+                className: 'Button Button--PageList-prev',
+                icon: 'fas fa-angle-left',
+                onclick: this.loadPrev.bind(this),
+            });
+        }
+
         return (
             <div className="BannedIPsPage">
                 <div className="BannedIPsPage-header">
@@ -30,36 +59,93 @@ export default class SettingsPage extends Page {
                 <br />
                 <div className="BannedIpsPage-table">
                     <div className="container">
-                        <table style={{ width: '100%', textAlign: 'left' }} class="table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Creator</th>
-                                    <th>User</th>
-                                    <th>Address</th>
-                                    <th>Reason</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {app.store
-                                    .all('banned_ips')
-                                    .slice(this.page, this.page + this.pageSize)
-                                    .map(b => (
-                                        <tr>
-                                            <td>{b.id()}</td>
-                                            <td>{username(b.creator())}</td>
-                                            <td>{username(b.user())}</td>
-                                            <td>{b.address()}</td>
-                                            <td>{b.reason()}</td>
-                                            <td>{b.createdAt().toLocaleDateString()}</td>
-                                        </tr>
-                                    ))}
-                            </tbody>
-                        </table>
+                        {this.loading ? (
+                            LoadingIndicator.component()
+                        ) : app.store.all('banned_ips').length ? (
+                            <table style={{ width: '100%', textAlign: 'left' }} className="table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>{app.translator.trans('fof-ban-ips.admin.page.creator_label')}</th>
+                                        <th>{app.translator.trans('fof-ban-ips.admin.page.user_label')}</th>
+                                        <th>{app.translator.trans('fof-ban-ips.admin.page.address_label')}</th>
+                                        <th>{app.translator.trans('fof-ban-ips.admin.page.reason_label')}</th>
+                                        <th>{app.translator.trans('fof-ban-ips.admin.page.date_label')}</th>
+                                        <th />
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {app.store
+                                        .all('banned_ips')
+                                        .slice(this.page, this.page + this.pageSize)
+                                        .map(bannedIP => SettingsPageItem.component({ bannedIP }))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            Placeholder.component({ text: app.translator.trans('fof-ban-ips.admin.empty_text') })
+                        )}
                     </div>
+                </div>
+                <div>
+                    {next}
+                    {prev}
                 </div>
             </div>
         );
+    }
+
+    refresh() {
+        return this.loadResults().then(this.parseResults.bind(this));
+    }
+
+    /**
+     * Load a new page of Pages results.
+     *
+     * @param {Integer} page number.
+     * @return {Promise}
+     */
+    loadResults() {
+        const offset = this.page * this.pageSize;
+
+        return app.store.find('fof/ban-ips', { page: { offset, limit: this.pageSize } });
+    }
+
+    /**
+     * Load the next page of results.
+     *
+     * @public
+     */
+    loadNext() {
+        if (this.nextResults === true) {
+            this.page++;
+            this.refresh();
+        }
+    }
+
+    /**
+     * Load the previous page of results.
+     *
+     * @public
+     */
+    loadPrev() {
+        if (this.prevResults === true) {
+            this.page--;
+            this.refresh();
+        }
+    }
+
+    /**
+     * Parse results and append them to the page list.
+     *
+     * @param {Page[]} results
+     * @return {Page[]}
+     */
+    parseResults(results) {
+        this.loading = false;
+
+        this.nextResults = !!results.payload.links.next;
+        this.prevResults = !!results.payload.links.prev;
+
+        m.lazyRedraw();
     }
 }

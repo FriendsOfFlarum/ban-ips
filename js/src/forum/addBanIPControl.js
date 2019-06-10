@@ -3,8 +3,8 @@ import PostControls from 'flarum/utils/PostControls';
 import UserControls from 'flarum/utils/UserControls';
 import Button from 'flarum/components/Button';
 
-import BanIPModal from './components/BanIPModal';
-import UnbanIPModal from './components/UnbanIPModal';
+import BanIPModal from '../common/components/BanIPModal';
+import UnbanIPModal from '../common/components/UnbanIPModal';
 
 export default () => {
     extend(PostControls, 'userControls', function(items, post) {

@@ -11,6 +11,7 @@
 
 namespace FoF\BanIPs\Commands;
 
+use Carbon\Carbon;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
@@ -64,6 +65,7 @@ class CreateBannedIPHandler
             Arr::get($data, 'attributes.address'),
             Arr::get($data, 'attributes.reason')
         );
+        $bannedIP->created_at = Carbon::now();
 
         $this->validator->assertValid($bannedIP->getAttributes());
 

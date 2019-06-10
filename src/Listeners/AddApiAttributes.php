@@ -73,10 +73,6 @@ class AddApiAttributes
 
     public function addRelationship(GetApiRelationship $event)
     {
-//        if ($event->isRelationship(ForumSerializer::class, 'banned_ips')) {
-//            return $event->serializer->hasMany($event->model, BannedIPSerializer::class, 'banned_ips');
-//        }
-
         if ($event->isRelationship(UserSerializer::class, 'banned_ips')) {
             return $event->serializer->hasMany($event->model, BannedIPSerializer::class, 'banned_ips');
         }
@@ -105,13 +101,6 @@ class AddApiAttributes
                 $data['banned_ips'] = $canView ? $this->bannedIPs->getUserBannedIPs($data)->get() : [];
             }
         }
-
-//        if ($event->isController(Controller\ListPostsController::class)
-//            || $event->isController(Controller\ShowPostController::class)
-//            || $event->isController(Controller\CreatePostController::class)
-//            || $event->isController(Controller\UpdatePostController::class)) {
-//            $event->data['banned_ip'] = $canView ? $this->bannedIPs->findByIPAddress(array_get($event->data, 'ip_address')) : null;
-//        }
     }
 
     /**

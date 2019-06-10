@@ -14,6 +14,18 @@ export default class UnbanIPModal extends BanIPModal {
         const otherUsers = this.otherUsers[this.banOption()];
         const usernames = otherUsers && otherUsers.map(u => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));
 
+        if (this.bannedIPs) {
+            return (
+                <div className="Modal-body">
+                    {Alert.component({
+                        children: app.translator.trans('fof-ban-ips.lib.modal.unbanned_ips', { ips: punctuateSeries(this.bannedIPs) }),
+                        dismissible: false,
+                        type: 'success',
+                    })}
+                </div>
+            );
+        }
+
         return (
             <div className="Modal-body">
                 <p>{app.translator.trans('fof-ban-ips.lib.modal.unban_ip_confirmation')}</p>
@@ -30,9 +42,9 @@ export default class UnbanIPModal extends BanIPModal {
                             />
                             &nbsp;
                             <label htmlFor={`ban-option-${key}`}>
-                                {app.translator.trans(`fof-ban-ips.forum.modal.unban_options_${key}_ip`, {
+                                {app.translator.trans(`fof-ban-ips.lib.modal.unban_options_${key}_ip`, {
                                     user: this.user,
-                                    ip: this.post && this.post.ipAddress(),
+                                    ip: this.address || (this.post && this.post.ipAddress()),
                                 })}
                             </label>
                         </div>
@@ -48,7 +60,7 @@ export default class UnbanIPModal extends BanIPModal {
                               dismissible: false,
                           })
                         : Alert.component({
-                              children: app.translator.trans('fof-ban-ips.forum.modal.unban_ip_no_users'),
+                              children: app.translator.trans('fof-ban-ips.lib.modal.unban_ip_no_users'),
                               dismissible: false,
                               type: 'success',
                           })
@@ -77,14 +89,14 @@ export default class UnbanIPModal extends BanIPModal {
         const attrs = {};
 
         if (this.banOption() === 'only') {
-            attrs.address = this.post.ipAddress();
+            attrs.address = this.address || this.post.ipAddress();
 
-            const bannedIP = this.post.bannedIP();
+            const bannedIP = this.post ? this.post.bannedIP() : app.store.getBy('banned_ips', 'address', this.address);
 
             bannedIP
                 .delete()
                 .then(this.done.bind(this, bannedIP))
-                .then(this.hide.bind(this), this.onerror.bind(this), this.loaded.bind(this));
+                .catch(this.onerror.bind(this));
         } else if (this.banOption() === 'all') {
             app.request({
                 data: {
@@ -97,20 +109,22 @@ export default class UnbanIPModal extends BanIPModal {
                 errorHandler: this.onerror.bind(this),
             })
                 .then(this.done.bind(this))
-                .then(this.hide.bind(this))
-                .catch(() => {})
-                .then(this.loaded.bind(this));
+                .catch(this.onerror.bind(this));
         }
     }
 
     getOtherUsers() {
         const data = {};
 
-        if (this.banOption() === 'only') data.ip = this.post.ipAddress();
+        if (this.banOption() === 'only') data.ip = this.address || this.post.ipAddress();
+
+        let url = `${app.forum.attribute('apiUrl')}/fof/ban-ips/check-users`;
+
+        if (this.user) url += `/${this.user.id()}`;
 
         app.request({
             data,
-            url: `${app.forum.attribute('apiUrl')}/fof/ban-ips/check-users/${this.user.id()}`,
+            url: url,
             method: 'GET',
             errorHandler: this.onerror.bind(this),
         })
@@ -127,16 +141,33 @@ export default class UnbanIPModal extends BanIPModal {
     }
 
     done(bannedIP) {
-        if (bannedIP) {
-            delete this.post.data.relationships.banned_ip;
+        this.loading = false;
 
-            this.user.data.relationships.banned_ips.data = this.user.data.relationships.banned_ips.data.filter(e => e.id !== bannedIP.id());
-            this.user.data.attributes.isBanned = false;
-        } else {
-            this.user.data.relationships.banned_ips.data = [];
-            this.user.data.attributes.isBanned = false;
+        if (this.post) delete this.post.data.relationships.banned_ip;
 
-            if (this.post) delete this.post.data.relationships.banned_ip;
+        if (this.user && !this.user.data.relationships) {
+            if (bannedIP instanceof app.store.models.banned_ips) {
+                this.user.data.relationships.banned_ips = {
+                    data: this.user.data.relationships.banned_ips.data.filter(e => e.id !== bannedIP.id()),
+                };
+                this.user.data.attributes.isBanned = this.user.data.relationships.banned_ips.data.length !== 0;
+            } else if (!bannedIP) {
+                this.user.data.relationships.banned_ips.data = [];
+                this.user.data.attributes.isBanned = false;
+            }
         }
+
+        if (bannedIP && bannedIP.data) {
+            this.bannedIPs = bannedIP.data.map(b => b.attributes.address);
+            this.loading = false;
+
+            m.lazyRedraw();
+        }
+    }
+
+    hide() {
+        super.hide();
+
+        location.reload();
     }
 }

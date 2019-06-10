@@ -80,5 +80,7 @@ class UnbanUserHandler
                 new IPWasUnbanned($bannedIP, $actor)
             );
         }
+
+        return $bannedIPs;
     }
 }

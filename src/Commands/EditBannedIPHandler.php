@@ -11,7 +11,9 @@
 
 namespace FoF\BanIPs\Commands;
 
+use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\User\AssertPermissionTrait;
+use Flarum\User\Exception\PermissionDeniedException;
 use FoF\BanIPs\BannedIP;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Validators\BannedIPValidator;
@@ -52,9 +54,15 @@ class EditBannedIPHandler
 
         $attributes = array_get($data, 'attributes', []);
 
+        $bannedIP = BannedIP::find($command->bannedId);
+
         $this->assertCan($actor, 'banIP');
 
-        $bannedIP = $this->bannedIPs->findOrFail($command->bannedId);
+        if ($bannedIP !== null && $actor === $bannedIP->creator) {
+            throw new PermissionDeniedException;
+        } else if ($bannedIP == null) {
+            throw new RouteNotFoundException;
+        }
 
         if (isset($attributes['userId'])) {
             $bannedIP->user_id = $attributes['userId'];
@@ -65,10 +73,10 @@ class EditBannedIPHandler
         }
 
         if (isset($attributes['reason'])) {
-            $bannedIP->address = $attributes['reason'];
+            $bannedIP->reason = $attributes['reason'];
         }
 
-        $this->validator->assertValid(array_merge($bannedIP->getDirty()));
+        $this->validator->assertValid($bannedIP->getDirty());
 
         $bannedIP->save();
 

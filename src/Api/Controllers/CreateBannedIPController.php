@@ -27,6 +27,11 @@ class CreateBannedIPController extends AbstractCreateController
     public $serializer = BannedIPSerializer::class;
 
     /**
+     * {@inheritdoc}
+     */
+    public $include = ['user', 'creator'];
+
+    /**
      * @var Dispatcher
      */
     protected $bus;
