@@ -169,6 +169,11 @@ export default class BanIPModal extends Modal {
             };
         }
 
+        if (!this.user.data.relationships.banned_ips)
+            this.user.data.relationships.banned_ips = {
+                data: [],
+            };
+
         this.user.data.relationships.banned_ips.data.push(obj);
         this.user.data.attributes.isBanned = true;
     }

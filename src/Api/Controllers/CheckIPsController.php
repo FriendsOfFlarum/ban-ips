@@ -18,6 +18,7 @@ use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
 use FoF\BanIPs\Repositories\BannedIPRepository;
+use FoF\BanIPs\Validators\BannedIPValidator;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -35,9 +36,19 @@ class CheckIPsController extends AbstractListController
      */
     private $bannedIPs;
 
-    public function __construct(BannedIPRepository $bannedIPs)
+    /**
+     * @var BannedIPValidator
+     */
+    private $validator;
+
+    /**
+     * @param BannedIPRepository $bannedIPs
+     * @param BannedIPValidator  $validator
+     */
+    public function __construct(BannedIPRepository $bannedIPs, BannedIPValidator $validator)
     {
         $this->bannedIPs = $bannedIPs;
+        $this->validator = $validator;
     }
 
     /**
@@ -67,7 +78,13 @@ class CheckIPsController extends AbstractListController
             throw new RouteNotFoundException();
         }
 
-        $ips = array_wrap(array_get($request->getQueryParams(), 'ip') ?? $this->bannedIPs->getUserIPs($user)->toArray());
+        $ip = array_get($request->getQueryParams(), 'ip');
+
+        if ($ip) {
+            $this->validator->assertValid(['address' => $ip]);
+        }
+
+        $ips = array_wrap($ip ?? $this->bannedIPs->getUserIPs($user)->toArray());
 
         if (empty($ips)) {
             throw new ValidationException([

@@ -82,9 +82,7 @@ export default class SettingsPage extends Page {
                                 </tbody>
                             </table>
                         ) : (
-                            <div>
-                                {Placeholder.component({ text: app.translator.trans('fof-ban-ips.admin.empty_text') })}
-                            </div>
+                            <div>{Placeholder.component({ text: app.translator.trans('fof-ban-ips.admin.empty_text') })}</div>
                         )}
                     </div>
                 </div>
