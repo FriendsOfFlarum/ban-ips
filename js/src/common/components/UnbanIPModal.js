@@ -71,7 +71,7 @@ export default class UnbanIPModal extends BanIPModal {
                 <div className="Form-group">
                     <Button className="Button Button--primary" type="submit" loading={this.loading}>
                         {usernames
-                            ? app.translator.trans('fof-ban-ips.lib.modal.submit_button')
+                            ? app.translator.trans('fof-ban-ips.lib.modal.unban_button')
                             : app.translator.trans('fof-ban-ips.lib.modal.check_button')}
                     </Button>
                 </div>
@@ -157,7 +157,7 @@ export default class UnbanIPModal extends BanIPModal {
             }
         }
 
-        if (bannedIP && bannedIP.data) {
+        if (bannedIP && Array.isArray(bannedIP.data)) {
             this.bannedIPs = bannedIP.data.map(b => b.attributes.address);
             this.loading = false;
 

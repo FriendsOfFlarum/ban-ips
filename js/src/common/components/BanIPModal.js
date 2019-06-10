@@ -92,7 +92,7 @@ export default class BanIPModal extends Modal {
                 <div className="Form-group">
                     <Button className="Button Button--primary" type="submit" loading={this.loading}>
                         {usernames
-                            ? app.translator.trans('fof-ban-ips.lib.modal.submit_button')
+                            ? app.translator.trans('fof-ban-ips.lib.modal.ban_button')
                             : app.translator.trans('fof-ban-ips.lib.modal.check_button')}
                     </Button>
                 </div>

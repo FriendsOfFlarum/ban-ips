@@ -65,7 +65,7 @@ export default class BanIPModal extends Modal {
                         disabled={app.store.getBy('banned_ips', 'address', this.address())}
                     >
                         {usernames
-                            ? app.translator.trans('fof-ban-ips.lib.modal.submit_button')
+                            ? app.translator.trans('fof-ban-ips.lib.modal.ban_button')
                             : app.translator.trans('fof-ban-ips.lib.modal.check_button')}
                     </Button>
                 </div>

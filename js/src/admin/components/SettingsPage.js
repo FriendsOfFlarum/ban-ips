@@ -47,7 +47,7 @@ export default class SettingsPage extends Page {
             <div className="BannedIPsPage">
                 <div className="BannedIPsPage-header">
                     <div className="container">
-                        <p>{app.translator.trans('fof-ban-ips.admin.page.about_text')}</p>
+                        <p>{app.translator.trans('fof-ban-ips.admin.nav.desc')}</p>
                         {Button.component({
                             className: 'Button Button--primary',
                             icon: 'fas fa-plus',
@@ -82,7 +82,9 @@ export default class SettingsPage extends Page {
                                 </tbody>
                             </table>
                         ) : (
-                            Placeholder.component({ text: app.translator.trans('fof-ban-ips.admin.empty_text') })
+                            <div>
+                                {Placeholder.component({ text: app.translator.trans('fof-ban-ips.admin.empty_text') })}
+                            </div>
                         )}
                     </div>
                 </div>
