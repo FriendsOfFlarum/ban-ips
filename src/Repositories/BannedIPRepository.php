@@ -21,6 +21,16 @@ use Illuminate\Support\Collection;
 class BannedIPRepository
 {
     /**
+     * @var array
+     */
+    private static $bans = [];
+
+    /**
+     * @var array
+     */
+    private static $ips = [];
+
+    /**
      * Get a new query builder for the pages table.
      *
      * @return Builder
@@ -97,15 +107,25 @@ class BannedIPRepository
 
     /**
      * @param User $user
+     *
+     * @return bool
      */
     public function isUserBanned(User $user)
     {
-        return $user->cannot('banIP') && $this->getUserBannedIPs($user)->exists();
+        if (array_has(self::$bans, $user->id)) {
+            return (bool) self::$bans[$user->id];
+        }
+
+        return self::$bans[$user->id] = $user->cannot('banIP') && $this->getUserBannedIPs($user)->exists();
     }
 
     public function getUserIPs(User $user) : Collection
     {
-        return $user->posts()->whereNotNull('ip_address')->pluck('ip_address')->unique();
+        if (array_has(self::$ips, $user->id)) {
+            return self::$ips[$user->id];
+        }
+
+        return self::$ips[$user->id] = $user->posts()->whereNotNull('ip_address')->pluck('ip_address')->unique();
     }
 
     public function getUserBannedIPs(User $user) : Builder
