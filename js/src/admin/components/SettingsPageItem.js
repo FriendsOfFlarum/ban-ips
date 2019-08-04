@@ -30,7 +30,7 @@ export default class SettingsPageItem extends Component {
                         {Button.component({
                             className: 'Button Button--danger',
                             icon: 'fas fa-times',
-                            onclick: () => app.modal.show(new UnbanIPModal({ address: this.item.address() })),
+                            onclick: () => app.modal.show(new UnbanIPModal({ address: this.item.address(), redraw: true })),
                         })}
                     </div>
                 </td>

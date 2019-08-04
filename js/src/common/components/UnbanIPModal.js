@@ -96,7 +96,8 @@ export default class UnbanIPModal extends BanIPModal {
             bannedIP
                 .delete()
                 .then(this.done.bind(this, bannedIP))
-                .catch(this.onerror.bind(this));
+                .catch(this.onerror.bind(this))
+                .then(this.hide.bind(this));
         } else if (this.banOption() === 'all') {
             app.request({
                 data: {
@@ -109,14 +110,18 @@ export default class UnbanIPModal extends BanIPModal {
                 errorHandler: this.onerror.bind(this),
             })
                 .then(this.done.bind(this))
-                .catch(this.onerror.bind(this));
+                .catch(this.onerror.bind(this))
+                .then(this.hide.bind(this));
         }
     }
 
     getOtherUsers() {
         const data = {};
 
-        if (this.banOption() === 'only') data.ip = this.address || this.post.ipAddress();
+        if (this.banOption() === 'only') {
+            data.ip = this.address || this.post.ipAddress();
+            data.skipValidation = true;
+        }
 
         let url = `${app.forum.attribute('apiUrl')}/fof/ban-ips/check-users`;
 
@@ -168,6 +173,8 @@ export default class UnbanIPModal extends BanIPModal {
     hide() {
         super.hide();
 
-        location.reload();
+        if (!this.props.redraw) {
+            location.reload();
+        }
     }
 }

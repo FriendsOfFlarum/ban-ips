@@ -19,6 +19,7 @@ use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Validators\BannedIPValidator;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -66,25 +67,29 @@ class CheckIPsController extends AbstractListController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $this->assertCan($request->getAttribute('actor'), 'banIP');
+        $actor = $request->getAttribute('actor');
+        $params = $request->getQueryParams();
 
-        $userId = array_get($request->getQueryParams(), 'user');
+        $this->assertCan($actor, 'banIP');
+
+        $userId = Arr::get($params, 'user');
+        $ip = Arr::get($params, 'ip');
         $user = $userId != null ? User::where('id', $userId)->orWhere('username', $userId)->first() : null;
-        $ip = array_get($request->getQueryParams(), 'ip');
 
-        $this->assertCan($request->getAttribute('actor'), 'banIP', $user);
+        $this->assertCan($actor, 'banIP', $user);
 
         if (!isset($ip) && !isset($user)) {
             throw new RouteNotFoundException();
         }
 
-        $ip = array_get($request->getQueryParams(), 'ip');
+        $ip = Arr::get($params, 'ip');
+        $validate = !Arr::has($params, 'skipValidation');
 
-        if ($ip) {
+        if ($ip && $validate) {
             $this->validator->assertValid(['address' => $ip]);
         }
 
-        $ips = array_wrap($ip ?? $this->bannedIPs->getUserIPs($user)->toArray());
+        $ips = Arr::wrap($ip ?? $this->bannedIPs->getUserIPs($user)->toArray());
 
         if (empty($ips)) {
             throw new ValidationException([
