@@ -11,7 +11,6 @@
 
 use Flarum\Database\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Schema\Builder;
 
 return Migration::createTable('banned_ips', function (Blueprint $table) {
     $table->increments('id');
