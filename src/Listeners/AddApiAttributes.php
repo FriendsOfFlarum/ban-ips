@@ -63,7 +63,7 @@ class AddApiAttributes
     public function addModelRelationship(GetModelRelationship $event)
     {
         if ($event->isRelationship(User::class, 'banned_ips')) {
-            return $event->model->hasOne(BannedIP::class);
+            return $event->model->hasMany(BannedIP::class);
         }
 
         if ($event->isRelationship(Post::class, 'banned_ip')) {

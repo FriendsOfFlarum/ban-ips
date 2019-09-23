@@ -18,7 +18,6 @@ export default () => {
             `${prefix}ban`,
             Button.component({
                 children: app.translator.trans(`fof-ban-ips.forum.${prefix}ban_ip_button`),
-                className: 'Button Button--link',
                 icon: 'fas fa-gavel',
                 onclick: () => app.modal.show(isBanned ? new UnbanIPModal({ post }) : new BanIPModal({ post })),
             })

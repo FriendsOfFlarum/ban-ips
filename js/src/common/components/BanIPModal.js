@@ -2,7 +2,6 @@ import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
 import Alert from 'flarum/components/Alert';
 import punctuateSeries from 'flarum/helpers/punctuateSeries';
-import username from 'flarum/helpers/username';
 
 export default class BanIPModal extends Modal {
     init() {
@@ -18,7 +17,7 @@ export default class BanIPModal extends Modal {
 
         this.banOptions = [];
 
-        if (this.post || this.address) this.banOptions.push('only');
+        if ((this.post && this.post.ipAddress()) || this.address) this.banOptions.push('only');
         if (this.user) this.banOptions.push('all');
 
         this.banOption = m.prop(this.banOptions[0]);
@@ -118,8 +117,9 @@ export default class BanIPModal extends Modal {
             app.store
                 .createRecord('banned_ips')
                 .save(attrs)
-                .then(this.done.bind(this))
-                .then(this.hide.bind(this), this.onerror.bind(this), this.loaded.bind(this));
+                .then(this.hide.bind(this))
+                .catch(this.onerror.bind(this))
+                .then(this.loaded.bind(this))
         } else if (this.banOption() === 'all') {
             app.request({
                 data: {
