@@ -150,16 +150,14 @@ export default class UnbanIPModal extends BanIPModal {
 
         if (this.post) delete this.post.data.relationships.banned_ip;
 
-        if (this.user && !this.user.data.relationships) {
-            if (bannedIP instanceof app.store.models.banned_ips) {
-                this.user.data.relationships.banned_ips = {
-                    data: this.user.data.relationships.banned_ips.data.filter(e => e.id !== bannedIP.id()),
-                };
-                this.user.data.attributes.isBanned = this.user.data.relationships.banned_ips.data.length !== 0;
-            } else if (!bannedIP) {
-                this.user.data.relationships.banned_ips.data = [];
-                this.user.data.attributes.isBanned = false;
-            }
+        if (this.user && !this.user.data.relationships && !bannedIP) {
+            this.user.data.relationships.banned_ips.data = [];
+            this.user.data.attributes.isBanned = false;
+        } else if (this.user && bannedIP instanceof app.store.models.banned_ips) {
+            this.user.data.relationships.banned_ips = {
+                data: this.user.data.relationships.banned_ips.data.filter(e => e.id !== bannedIP.id()),
+            };
+            this.user.data.attributes.isBanned = this.user.data.relationships.banned_ips.data.length !== 0;
         }
 
         if (bannedIP && Array.isArray(bannedIP.data)) {

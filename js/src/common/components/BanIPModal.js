@@ -119,7 +119,7 @@ export default class BanIPModal extends Modal {
                 .save(attrs)
                 .then(this.hide.bind(this))
                 .catch(this.onerror.bind(this))
-                .then(this.loaded.bind(this))
+                .then(this.loaded.bind(this));
         } else if (this.banOption() === 'all') {
             app.request({
                 data: {
