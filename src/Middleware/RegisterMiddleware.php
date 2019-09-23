@@ -11,7 +11,8 @@
 
 namespace FoF\BanIPs\Middleware;
 
-use Flarum\Api\ExceptionHandler\ValidationExceptionHandler;
+use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
+use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ValidationException;
 use Flarum\User\UserRepository;
 use FoF\BanIPs\Repositories\BannedIPRepository;
@@ -20,7 +21,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Zend\Diactoros\Response\JsonResponse;
 use Zend\Diactoros\Response\RedirectResponse;
 
 class RegisterMiddleware implements MiddlewareInterface
@@ -73,12 +73,14 @@ class RegisterMiddleware implements MiddlewareInterface
                     }
                 }
 
-                $exception = new ValidationException([
-                    'ip' => app('translator')->trans('fof-ban-ips.error.banned_ip_message'),
-                ]);
-                $response = app(ValidationExceptionHandler::class)->handle($exception);
-
-                return new JsonResponse(['errors' => $response->getErrors()], $response->getStatus());
+                return (new JsonApiFormatter())
+                    ->format(
+                        app(Registry::class)
+                            ->handle(new ValidationException([
+                                'ip' => app('translator')->trans('fof-ban-ips.error.banned_ip_message'),
+                            ])),
+                        $request
+                    );
             }
         }
 
