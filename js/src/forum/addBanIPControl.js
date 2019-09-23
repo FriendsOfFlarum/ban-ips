@@ -25,7 +25,7 @@ export default () => {
     });
 
     extend(UserControls, 'moderationControls', function(items, user) {
-        if (user.canBanIP() || user === app.session.user) return;
+        if (!user.canBanIP() || user === app.session.user) return;
 
         const isBanned = user.isBanned();
         const prefix = isBanned ? 'un' : '';
