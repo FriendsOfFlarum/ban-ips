@@ -12,3 +12,9 @@ app.initializers.add('fof/ban-ips', () => {
     addPermissions();
     addSettingsPage();
 });
+
+// Expose compat API
+import extCompat from './compat';
+import { compat } from '@flarum/core/admin';
+
+Object.assign(compat, extCompat);
