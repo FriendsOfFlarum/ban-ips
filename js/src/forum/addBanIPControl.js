@@ -8,7 +8,9 @@ import UnbanIPModal from '../common/components/UnbanIPModal';
 
 export default () => {
     extend(PostControls, 'userControls', function(items, post) {
-        const isBanned = post.user().isBanned();
+        if (!post || !post.user()) return;
+
+        const isBanned = post.user.isBanned();
         const prefix = isBanned ? 'un' : '';
 
         // Removes ability to ban thyself and also does permission check.
