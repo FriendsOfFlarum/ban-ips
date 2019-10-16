@@ -31,10 +31,10 @@ class UserPolicy extends AbstractPolicy
      */
     public function banIP(User $actor, User $user)
     {
-        if ($user !== null && $actor->id === $user->id && $user->can($this->key)) {
+        if ($user == null || $actor->id == $user->id || $user->can($this->key)) {
             return false;
         }
 
-        return $actor->can($this->key);
+        return $actor->can($this->key, $user);
     }
 }
