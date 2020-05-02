@@ -119,7 +119,7 @@ class BannedIPRepository
         return self::$bans[$user->id] = $user->cannot('banIP') && $this->getUserBannedIPs($user)->exists();
     }
 
-    public function getUserIPs(User $user) : Collection
+    public function getUserIPs(User $user): Collection
     {
         if (array_has(self::$ips, $user->id)) {
             return self::$ips[$user->id];
@@ -128,7 +128,7 @@ class BannedIPRepository
         return self::$ips[$user->id] = $user->posts()->whereNotNull('ip_address')->pluck('ip_address')->unique();
     }
 
-    public function getUserBannedIPs(User $user) : Builder
+    public function getUserBannedIPs(User $user): Builder
     {
         $ips = $this->getUserIPs($user)->toArray();
 
