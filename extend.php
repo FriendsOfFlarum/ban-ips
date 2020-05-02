@@ -33,7 +33,7 @@ return [
         ->patch('/fof/ban-ips/{id}', 'fof.ban-ips.update', Api\Controllers\UpdateBannedIPController::class)
         ->delete('/fof/ban-ips/{id}', 'fof.ban-ips.delete', Api\Controllers\DeleteBannedIPController::class),
     (new Extend\Middleware('forum'))
-        ->add(RegisterMiddleware::class)
+        ->add(RegisterMiddleware::class),
     function (Dispatcher $events) {
         $events->subscribe(Access\UserPolicy::class);
 
