@@ -3,7 +3,7 @@ import User from 'flarum/models/User';
 import Badge from 'flarum/components/Badge';
 
 export default () => {
-    extend(User.prototype, 'badges', function(items) {
+    extend(User.prototype, 'badges', function (items) {
         if (this.isBanned()) {
             items.add(
                 'banned',

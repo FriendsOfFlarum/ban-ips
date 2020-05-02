@@ -12,7 +12,7 @@ export default class UnbanIPModal extends BanIPModal {
 
     content() {
         const otherUsers = this.otherUsers[this.banOption()];
-        const usernames = otherUsers && otherUsers.map(u => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));
+        const usernames = otherUsers && otherUsers.map((u) => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));
 
         if (this.bannedIPs) {
             return (
@@ -31,7 +31,7 @@ export default class UnbanIPModal extends BanIPModal {
                 <p>{app.translator.trans('fof-ban-ips.lib.modal.unban_ip_confirmation')}</p>
 
                 <div className="Form-group">
-                    {this.banOptions.map(key => (
+                    {this.banOptions.map((key) => (
                         <div>
                             <input
                                 type="radio"
@@ -93,11 +93,7 @@ export default class UnbanIPModal extends BanIPModal {
 
             const bannedIP = this.post ? this.post.bannedIP() : app.store.getBy('banned_ips', 'address', this.address);
 
-            bannedIP
-                .delete()
-                .then(this.done.bind(this, bannedIP))
-                .catch(this.onerror.bind(this))
-                .then(this.hide.bind(this));
+            bannedIP.delete().then(this.done.bind(this, bannedIP)).catch(this.onerror.bind(this)).then(this.hide.bind(this));
         } else if (this.banOption() === 'all') {
             app.request({
                 data: {
@@ -133,10 +129,10 @@ export default class UnbanIPModal extends BanIPModal {
             method: 'GET',
             errorHandler: this.onerror.bind(this),
         })
-            .then(res => {
+            .then((res) => {
                 const data = app.store.pushPayload(res);
 
-                this.otherUsers[this.banOption()] = data.filter(e => e.bannedIPs().length === 1);
+                this.otherUsers[this.banOption()] = data.filter((e) => e.bannedIPs().length === 1);
                 this.loading = false;
 
                 m.lazyRedraw();
@@ -155,13 +151,13 @@ export default class UnbanIPModal extends BanIPModal {
             this.user.data.attributes.isBanned = false;
         } else if (this.user && bannedIP instanceof app.store.models.banned_ips) {
             this.user.data.relationships.banned_ips = {
-                data: this.user.data.relationships.banned_ips.data.filter(e => e.id !== bannedIP.id()),
+                data: this.user.data.relationships.banned_ips.data.filter((e) => e.id !== bannedIP.id()),
             };
             this.user.data.attributes.isBanned = this.user.data.relationships.banned_ips.data.length !== 0;
         }
 
         if (bannedIP && Array.isArray(bannedIP.data)) {
-            this.bannedIPs = bannedIP.data.map(b => b.attributes.address);
+            this.bannedIPs = bannedIP.data.map((b) => b.attributes.address);
             this.loading = false;
 
             m.lazyRedraw();

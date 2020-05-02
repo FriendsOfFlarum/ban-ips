@@ -7,7 +7,7 @@ import BanIPModal from '../common/components/BanIPModal';
 import UnbanIPModal from '../common/components/UnbanIPModal';
 
 export default () => {
-    extend(PostControls, 'userControls', function(items, post) {
+    extend(PostControls, 'userControls', function (items, post) {
         if (!post || !post.user()) return;
 
         const isBanned = post.user().isBanned();
@@ -26,7 +26,7 @@ export default () => {
         );
     });
 
-    extend(UserControls, 'moderationControls', function(items, user) {
+    extend(UserControls, 'moderationControls', function (items, user) {
         if (!user.canBanIP() || user === app.session.user) return;
 
         const isBanned = user.isBanned();

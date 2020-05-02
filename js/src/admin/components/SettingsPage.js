@@ -78,7 +78,7 @@ export default class SettingsPage extends Page {
                                     {app.store
                                         .all('banned_ips')
                                         .slice(this.page, this.page + this.pageSize)
-                                        .map(bannedIP => SettingsPageItem.component({ bannedIP }))}
+                                        .map((bannedIP) => SettingsPageItem.component({ bannedIP }))}
                                 </tbody>
                             </table>
                         ) : (

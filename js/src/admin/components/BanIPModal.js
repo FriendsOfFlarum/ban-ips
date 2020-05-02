@@ -93,10 +93,7 @@ export default class BanIPModal extends Modal {
             reason: this.reason(),
         };
 
-        app.store
-            .createRecord('banned_ips')
-            .save(attrs)
-            .then(this.hide.bind(this), this.onerror.bind(this), this.loaded.bind(this));
+        app.store.createRecord('banned_ips').save(attrs).then(this.hide.bind(this), this.onerror.bind(this), this.loaded.bind(this));
     }
 
     getOtherUsers() {
@@ -109,13 +106,13 @@ export default class BanIPModal extends Modal {
             url: `${app.forum.attribute('apiUrl')}/fof/ban-ips/check-users`,
             method: 'GET',
         })
-            .then(res => {
-                this.usersBanned[this.address()] = res.data.map(e => app.store.pushObject(e));
+            .then((res) => {
+                this.usersBanned[this.address()] = res.data.map((e) => app.store.pushObject(e));
 
                 m.lazyRedraw();
             })
             .then(this.loaded.bind(this))
-            .catch(e => {
+            .catch((e) => {
                 this.onerror(e);
                 this.loading = false;
             });

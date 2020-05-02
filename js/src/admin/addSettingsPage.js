@@ -9,7 +9,7 @@ export default () => {
 
     app.extensionSettings['fof-ban-ips'] = () => m.route(app.route('fof-ban-ips'));
 
-    extend(AdminNav.prototype, 'items', items => {
+    extend(AdminNav.prototype, 'items', (items) => {
         items.add(
             'fof-ban-ips',
             AdminLinkButton.component({

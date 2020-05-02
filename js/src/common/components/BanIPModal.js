@@ -39,14 +39,14 @@ export default class BanIPModal extends Modal {
     content() {
         const otherUsersBanned = this.otherUsers[this.banOption()];
         const usernames =
-            otherUsersBanned && otherUsersBanned.map(u => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));
+            otherUsersBanned && otherUsersBanned.map((u) => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));
 
         return (
             <div className="Modal-body">
                 <p>{app.translator.trans('fof-ban-ips.lib.modal.ban_ip_confirmation')}</p>
 
                 <div className="Form-group">
-                    {this.banOptions.map(key => (
+                    {this.banOptions.map((key) => (
                         <div>
                             <input
                                 type="radio"
@@ -114,12 +114,7 @@ export default class BanIPModal extends Modal {
         if (this.banOption() === 'only') {
             attrs.address = this.post.ipAddress();
 
-            app.store
-                .createRecord('banned_ips')
-                .save(attrs)
-                .then(this.hide.bind(this))
-                .catch(this.onerror.bind(this))
-                .then(this.loaded.bind(this));
+            app.store.createRecord('banned_ips').save(attrs).then(this.hide.bind(this)).catch(this.onerror.bind(this)).then(this.loaded.bind(this));
         } else if (this.banOption() === 'all') {
             app.request({
                 data: {
@@ -131,7 +126,7 @@ export default class BanIPModal extends Modal {
                 method: 'POST',
                 errorHandler: this.onerror.bind(this),
             })
-                .then(res => app.store.pushPayload(res).forEach(this.done.bind(this)))
+                .then((res) => app.store.pushPayload(res).forEach(this.done.bind(this)))
                 .then(this.hide.bind(this))
                 .catch(() => {})
                 .then(this.loaded.bind(this));
@@ -149,8 +144,8 @@ export default class BanIPModal extends Modal {
             method: 'GET',
             errorHandler: this.onerror.bind(this),
         })
-            .then(res => {
-                this.otherUsers[this.banOption()] = res.data.map(e => app.store.pushObject(e)).filter(e => e.bannedIPs().length === 0);
+            .then((res) => {
+                this.otherUsers[this.banOption()] = res.data.map((e) => app.store.pushObject(e)).filter((e) => e.bannedIPs().length === 0);
                 this.loading = false;
             })
             .catch(() => {})

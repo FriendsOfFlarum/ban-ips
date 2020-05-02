@@ -2,7 +2,7 @@ import { extend } from 'flarum/extend';
 import PermissionGrid from 'flarum/components/PermissionGrid';
 
 export default () => {
-    extend(PermissionGrid.prototype, 'moderateItems', items => {
+    extend(PermissionGrid.prototype, 'moderateItems', (items) => {
         items.add('viewBannedIPList', {
             icon: 'fas fa-gavel',
             label: app.translator.trans('fof-ban-ips.admin.permissions.view_banned_ip_list_label'),
