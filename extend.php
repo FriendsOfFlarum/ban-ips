@@ -12,6 +12,7 @@
 namespace FoF\BanIPs;
 
 use Flarum\Extend;
+use FoF\BanIPs\Middleware\RegisterMiddleware;
 use Illuminate\Events\Dispatcher;
 
 return [
@@ -31,11 +32,12 @@ return [
         ->post('/fof/ban-ips', 'fof.ban-ips.store', Api\Controllers\CreateBannedIPController::class)
         ->patch('/fof/ban-ips/{id}', 'fof.ban-ips.update', Api\Controllers\UpdateBannedIPController::class)
         ->delete('/fof/ban-ips/{id}', 'fof.ban-ips.delete', Api\Controllers\DeleteBannedIPController::class),
+    (new Extend\Middleware('forum'))
+        ->add(RegisterMiddleware::class)
     function (Dispatcher $events) {
         $events->subscribe(Access\UserPolicy::class);
 
         $events->subscribe(Listeners\AddApiAttributes::class);
-        $events->subscribe(Listeners\AddMiddleware::class);
         $events->subscribe(Listeners\RemoveAccessToBannedUsers::class);
     },
 ];
