@@ -16,12 +16,12 @@ use Flarum\Database\AbstractModel;
 use Flarum\User\User;
 
 /**
- * @property User $creator
- * @property User $user
- * @property int $id
- * @property int $creator_id
- * @property int $user_id
- * @property string $address
+ * @property User        $creator
+ * @property User        $user
+ * @property int         $id
+ * @property int         $creator_id
+ * @property int         $user_id
+ * @property string      $address
  * @property string|null $reason
  * @property Carbon|null $created_at
  * @property Carbon|null $deleted_at
