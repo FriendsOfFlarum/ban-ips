@@ -12,6 +12,9 @@
 namespace FoF\BanIPs;
 
 use Flarum\Extend;
+use Flarum\Post\Post;
+use Flarum\User\User;
+use FoF\BanIPs\BannedIP;
 use FoF\BanIPs\Middleware\RegisterMiddleware;
 use Illuminate\Events\Dispatcher;
 
@@ -34,6 +37,8 @@ return [
         ->delete('/fof/ban-ips/{id}', 'fof.ban-ips.delete', Api\Controllers\DeleteBannedIPController::class),
     (new Extend\Middleware('forum'))
         ->add(RegisterMiddleware::class),
+    (new Extend\Model(User::class))->hasMany('banned_ips', BannedIP::class),
+    (new Extend\Model(Post::class))->hasOne('banned_ip',BannedIP::class, 'address', 'ip_address'),
     function (Dispatcher $events) {
         $events->subscribe(Access\UserPolicy::class);
 
