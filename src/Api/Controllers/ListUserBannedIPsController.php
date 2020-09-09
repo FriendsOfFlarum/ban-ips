@@ -16,6 +16,7 @@ use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
 use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
 use FoF\BanIPs\Repositories\BannedIPRepository;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -55,7 +56,7 @@ class ListUserBannedIPsController extends AbstractListController
     {
         $this->assertCan($request->getAttribute('actor'), 'fof.banips.viewBannedIPList');
 
-        $id = array_get($request->getQueryParams(), 'id');
+        $id = Arr::get($request->getQueryParams(), 'id');
         $user = User::where('id', $id)->orWhere('username', $id)->firstOrFail();
 
         return $this->bannedIPs->getUserBannedIPs($user)->get();

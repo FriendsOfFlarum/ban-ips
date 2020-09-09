@@ -61,7 +61,7 @@ class RegisterMiddleware implements MiddlewareInterface
         $requestUri = $request->getUri()->getPath();
 
         if ($requestUri === $registerUri || $requestUri === $loginUri) {
-            $ipAddress = array_get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
+            $ipAddress = Arr::get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
             $bannedIP = $ipAddress != null ? $this->bannedIPs->findByIPAddress($ipAddress) : null;
 
             if ($bannedIP != null && $bannedIP->deleted_at == null) {
