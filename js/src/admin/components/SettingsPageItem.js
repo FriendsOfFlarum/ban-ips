@@ -6,8 +6,10 @@ import UnbanIPModal from '../../common/components/UnbanIPModal';
 import ChangeReasonModal from './ChangeReasonModal';
 
 export default class SettingsPageItem extends Component {
-    init() {
-        this.item = this.props.bannedIP;
+    oninit(vnode) {
+        super.oninit(vnode);
+
+        this.item = this.attrs.bannedIP;
     }
 
     view() {
@@ -25,12 +27,12 @@ export default class SettingsPageItem extends Component {
                             className: 'Button Button--warning',
                             icon: 'fas fa-pencil-alt',
                             disabled: this.item.creator() !== app.session.user,
-                            onclick: () => app.modal.show(new ChangeReasonModal({ item: this.item })),
+                            onclick: () => app.modal.show(ChangeReasonModal, { item: this.item }),
                         })}
                         {Button.component({
                             className: 'Button Button--danger',
                             icon: 'fas fa-times',
-                            onclick: () => app.modal.show(new UnbanIPModal({ address: this.item.address(), redraw: true })),
+                            onclick: () => app.modal.show(UnbanIPModal, { address: this.item.address(), redraw: true }),
                         })}
                     </div>
                 </td>

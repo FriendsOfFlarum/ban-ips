@@ -7,8 +7,8 @@ import BanIPModal from './BanIPModal';
 import SettingsPageItem from './SettingsPageItem';
 
 export default class SettingsPage extends Page {
-    init() {
-        super.init();
+    oninit(vnode) {
+        super.oninit(vnode);
 
         this.loading = true;
 
@@ -16,10 +16,8 @@ export default class SettingsPage extends Page {
         this.pageSize = 20;
     }
 
-    config(isInitialized) {
-        super.config(...arguments);
-
-        if (isInitialized) return;
+    oncreate(vnode) {
+        super.oncreate(vnode)
 
         this.refresh();
     }
@@ -51,9 +49,8 @@ export default class SettingsPage extends Page {
                         {Button.component({
                             className: 'Button Button--primary',
                             icon: 'fas fa-plus',
-                            children: app.translator.trans('fof-ban-ips.admin.page.create_button'),
-                            onclick: () => app.modal.show(new BanIPModal()),
-                        })}
+                            onclick: () => app.modal.show(BanIPModal),
+                        }, app.translator.trans('fof-ban-ips.admin.page.create_button'))}
                     </div>
                 </div>
                 <br />
@@ -146,6 +143,6 @@ export default class SettingsPage extends Page {
         this.nextResults = !!results.payload.links.next;
         this.prevResults = !!results.payload.links.prev;
 
-        m.lazyRedraw();
+        m.redraw();
     }
 }

@@ -5,10 +5,12 @@ import punctuateSeries from 'flarum/helpers/punctuateSeries';
 import username from 'flarum/helpers/username';
 
 export default class ChangeReasonModal extends Modal {
-    init() {
-        this.item = this.props.item;
+    oninit(vnode) {
+        super.oninit(vnode);
 
-        this.reason = m.prop(this.item.reason());
+        this.item = this.attrs.item;
+
+        this.reason = m.stream(this.item.reason());
     }
 
     className() {

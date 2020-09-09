@@ -5,9 +5,11 @@ import punctuateSeries from 'flarum/helpers/punctuateSeries';
 import username from 'flarum/helpers/username';
 
 export default class BanIPModal extends Modal {
-    init() {
-        this.address = m.prop('');
-        this.reason = m.prop('');
+    oninit(vnode) {
+        super.oninit(vnode);
+
+        this.address = m.stream('');
+        this.reason = m.stream('');
 
         this.usersBanned = {};
 
@@ -49,16 +51,14 @@ export default class BanIPModal extends Modal {
                 {usersBanned
                     ? usersBanned.length
                         ? Alert.component({
-                              children: app.translator.transChoice('fof-ban-ips.lib.modal.ban_ip_users', usernames.length, {
-                                  users: punctuateSeries(usernames),
-                              }),
                               dismissible: false,
-                          })
+                        }, app.translator.transChoice('fof-ban-ips.lib.modal.ban_ip_users', usernames.length, {
+                            users: punctuateSeries(usernames),
+                        }))
                         : Alert.component({
-                              children: app.translator.trans('fof-ban-ips.admin.modal.ban_ip_no_users'),
                               dismissible: false,
                               type: 'success',
-                          })
+                        }, app.translator.trans('fof-ban-ips.admin.modal.ban_ip_no_users'))
                     : ''}
 
                 {usersBanned && <br />}
@@ -102,14 +102,14 @@ export default class BanIPModal extends Modal {
         };
 
         app.request({
-            data,
+            params: data,
             url: `${app.forum.attribute('apiUrl')}/fof/ban-ips/check-users`,
             method: 'GET',
         })
             .then((res) => {
                 this.usersBanned[this.address()] = res.data.map((e) => app.store.pushObject(e));
 
-                m.lazyRedraw();
+                m.redraw();
             })
             .then(this.loaded.bind(this))
             .catch((e) => {

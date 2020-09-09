@@ -4,10 +4,12 @@ import Alert from 'flarum/components/Alert';
 import punctuateSeries from 'flarum/helpers/punctuateSeries';
 
 export default class BanIPModal extends Modal {
-    init() {
-        this.address = this.props.address;
-        this.post = this.props.post;
-        this.user = this.props.user || (this.post && this.post.user());
+    oninit(vnode) {
+        super.oninit(vnode);
+
+        this.address = this.attrs.address;
+        this.post = this.attrs.post;
+        this.user = this.attrs.user || (this.post && this.post.user());
 
         if (!this.user && this.address) {
             const bannedIP = app.store.getBy('banned_ips', 'address', this.address);
@@ -20,8 +22,8 @@ export default class BanIPModal extends Modal {
         if ((this.post && this.post.ipAddress()) || this.address) this.banOptions.push('only');
         if (this.user) this.banOptions.push('all');
 
-        this.banOption = m.prop(this.banOptions[0]);
-        this.reason = m.prop('');
+        this.banOption = m.stream(this.banOptions[0]);
+        this.reason = m.stream('');
 
         this.otherUsers = {};
 
@@ -74,16 +76,14 @@ export default class BanIPModal extends Modal {
                 {otherUsersBanned
                     ? otherUsersBanned.length
                         ? Alert.component({
-                              children: app.translator.transChoice('fof-ban-ips.lib.modal.ban_ip_users', usernames.length, {
-                                  users: punctuateSeries(usernames),
-                              }),
-                              dismissible: false,
-                          })
+                            dismissible: false,
+                        }, app.translator.transChoice('fof-ban-ips.lib.modal.ban_ip_users', usernames.length, {
+                            users: punctuateSeries(usernames),
+                        }))
                         : Alert.component({
-                              children: app.translator.trans('fof-ban-ips.forum.modal.ban_ip_no_users'),
-                              dismissible: false,
-                              type: 'success',
-                          })
+                            dismissible: false,
+                            type: 'success',
+                        }, app.translator.trans('fof-ban-ips.forum.modal.ban_ip_no_users'))
                     : ''}
 
                 {otherUsersBanned && <br />}
@@ -117,7 +117,7 @@ export default class BanIPModal extends Modal {
             app.store.createRecord('banned_ips').save(attrs).then(this.hide.bind(this)).catch(this.onerror.bind(this)).then(this.loaded.bind(this));
         } else if (this.banOption() === 'all') {
             app.request({
-                data: {
+                body: {
                     data: {
                         attributes: attrs,
                     },
@@ -128,7 +128,7 @@ export default class BanIPModal extends Modal {
             })
                 .then((res) => app.store.pushPayload(res).forEach(this.done.bind(this)))
                 .then(this.hide.bind(this))
-                .catch(() => {})
+                .catch(() => { })
                 .then(this.loaded.bind(this));
         }
     }
@@ -139,7 +139,7 @@ export default class BanIPModal extends Modal {
         if (this.banOption() === 'only') data.ip = this.address || this.post.ipAddress();
 
         app.request({
-            data,
+            params: data,
             url: `${app.forum.attribute('apiUrl')}/fof/ban-ips/check-users/${this.user.id()}`,
             method: 'GET',
             errorHandler: this.onerror.bind(this),
@@ -148,7 +148,7 @@ export default class BanIPModal extends Modal {
                 this.otherUsers[this.banOption()] = res.data.map((e) => app.store.pushObject(e)).filter((e) => e.bannedIPs().length === 0);
                 this.loading = false;
             })
-            .catch(() => {})
+            .catch(() => { })
             .then(this.loaded.bind(this));
     }
 
