@@ -1,8 +1,6 @@
 import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
-import Alert from 'flarum/components/Alert';
-import punctuateSeries from 'flarum/helpers/punctuateSeries';
-import username from 'flarum/helpers/username';
+import Stream from 'flarum/utils/Stream';
 
 export default class ChangeReasonModal extends Modal {
     oninit(vnode) {
@@ -10,7 +8,7 @@ export default class ChangeReasonModal extends Modal {
 
         this.item = this.attrs.item;
 
-        this.reason = m.stream(this.item.reason());
+        this.reason = Stream(this.item.reason());
     }
 
     className() {

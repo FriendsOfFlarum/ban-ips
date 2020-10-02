@@ -1,6 +1,7 @@
 import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
 import Alert from 'flarum/components/Alert';
+import Stream from 'flarum/utils/Stream';
 import punctuateSeries from 'flarum/helpers/punctuateSeries';
 
 export default class BanIPModal extends Modal {
@@ -22,8 +23,8 @@ export default class BanIPModal extends Modal {
         if ((this.post && this.post.ipAddress()) || this.address) this.banOptions.push('only');
         if (this.user) this.banOptions.push('all');
 
-        this.banOption = m.stream(this.banOptions[0]);
-        this.reason = m.stream('');
+        this.banOption = Stream(this.banOptions[0]);
+        this.reason = Stream('');
 
         this.otherUsers = {};
 

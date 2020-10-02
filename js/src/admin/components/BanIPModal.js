@@ -3,13 +3,14 @@ import Button from 'flarum/components/Button';
 import Alert from 'flarum/components/Alert';
 import punctuateSeries from 'flarum/helpers/punctuateSeries';
 import username from 'flarum/helpers/username';
+import Stream from 'flarum/utils/Stream';
 
 export default class BanIPModal extends Modal {
     oninit(vnode) {
         super.oninit(vnode);
 
-        this.address = m.stream('');
-        this.reason = m.stream('');
+        this.address = Stream('');
+        this.reason = Stream('');
 
         this.usersBanned = {};
 
