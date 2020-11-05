@@ -15,6 +15,7 @@ use Flarum\Api\Controller\AbstractListController;
 use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
 use FoF\BanIPs\Commands\BanUser;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -49,7 +50,7 @@ class BanUserController extends AbstractListController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return $this->bus->dispatch(
-            new BanUser($request->getAttribute('actor'), array_get($request->getQueryParams(), 'id'), array_get($request->getParsedBody(), 'data'))
+            new BanUser($request->getAttribute('actor'), Arr::get($request->getQueryParams(), 'id'), Arr::get($request->getParsedBody(), 'data'))
         );
     }
 }

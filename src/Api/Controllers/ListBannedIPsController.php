@@ -18,6 +18,7 @@ use Flarum\User\AssertPermissionTrait;
 use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
 use FoF\BanIPs\Search\BannedIPSearcher;
 use FoF\Pages\Search\Page\PageSearcher;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -63,7 +64,7 @@ class ListBannedIPsController extends AbstractListController
         $this->assertCan($request->getAttribute('actor'), 'fof.banips.viewBannedIPList');
 
         $actor = $request->getAttribute('actor');
-        $query = array_get($this->extractFilter($request), 'q');
+        $query = Arr::get($this->extractFilter($request), 'q');
         $sort = $this->extractSort($request);
 
         $criteria = new SearchCriteria($actor, $query, $sort);

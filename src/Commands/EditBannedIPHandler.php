@@ -17,6 +17,7 @@ use Flarum\User\Exception\PermissionDeniedException;
 use FoF\BanIPs\BannedIP;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Validators\BannedIPValidator;
+use Illuminate\Support\Arr;
 
 class EditBannedIPHandler
 {
@@ -52,7 +53,7 @@ class EditBannedIPHandler
         $actor = $command->actor;
         $data = $command->data;
 
-        $attributes = array_get($data, 'attributes', []);
+        $attributes = Arr::get($data, 'attributes', []);
 
         $bannedIP = BannedIP::find($command->bannedId);
 

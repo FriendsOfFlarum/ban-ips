@@ -75,7 +75,7 @@ class UnbanUserHandler
         foreach ($bannedIPs as $bannedIP) {
             $bannedIP->delete();
 
-            $this->events->fire(
+            $this->events->dispatch(
                 new IPWasUnbanned($bannedIP, $actor)
             );
         }

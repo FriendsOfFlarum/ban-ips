@@ -1,14 +1,14 @@
 import Modal from 'flarum/components/Modal';
 import Button from 'flarum/components/Button';
-import Alert from 'flarum/components/Alert';
-import punctuateSeries from 'flarum/helpers/punctuateSeries';
-import username from 'flarum/helpers/username';
+import Stream from 'flarum/utils/Stream';
 
 export default class ChangeReasonModal extends Modal {
-    init() {
-        this.item = this.props.item;
+    oninit(vnode) {
+        super.oninit(vnode);
 
-        this.reason = m.prop(this.item.reason());
+        this.item = this.attrs.item;
+
+        this.reason = Stream(this.item.reason());
     }
 
     className() {

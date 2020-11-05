@@ -19,10 +19,9 @@ export default () => {
         items.add(
             `${prefix}ban`,
             Button.component({
-                children: app.translator.trans(`fof-ban-ips.forum.${prefix}ban_ip_button`),
                 icon: 'fas fa-gavel',
-                onclick: () => app.modal.show(isBanned ? new UnbanIPModal({ post }) : new BanIPModal({ post })),
-            })
+                onclick: () => app.modal.show(isBanned ? UnbanIPModal : BanIPModal, { post }),
+            }, app.translator.trans(`fof-ban-ips.forum.${prefix}ban_ip_button`))
         );
     });
 
@@ -35,10 +34,9 @@ export default () => {
         items.add(
             `${prefix}ban`,
             Button.component({
-                children: app.translator.trans(`fof-ban-ips.forum.user_controls.${prefix}ban_button`),
                 icon: 'fas fa-gavel',
-                onclick: () => app.modal.show(isBanned ? new UnbanIPModal({ user }) : new BanIPModal({ user })),
-            })
+                onclick: () => app.modal.show(isBanned ? UnbanIPModal : BanIPModal, { post }),
+            }, app.translator.trans(`fof-ban-ips.forum.user_controls.${prefix}ban_button`))
         );
     });
 };

@@ -18,10 +18,9 @@ export default class UnbanIPModal extends BanIPModal {
             return (
                 <div className="Modal-body">
                     {Alert.component({
-                        children: app.translator.trans('fof-ban-ips.lib.modal.unbanned_ips', { ips: punctuateSeries(this.bannedIPs) }),
                         dismissible: false,
                         type: 'success',
-                    })}
+                    }, app.translator.trans('fof-ban-ips.lib.modal.unbanned_ips', { ips: punctuateSeries(this.bannedIPs) }))}
                 </div>
             );
         }
@@ -54,16 +53,14 @@ export default class UnbanIPModal extends BanIPModal {
                 {otherUsers
                     ? otherUsers.length
                         ? Alert.component({
-                              children: app.translator.transChoice('fof-ban-ips.lib.modal.unban_ip_users', usernames.length, {
-                                  users: punctuateSeries(usernames),
-                              }),
-                              dismissible: false,
-                          })
+                            dismissible: false,
+                        }, app.translator.transChoice('fof-ban-ips.lib.modal.unban_ip_users', usernames.length, {
+                            users: punctuateSeries(usernames),
+                        }))
                         : Alert.component({
-                              children: app.translator.trans('fof-ban-ips.lib.modal.unban_ip_no_users'),
-                              dismissible: false,
-                              type: 'success',
-                          })
+                            dismissible: false,
+                            type: 'success',
+                        }, app.translator.trans('fof-ban-ips.lib.modal.unban_ip_no_users'))
                     : ''}
 
                 {otherUsers && <br />}
@@ -96,7 +93,7 @@ export default class UnbanIPModal extends BanIPModal {
             bannedIP.delete().then(this.done.bind(this, bannedIP)).catch(this.onerror.bind(this)).then(this.hide.bind(this));
         } else if (this.banOption() === 'all') {
             app.request({
-                data: {
+                body: {
                     data: {
                         attributes: attrs,
                     },
@@ -124,7 +121,7 @@ export default class UnbanIPModal extends BanIPModal {
         if (this.user) url += `/${this.user.id()}`;
 
         app.request({
-            data,
+            params: data,
             url: url,
             method: 'GET',
             errorHandler: this.onerror.bind(this),
@@ -135,9 +132,9 @@ export default class UnbanIPModal extends BanIPModal {
                 this.otherUsers[this.banOption()] = data.filter((e) => e.bannedIPs().length === 1);
                 this.loading = false;
 
-                m.lazyRedraw();
+                m.redraw();
             })
-            .catch(() => {})
+            .catch(() => { })
             .then(this.loaded.bind(this));
     }
 
@@ -160,14 +157,14 @@ export default class UnbanIPModal extends BanIPModal {
             this.bannedIPs = bannedIP.data.map((b) => b.attributes.address);
             this.loading = false;
 
-            m.lazyRedraw();
+            m.redraw();
         }
     }
 
     hide() {
         super.hide();
 
-        if (!this.props.redraw) {
+        if (!this.attrs.redraw) {
             location.reload();
         }
     }
