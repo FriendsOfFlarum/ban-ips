@@ -12,7 +12,6 @@
 namespace FoF\BanIPs\Commands;
 
 use Carbon\Carbon;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
 use FoF\BanIPs\Events\IPWasBanned;
@@ -22,8 +21,6 @@ use Illuminate\Support\Arr;
 
 class CreateBannedIPHandler
 {
-    use AssertPermissionTrait;
-
     /**
      * @var BannedIPValidator
      */
@@ -51,13 +48,16 @@ class CreateBannedIPHandler
      */
     public function handle(CreateBannedIP $command)
     {
+        /**
+         * @var User
+         */
         $actor = $command->actor;
         $data = $command->data;
 
         $userId = Arr::get($data, 'attributes.userId');
         $user = $userId != null ? User::where('id', $userId)->orWhere('username', $userId)->firstOrFail() : null;
 
-        $this->assertCan($actor, 'banIP', $user);
+        $actor->assertCan('banIP', $user);
 
         $bannedIP = BannedIP::build(
             $actor->id,

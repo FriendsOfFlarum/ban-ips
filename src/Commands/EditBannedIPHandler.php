@@ -12,8 +12,8 @@
 namespace FoF\BanIPs\Commands;
 
 use Flarum\Http\Exception\RouteNotFoundException;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\Exception\PermissionDeniedException;
+use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Validators\BannedIPValidator;
@@ -21,8 +21,6 @@ use Illuminate\Support\Arr;
 
 class EditBannedIPHandler
 {
-    use AssertPermissionTrait;
-
     /**
      * @var BannedIPRepository
      */
@@ -50,6 +48,9 @@ class EditBannedIPHandler
      */
     public function handle(EditBannedIP $command)
     {
+        /**
+         * @var User
+         */
         $actor = $command->actor;
         $data = $command->data;
 
@@ -57,7 +58,7 @@ class EditBannedIPHandler
 
         $bannedIP = BannedIP::find($command->bannedId);
 
-        $this->assertCan($actor, 'banIP');
+        $actor->assertCan('banIP');
 
         if ($bannedIP !== null && $actor === $bannedIP->creator) {
             throw new PermissionDeniedException();

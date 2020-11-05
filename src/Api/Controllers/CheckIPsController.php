@@ -15,7 +15,6 @@ use Flarum\Api\Controller\AbstractListController;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\Exception\RouteNotFoundException;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Validators\BannedIPValidator;
@@ -25,8 +24,6 @@ use Tobscure\JsonApi\Document;
 
 class CheckIPsController extends AbstractListController
 {
-    use AssertPermissionTrait;
-
     /**
      * {@inheritdoc}
      */
@@ -67,16 +64,19 @@ class CheckIPsController extends AbstractListController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
+        /**
+         * @var User
+         */
         $actor = $request->getAttribute('actor');
         $params = $request->getQueryParams();
 
-        $this->assertCan($actor, 'banIP');
+        $actor->assertCan('banIP');
 
         $userId = Arr::get($params, 'user');
         $ip = Arr::get($params, 'ip');
         $user = $userId != null ? User::where('id', $userId)->orWhere('username', $userId)->first() : null;
 
-        $this->assertCan($actor, 'banIP', $user);
+        $actor->assertCan('banIP', $user);
 
         if (!isset($ip) && !isset($user)) {
             throw new RouteNotFoundException();

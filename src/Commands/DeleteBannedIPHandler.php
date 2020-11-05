@@ -11,13 +11,11 @@
 
 namespace FoF\BanIPs\Commands;
 
-use Flarum\User\AssertPermissionTrait;
+use Flarum\User\User;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 
 class DeleteBannedIPHandler
 {
-    use AssertPermissionTrait;
-
     /**
      * @var BannedIPRepository
      */
@@ -35,9 +33,12 @@ class DeleteBannedIPHandler
      */
     public function handle(DeleteBannedIP $command)
     {
+        /**
+         * @var User
+         */
         $actor = $command->actor;
 
-        $this->assertCan($actor, 'banIP');
+        $actor->assertCan('banIP');
 
         $banIP = $this->bannedIPs->findOrFail($command->bannedId);
 

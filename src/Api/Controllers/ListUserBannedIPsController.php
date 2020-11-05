@@ -12,7 +12,6 @@
 namespace FoF\BanIPs\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractListController;
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
 use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
 use FoF\BanIPs\Repositories\BannedIPRepository;
@@ -22,8 +21,6 @@ use Tobscure\JsonApi\Document;
 
 class ListUserBannedIPsController extends AbstractListController
 {
-    use AssertPermissionTrait;
-
     /**
      * {@inheritdoc}
      */
@@ -54,7 +51,12 @@ class ListUserBannedIPsController extends AbstractListController
      */
     protected function data(ServerRequestInterface $request, Document $document)
     {
-        $this->assertCan($request->getAttribute('actor'), 'fof.banips.viewBannedIPList');
+        /**
+         * @var User
+         */
+        $actor = $request->getAttribute('actor');
+        
+        $actor->assertCan('fof.banips.viewBannedIPList');
 
         $id = Arr::get($request->getQueryParams(), 'id');
         $user = User::where('id', $id)->orWhere('username', $id)->firstOrFail();

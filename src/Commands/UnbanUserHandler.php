@@ -11,7 +11,6 @@
 
 namespace FoF\BanIPs\Commands;
 
-use Flarum\User\AssertPermissionTrait;
 use Flarum\User\User;
 use FoF\BanIPs\Events\IPWasUnbanned;
 use FoF\BanIPs\Repositories\BannedIPRepository;
@@ -21,8 +20,6 @@ use Illuminate\Events\Dispatcher as DispatcherEvents;
 
 class UnbanUserHandler
 {
-    use AssertPermissionTrait;
-
     /**
      * @var Dispatcher
      */
@@ -64,11 +61,14 @@ class UnbanUserHandler
      */
     public function handle(UnbanUser $command)
     {
+        /**
+         * @var User
+         */
         $actor = $command->actor;
 
         $user = User::where('id', $command->userId)->orWhere('username', $command->userId)->firstOrFail();
 
-        $this->assertCan($actor, 'banIP', $user);
+        $actor->assertCan('banIP', $user);
 
         $bannedIPs = $this->bannedIPs->getUserBannedIPs($user)->get();
 
