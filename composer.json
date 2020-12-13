@@ -1,37 +1,50 @@
 {
-  "name": "fof/ban-ips",
-  "description": "Ban IP addresses from your forum",
-  "keywords": [
-    "flarum"
-  ],
-  "type": "flarum-extension",
-  "license": "MIT",
-  "require": {
-    "flarum/core": "^0.1.0-beta.14"
-  },
-  "authors": [
-    {
-      "name": "David Sevilla Martín",
-      "email": "me+fof@datitisev.me",
-      "role": "Developer"
-    }
-  ],
-  "autoload": {
-    "psr-4": {
-      "FoF\\BanIPs\\": "src/"
-    }
-  },
-  "extra": {
-    "flarum-extension": {
-      "title": "FoF Ban IPs",
-      "icon": {
-        "name": "fas fa-gavel",
-        "backgroundColor": "#e74c3c",
-        "color": "#fff"
-      }
+    "name": "fof/ban-ips",
+    "description": "Ban IP addresses from your forum",
+    "keywords": [
+        "flarum"
+    ],
+    "type": "flarum-extension",
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/FriendsOfFlarum/ban-ips/issues",
+        "source": "https://github.com/FriendsOfFlarum/ban-ips",
+        "forum": "https://discuss.flarum.org/d/20949"
     },
-    "flagrow": {
-      "discuss": "https://discuss.flarum.org/d/20949-friendsofflarum-ban-ips"
+    "homepage": "https://friendsofflarum.org",
+    "funding": [
+        {
+            "type": "website",
+            "url": "https://opencollective.com/fof/donate"
+        }
+    ],
+    "require": {
+        "flarum/core": "^0.1.0-beta.15"
+    },
+    "authors": [
+        {
+            "name": "David Sevilla Martín",
+            "email": "me+fof@datitisev.me",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "FoF\\BanIPs\\": "src/"
+        }
+    },
+    "extra": {
+        "flarum-extension": {
+            "title": "FoF Ban IPs",
+            "category": "moderation",
+            "icon": {
+                "name": "fas fa-gavel",
+                "backgroundColor": "#e74c3c",
+                "color": "#fff"
+            }
+        },
+        "flagrow": {
+            "discuss": "https://discuss.flarum.org/d/20949"
+        }
     }
-  }
 }

@@ -11,16 +11,11 @@
 
 namespace FoF\BanIPs\Access;
 
-use Flarum\User\AbstractPolicy;
+use Flarum\User\Access\AbstractPolicy;
 use Flarum\User\User;
 
 class UserPolicy extends AbstractPolicy
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $model = User::class;
-
     private $key = 'fof.ban-ips.banIP';
 
     /**
