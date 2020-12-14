@@ -74,42 +74,33 @@ return [
 
     (new Extend\ApiController(Controller\ShowUserController::class))
         ->prepareDataForSerialization(Listeners\BannedIPData::class)
-        ->addInclude('banned_ips')
-        ->addInclude('banned_ips.user'),
+        ->addInclude(['banned_ips', 'banned_ips.user']),
 
     (new Extend\ApiController(Controller\CreateUserController::class))
         ->prepareDataForSerialization(Listeners\BannedIPData::class)
-        ->addInclude('banned_ips')
-        ->addInclude('banned_ips.user'),
+        ->addInclude(['banned_ips', 'banned_ips.user']),
 
     (new Extend\ApiController(Controller\UpdateUserController::class))
         ->prepareDataForSerialization(Listeners\BannedIPData::class)
-        ->addInclude('banned_ips')
-        ->addInclude('banned_ips.user'),
+        ->addInclude(['banned_ips', 'banned_ips.user']),
 
     (new Extend\ApiController(Controller\ListUsersController::class))
         ->prepareDataForSerialization(Listeners\BannedIPsData::class)
-        ->addInclude('banned_ips')
-        ->addInclude('banned_ips.user'),
+        ->addInclude(['banned_ips', 'banned_ips.user']),
 
     (new Extend\ApiController(CheckIPsController::class))
         ->prepareDataForSerialization(Listeners\BannedIPsData::class)
-        ->addInclude('banned_ips')
-        ->addInclude('banned_ips.user'),
+        ->addInclude(['banned_ip', 'banned_ip.user']),
 
     (new Extend\ApiController(Controller\ListPostsController::class))
-        ->addInclude('banned_ips')
-        ->addInclude('banned_ips.user'),
+        ->addInclude(['banned_ip', 'banned_ip.user']),
 
     (new Extend\ApiController(Controller\ShowPostsController::class))
-        ->addInclude('banned_ips')
-        ->addInclude('banned_ips.user'),
+        ->addInclude(['banned_ip', 'banned_ip.user']),
 
     (new Extend\ApiController(Controller\CreatePostController::class))
-        ->addInclude('banned_ips')
-        ->addInclude('banned_ips.user'),
+        ->addInclude(['banned_ip', 'banned_ip.user']),
 
     (new Extend\ApiController(Controller\UpdatePostController::class))
-        ->addInclude('banned_ips')
-        ->addInclude('banned_ips.user'),
+        ->addInclude(['banned_ip', 'banned_ip.user']),
 ];
