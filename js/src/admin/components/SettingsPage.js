@@ -1,12 +1,12 @@
 import Button from 'flarum/components/Button';
 import LoadingIndicator from 'flarum/components/LoadingIndicator';
 import Placeholder from 'flarum/components/Placeholder';
-import Page from 'flarum/components/Page';
+import ExtensionPage from 'flarum/components/ExtensionPage';
 
 import BanIPModal from './BanIPModal';
 import SettingsPageItem from './SettingsPageItem';
 
-export default class SettingsPage extends Page {
+export default class SettingsPage extends ExtensionPage {
     oninit(vnode) {
         super.oninit(vnode);
 
@@ -22,7 +22,7 @@ export default class SettingsPage extends Page {
         this.refresh();
     }
 
-    view() {
+    content() {
         let next, prev;
 
         if (this.nextResults === true) {
@@ -45,7 +45,6 @@ export default class SettingsPage extends Page {
             <div className="BannedIPsPage">
                 <div className="BannedIPsPage-header">
                     <div className="container">
-                        <p>{app.translator.trans('fof-ban-ips.admin.nav.desc')}</p>
                         {Button.component({
                             className: 'Button Button--primary',
                             icon: 'fas fa-plus',

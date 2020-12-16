@@ -15,7 +15,6 @@ use Flarum\Http\SessionAuthenticator;
 use Flarum\User\User;
 use FoF\BanIPs\Events\IPWasBanned;
 use FoF\BanIPs\Repositories\BannedIPRepository;
-use Illuminate\Events\Dispatcher;
 
 class RemoveAccessToBannedUsers
 {
@@ -35,17 +34,7 @@ class RemoveAccessToBannedUsers
         $this->bannedIPs = $bannedIPs;
     }
 
-    /**
-     * Subscribes to the Flarum events.
-     *
-     * @param Dispatcher $events
-     */
-    public function subscribe(Dispatcher $events)
-    {
-        $events->listen(IPWasBanned::class, [$this, 'removeAccess']);
-    }
-
-    public function removeAccess(IPWasBanned $event)
+    public function handle(IPWasBanned $event)
     {
         $bannedIP = $event->bannedIP;
         $users = $this->bannedIPs->findUsers($bannedIP->address);
