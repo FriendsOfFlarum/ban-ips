@@ -13,12 +13,11 @@ namespace FoF\BanIPs\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractListController;
 use Flarum\Http\UrlGenerator;
-use Flarum\Search\SearchCriteria;
+use Flarum\Query\QueryCriteria;
 use Flarum\User\User;
 use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
+use FoF\BanIPs\Search\BannedIPFilterer;
 use FoF\BanIPs\Search\BannedIPSearcher;
-use FoF\Pages\Search\Page\PageSearcher;
-use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
@@ -35,9 +34,14 @@ class ListBannedIPsController extends AbstractListController
     public $include = ['user', 'creator'];
 
     /**
-     * @var PageSearcher
+     * @var BannedIPSearcher
      */
     protected $searcher;
+
+    /**
+     * @var BannedIPFilterer
+     */
+    protected $filterer;
 
     /**
      * @var UrlGenerator
@@ -46,11 +50,13 @@ class ListBannedIPsController extends AbstractListController
 
     /**
      * @param BannedIPSearcher $searcher
+     * @param BannedIPFilterer $filterer
      * @param UrlGenerator     $url
      */
-    public function __construct(BannedIPSearcher $searcher, UrlGenerator $url)
+    public function __construct(BannedIPSearcher $searcher, BannedIPFilterer $filterer, UrlGenerator $url)
     {
         $this->searcher = $searcher;
+        $this->filterer = $filterer;
         $this->url = $url;
     }
 
@@ -66,13 +72,18 @@ class ListBannedIPsController extends AbstractListController
 
         $actor->assertCan('fof.banips.viewBannedIPList');
 
-        $query = Arr::get($this->extractFilter($request), 'q');
+        $filters = $this->extractFilter($request);
         $sort = $this->extractSort($request);
-
-        $criteria = new SearchCriteria($actor, $query, $sort);
         $limit = $this->extractLimit($request);
         $offset = $this->extractOffset($request);
-        $results = $this->searcher->search($criteria, $limit, $offset);
+        $include = $this->extractInclude($request);
+
+        $criteria = new QueryCriteria($actor, $filters, $sort);
+        if (array_key_exists('q', $filters)) {
+            $results = $this->searcher->search($criteria, $limit, $offset);
+        } else {
+            $results = $this->filterer->filter($criteria, $limit, $offset);
+        }
 
         $document->addPaginationLinks(
             $this->url->to('api')->route('fof.ban-ips.index'),
@@ -82,8 +93,6 @@ class ListBannedIPsController extends AbstractListController
             $results->areMoreResults() ? null : 0
         );
 
-        return $results->getResults();
-
-//        return BannedIP::all();
+        return $results->getResults()->load($include);
     }
 }

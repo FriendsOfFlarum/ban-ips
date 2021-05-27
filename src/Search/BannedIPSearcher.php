@@ -11,67 +11,28 @@
 
 namespace FoF\BanIPs\Search;
 
-use Flarum\Search\ApplySearchParametersTrait;
+use Flarum\Search\AbstractSearcher;
 use Flarum\Search\GambitManager;
-use Flarum\Search\SearchCriteria;
-use Flarum\Search\SearchResults;
+use Flarum\User\User;
 use FoF\BanIPs\Repositories\BannedIPRepository;
+use Illuminate\Database\Eloquent\Builder;
 
-class BannedIPSearcher
+class BannedIPSearcher extends AbstractSearcher
 {
-    use ApplySearchParametersTrait;
-
-    /**
-     * @var GambitManager
-     */
-    protected $gambits;
-
     /**
      * @var BannedIPRepository
      */
     protected $bannedIPs;
 
-    /**
-     * @param GambitManager      $gambits
-     * @param BannedIPRepository $bannedIPs
-     */
-    public function __construct(GambitManager $gambits, BannedIPRepository $bannedIPs)
+    public function __construct(BannedIPRepository $bannedIPs, GambitManager $gambits, array $searchMutators)
     {
-        $this->gambits = $gambits;
+        parent::__construct($gambits, $searchMutators);
+
         $this->bannedIPs = $bannedIPs;
     }
 
-    /**
-     * @param SearchCriteria $criteria
-     * @param int|null       $limit
-     * @param int            $offset
-     *
-     * @return SearchResults
-     */
-    public function search(SearchCriteria $criteria, $limit = null, $offset = 0)
+    protected function getQuery(User $actor): Builder
     {
-        $actor = $criteria->actor;
-
-        $query = $this->bannedIPs->query();
-
-        if ($actor !== null && !$actor->isAdmin()) {
-            $query->whereIsHidden(0);
-        }
-
-        $search = new BannedIPSearch($query->getQuery(), $actor);
-
-        $this->gambits->apply($search, $criteria->query);
-
-        $this->applySort($search, $criteria->sort);
-        $this->applyOffset($search, $offset);
-        $this->applyLimit($search, $limit + 1);
-
-        $bannedIPs = $query->get();
-
-        if ($areMoreResults = ($limit > 0 && $bannedIPs->count() > $limit)) {
-            $bannedIPs->pop();
-        }
-
-        return new SearchResults($bannedIPs, $areMoreResults);
+        return $this->bannedIPs->query();
     }
 }
