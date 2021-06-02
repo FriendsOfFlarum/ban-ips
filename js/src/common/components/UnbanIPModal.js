@@ -1,7 +1,7 @@
-import Button from 'flarum/components/Button';
-import Alert from 'flarum/components/Alert';
-import punctuateSeries from 'flarum/helpers/punctuateSeries';
-import username from 'flarum/helpers/username';
+import Button from 'flarum/common/components/Button';
+import Alert from 'flarum/common/components/Alert';
+import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
+import username from 'flarum/common/helpers/username';
 
 import BanIPModal from './BanIPModal';
 
@@ -17,10 +17,13 @@ export default class UnbanIPModal extends BanIPModal {
         if (this.bannedIPs) {
             return (
                 <div className="Modal-body">
-                    {Alert.component({
-                        dismissible: false,
-                        type: 'success',
-                    }, app.translator.trans('fof-ban-ips.lib.modal.unbanned_ips', { ips: punctuateSeries(this.bannedIPs) }))}
+                    {Alert.component(
+                        {
+                            dismissible: false,
+                            type: 'success',
+                        },
+                        app.translator.trans('fof-ban-ips.lib.modal.unbanned_ips', { ips: punctuateSeries(this.bannedIPs) })
+                    )}
                 </div>
             );
         }
@@ -52,15 +55,21 @@ export default class UnbanIPModal extends BanIPModal {
 
                 {otherUsers
                     ? otherUsers.length
-                        ? Alert.component({
-                            dismissible: false,
-                        }, app.translator.transChoice('fof-ban-ips.lib.modal.unban_ip_users', usernames.length, {
-                            users: punctuateSeries(usernames),
-                        }))
-                        : Alert.component({
-                            dismissible: false,
-                            type: 'success',
-                        }, app.translator.trans('fof-ban-ips.lib.modal.unban_ip_no_users'))
+                        ? Alert.component(
+                              {
+                                  dismissible: false,
+                              },
+                              app.translator.transChoice('fof-ban-ips.lib.modal.unban_ip_users', usernames.length, {
+                                  users: punctuateSeries(usernames),
+                              })
+                          )
+                        : Alert.component(
+                              {
+                                  dismissible: false,
+                                  type: 'success',
+                              },
+                              app.translator.trans('fof-ban-ips.lib.modal.unban_ip_no_users')
+                          )
                     : ''}
 
                 {otherUsers && <br />}
@@ -134,7 +143,7 @@ export default class UnbanIPModal extends BanIPModal {
 
                 m.redraw();
             })
-            .catch(() => { })
+            .catch(() => {})
             .then(this.loaded.bind(this));
     }
 

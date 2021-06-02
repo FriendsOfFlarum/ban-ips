@@ -14,9 +14,9 @@ namespace FoF\BanIPs\Middleware;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ValidationException;
+use Flarum\Http\RequestUtil;
 use Flarum\User\UserRepository;
 use FoF\BanIPs\Repositories\BannedIPRepository;
-use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\RedirectResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -36,13 +36,19 @@ class RegisterMiddleware implements MiddlewareInterface
     private $users;
 
     /**
+     * @var RequestUtil
+     */
+    private $requestUtil;
+
+    /**
      * @param BannedIPRepository $bannedIPs
      * @param UserRepository     $users
      */
-    public function __construct(BannedIPRepository $bannedIPs, UserRepository $users)
+    public function __construct(BannedIPRepository $bannedIPs, UserRepository $users, RequestUtil $requestUtil)
     {
         $this->bannedIPs = $bannedIPs;
         $this->users = $users;
+        $this->requestUtil = $requestUtil;
     }
 
     /**
@@ -54,41 +60,35 @@ class RegisterMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $registerUri = app('flarum.forum.routes')->getPath('register');
-        $loginUri = app('flarum.forum.routes')->getPath('login');
-        $logoutUri = app('flarum.forum.routes')->getPath('logout');
-        $actor = $request->getAttribute('actor');
+        $registerUri = resolve('flarum.forum.routes')->getPath('register');
+        $loginUri = resolve('flarum.forum.routes')->getPath('login');
+        $logoutUri = resolve('flarum.forum.routes')->getPath('logout');
+        $actor = $this->requestUtil->getActor($request);
         $requestUri = $request->getUri()->getPath();
+        $ipAddress = $request->getAttribute('ipAddress', '127.0.0.1');
+
+        $actor->accessing_ip = $ipAddress;
 
         if ($requestUri === $registerUri || $requestUri === $loginUri) {
-            $ipAddress = Arr::get($request->getServerParams(), 'REMOTE_ADDR', '127.0.0.1');
             $bannedIP = $ipAddress != null ? $this->bannedIPs->findByIPAddress($ipAddress) : null;
 
-            if ($bannedIP != null && $bannedIP->deleted_at == null) {
-                if ($requestUri === $loginUri && $identification = Arr::get($request->getParsedBody(), 'identification')) {
-                    $user = $this->users->findByIdentification($identification);
-
-                    if ($user != null && !$this->bannedIPs->isUserBanned($user)) {
-                        return $handler->handle($request);
-                    }
-                }
-
+            if ($bannedIP !== null && $bannedIP->deleted_at === null) {
                 return (new JsonApiFormatter())
                     ->format(
-                        app(Registry::class)
+                        resolve(Registry::class)
                             ->handle(new ValidationException([
-                                'ip' => app('translator')->trans('fof-ban-ips.error.banned_ip_message'),
+                                'ip' => resolve('translator')->trans('fof-ban-ips.error.banned_ip_message'),
                             ])),
                         $request
                     );
             }
         }
 
-        if (!$actor->isGuest() && $requestUri !== $logoutUri && $this->bannedIPs->isUserBanned($actor)) {
-            $token = $request->getAttribute('session')->token();
+        // if (!$actor->isGuest() && $requestUri !== $logoutUri && $this->bannedIPs->isUserBanned($actor)) {
+        //     $token = $request->getAttribute('session')->token();
 
-            return new RedirectResponse($logoutUri.'?token='.$token);
-        }
+        //     return new RedirectResponse($logoutUri.'?token='.$token);
+        // }
 
         return $handler->handle($request);
     }

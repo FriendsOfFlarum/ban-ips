@@ -29,7 +29,7 @@ class CreateBannedIPController extends AbstractCreateController
     /**
      * {@inheritdoc}
      */
-    public $include = ['user', 'creator'];
+    public $include = ['creator'];
 
     /**
      * @var Dispatcher

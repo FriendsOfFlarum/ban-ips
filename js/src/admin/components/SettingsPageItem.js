@@ -1,6 +1,6 @@
-import Component from 'flarum/Component';
-import Button from 'flarum/components/Button';
-import username from 'flarum/helpers/username';
+import Component from 'flarum/common/Component';
+import Button from 'flarum/common/components/Button';
+import username from 'flarum/common/helpers/username';
 
 import UnbanIPModal from '../../common/components/UnbanIPModal';
 import ChangeReasonModal from './ChangeReasonModal';
@@ -17,7 +17,6 @@ export default class SettingsPageItem extends Component {
             <tr>
                 <td>{this.item.id()}</td>
                 <td>{username(this.item.creator())}</td>
-                <td>{this.item.user() && username(this.item.user())}</td>
                 <td>{this.item.address()}</td>
                 <td>{this.item.reason()}</td>
                 <td>{this.item.createdAt().toLocaleDateString()}</td>

@@ -105,20 +105,6 @@ class BannedIPRepository
             });
     }
 
-    /**
-     * @param User $user
-     *
-     * @return bool
-     */
-    public function isUserBanned(User $user)
-    {
-        if (Arr::has(self::$bans, $user->id)) {
-            return (bool) self::$bans[$user->id];
-        }
-
-        return self::$bans[$user->id] = $user->cannot('banIP') && $this->getUserBannedIPs($user)->exists();
-    }
-
     public function getUserIPs(User $user): Collection
     {
         if (Arr::has(self::$ips, $user->id)) {
@@ -126,13 +112,6 @@ class BannedIPRepository
         }
 
         return self::$ips[$user->id] = $user->posts()->whereNotNull('ip_address')->pluck('ip_address')->unique();
-    }
-
-    public function getUserBannedIPs(User $user): Builder
-    {
-        $ips = $this->getUserIPs($user)->toArray();
-
-        return BannedIP::where('user_id', $user->id)->orWhere('address', empty($ips) ? null : $this->getUserIPs($user)->toArray());
     }
 
     /**

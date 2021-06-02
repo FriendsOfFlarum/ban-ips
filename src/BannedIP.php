@@ -17,7 +17,6 @@ use Flarum\User\User;
 
 /**
  * @property User        $creator
- * @property User        $user
  * @property int         $id
  * @property int         $creator_id
  * @property int         $user_id
@@ -40,18 +39,16 @@ class BannedIP extends AbstractModel
 
     /**
      * @param $creatorId
-     * @param $userId
      * @param $address
      * @param null $reason
      *
      * @return BannedIP
      */
-    public static function build($creatorId, $userId, $address, $reason = null)
+    public static function build($creatorId, $address, $reason = null)
     {
         $banIP = new static();
 
         $banIP->creator_id = $creatorId;
-        $banIP->user_id = $userId;
         $banIP->address = $address;
         $banIP->reason = $reason;
 
@@ -61,10 +58,5 @@ class BannedIP extends AbstractModel
     public function creator()
     {
         return $this->belongsTo(User::class, 'creator_id');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
     }
 }

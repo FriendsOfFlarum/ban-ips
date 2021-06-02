@@ -6,10 +6,10 @@ A [Flarum](http://flarum.org) extension. Ban IP addresses from your forum.
 
 ### Installation
 
-Use [Bazaar](https://discuss.flarum.org/d/5151-flagrow-bazaar-the-extension-marketplace) or install manually with Composer:
+Install with Composer:
 
 ```sh
-composer require fof/ban-ips
+composer require fof/ban-ips:"*"
 ```
 
 ### Updating

@@ -93,7 +93,7 @@ class CheckIPsController extends AbstractListController
 
         if (empty($ips)) {
             throw new ValidationException([
-                app('translator')->trans('fof-ban-ips.error.no_ips_found_message'),
+                resolve('translator')->trans('fof-ban-ips.error.no_ips_found_message'),
             ]);
         }
 

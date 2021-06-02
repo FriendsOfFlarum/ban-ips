@@ -29,7 +29,6 @@ class BanUserAttributes
 
     public function __invoke(UserSerializer $serializer, User $user, array $attributes): array
     {
-        $attributes['isBanned'] = $this->bannedIPs->isUserBanned($user);
         $attributes['canBanIP'] = $serializer->getActor()->can('banIP', $user);
 
         return $attributes;

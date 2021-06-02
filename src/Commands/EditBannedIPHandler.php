@@ -66,10 +66,6 @@ class EditBannedIPHandler
             throw new RouteNotFoundException();
         }
 
-        if (isset($attributes['userId'])) {
-            $bannedIP->user_id = $attributes['userId'];
-        }
-
         if (isset($attributes['ipAddress'])) {
             $bannedIP->address = $attributes['ipAddress'];
         }

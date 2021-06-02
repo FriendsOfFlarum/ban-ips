@@ -61,7 +61,6 @@ class CreateBannedIPHandler
 
         $bannedIP = BannedIP::build(
             $actor->id,
-            $user ? $user->id : null,
             Arr::get($data, 'attributes.address'),
             Arr::get($data, 'attributes.reason')
         );

@@ -1,6 +1,6 @@
-import { extend } from 'flarum/extend';
-import User from 'flarum/models/User';
-import Badge from 'flarum/components/Badge';
+import { extend } from 'flarum/common/extend';
+import User from 'flarum/common/models/User';
+import Badge from 'flarum/common/components/Badge';
 
 export default () => {
     extend(User.prototype, 'badges', function (items) {
