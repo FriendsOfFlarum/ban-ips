@@ -67,24 +67,14 @@ class RegisterMiddleware implements MiddlewareInterface
         $actor = $this->requestUtil->getActor($request);
         $requestUri = $request->getUri()->getPath();
         $ipAddress = $request->getAttribute('ipAddress1', '127.0.0.1');
-        //dd($ipAddress);
-        //if (!$actor->isGuest()) {
-        // Add the request IP to the user, so it may be accessed in the global policy later
+
         $actor->accessing_ip = $ipAddress;
-        //}
+
 
         if ($requestUri === $registerUri || $requestUri === $loginUri) {
             $bannedIP = $ipAddress != null ? $this->bannedIPs->findByIPAddress($ipAddress) : null;
 
             if ($bannedIP !== null && $bannedIP->deleted_at === null) {
-
-                // if ($requestUri === $loginUri && $identification = Arr::get($request->getParsedBody(), 'identification')) {
-                //     $user = $this->users->findByIdentification($identification);
-
-                //     if ($user != null && !$this->bannedIPs->isUserBanned($user)) {
-                //         return $handler->handle($request);
-                //     }
-                // }
 
                 return (new JsonApiFormatter())
                     ->format(
