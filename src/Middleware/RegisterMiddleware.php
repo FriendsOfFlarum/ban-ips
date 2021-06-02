@@ -17,7 +17,6 @@ use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
 use Flarum\User\UserRepository;
 use FoF\BanIPs\Repositories\BannedIPRepository;
-use Illuminate\Support\Arr;
 use Laminas\Diactoros\Response\RedirectResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -70,12 +69,10 @@ class RegisterMiddleware implements MiddlewareInterface
 
         $actor->accessing_ip = $ipAddress;
 
-
         if ($requestUri === $registerUri || $requestUri === $loginUri) {
             $bannedIP = $ipAddress != null ? $this->bannedIPs->findByIPAddress($ipAddress) : null;
 
             if ($bannedIP !== null && $bannedIP->deleted_at === null) {
-
                 return (new JsonApiFormatter())
                     ->format(
                         resolve(Registry::class)
