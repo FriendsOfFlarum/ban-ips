@@ -1,8 +1,11 @@
+import app from 'flarum/common/app';
 import Model from 'flarum/common/Model';
-
+import { extend } from 'flarum/common/extend';
+import ForumApplication from 'flarum/forum/ForumApplication';
 import addBanIPControl from './addBanIPControl';
 import BannedIP from '../common/models/BannedIP';
 import addBannedBadge from './addBannedBadge';
+import restrictedIPAlert from './restrictedIPAlert';
 
 app.initializers.add('fof/ban-ips', () => {
     app.store.models.posts.prototype.canBanIP = Model.attribute('canBanIP');
@@ -10,13 +13,16 @@ app.initializers.add('fof/ban-ips', () => {
     app.store.models.posts.prototype.bannedIP = Model.hasOne('banned_ip');
 
     app.store.models.users.prototype.canBanIP = Model.attribute('canBanIP');
-    app.store.models.users.prototype.isBanned = Model.attribute('isBanned');
-    app.store.models.users.prototype.bannedIPs = Model.hasMany('banned_ips');
+    //app.store.models.users.prototype.isBanned = Model.attribute('isBanned');
+    //app.store.models.users.prototype.bannedIPs = Model.hasMany('banned_ips');
 
     app.store.models.banned_ips = BannedIP;
 
     addBanIPControl();
-    addBannedBadge();
+    //addBannedBadge();
+    extend(ForumApplication.prototype, 'mount', function () {
+        restrictedIPAlert(this);
+    });
 });
 
 // Expose compat API

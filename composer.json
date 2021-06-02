@@ -41,7 +41,7 @@
     "extra": {
         "flarum-extension": {
             "title": "FoF Ban IPs",
-            "category": "moderation",
+            "category": "feature",
             "icon": {
                 "name": "fas fa-gavel",
                 "backgroundColor": "#e74c3c",

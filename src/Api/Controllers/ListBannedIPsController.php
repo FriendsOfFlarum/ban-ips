@@ -31,7 +31,7 @@ class ListBannedIPsController extends AbstractListController
     /**
      * {@inheritdoc}
      */
-    public $include = ['user', 'creator'];
+    public $include = ['creator'];
 
     /**
      * @var BannedIPSearcher

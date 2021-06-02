@@ -10,7 +10,7 @@ export default () => {
     extend(PostControls, 'userControls', function (items, post) {
         if (!post || !post.user()) return;
 
-        const isBanned = post.user().isBanned();
+        const isBanned = post.bannedIP();
         const prefix = isBanned ? 'un' : '';
 
         // Removes ability to ban thyself and also does permission check.
@@ -28,21 +28,21 @@ export default () => {
         );
     });
 
-    extend(UserControls, 'moderationControls', function (items, user) {
-        if (!user.canBanIP() || user === app.session.user) return;
+    // extend(UserControls, 'moderationControls', function (items, user) {
+    //     if (!user.canBanIP() || user === app.session.user) return;
 
-        const isBanned = user.isBanned();
-        const prefix = isBanned ? 'un' : '';
+    //     const isBanned = user.isBanned();
+    //     const prefix = isBanned ? 'un' : '';
 
-        items.add(
-            `${prefix}ban`,
-            Button.component(
-                {
-                    icon: 'fas fa-gavel',
-                    onclick: () => app.modal.show(isBanned ? UnbanIPModal : BanIPModal, { post }),
-                },
-                app.translator.trans(`fof-ban-ips.forum.user_controls.${prefix}ban_button`)
-            )
-        );
-    });
+    //     items.add(
+    //         `${prefix}ban`,
+    //         Button.component(
+    //             {
+    //                 icon: 'fas fa-gavel',
+    //                 onclick: () => app.modal.show(isBanned ? UnbanIPModal : BanIPModal, { post }),
+    //             },
+    //             app.translator.trans(`fof-ban-ips.forum.user_controls.${prefix}ban_button`)
+    //         )
+    //     );
+    // });
 };

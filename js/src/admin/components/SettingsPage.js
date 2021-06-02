@@ -66,7 +66,6 @@ export default class SettingsPage extends ExtensionPage {
                                     <tr>
                                         <th>#</th>
                                         <th>{app.translator.trans('fof-ban-ips.admin.page.creator_label')}</th>
-                                        <th>{app.translator.trans('fof-ban-ips.admin.page.user_label')}</th>
                                         <th>{app.translator.trans('fof-ban-ips.admin.page.address_label')}</th>
                                         <th>{app.translator.trans('fof-ban-ips.admin.page.reason_label')}</th>
                                         <th>{app.translator.trans('fof-ban-ips.admin.page.date_label')}</th>

@@ -17,7 +17,6 @@ export default class SettingsPageItem extends Component {
             <tr>
                 <td>{this.item.id()}</td>
                 <td>{username(this.item.creator())}</td>
-                <td>{this.item.user() && username(this.item.user())}</td>
                 <td>{this.item.address()}</td>
                 <td>{this.item.reason()}</td>
                 <td>{this.item.createdAt().toLocaleDateString()}</td>

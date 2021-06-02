@@ -39,7 +39,6 @@ class BannedIPSerializer extends AbstractSerializer
         return [
             'id'        => $bannedIP->id,
             'creatorId' => $bannedIP->creator_id,
-            'userId'    => $bannedIP->user_id,
             'address'   => $bannedIP->address,
             'reason'    => $bannedIP->reason,
             'createdAt' => $this->formatDate($bannedIP->created_at),
@@ -54,15 +53,5 @@ class BannedIPSerializer extends AbstractSerializer
     protected function creator($bannedIP)
     {
         return $this->hasOne($bannedIP, BasicUserSerializer::class, 'creator');
-    }
-
-    /**
-     * @param $bannedIP
-     *
-     * @return \Tobscure\JsonApi\Relationship
-     */
-    protected function user($bannedIP)
-    {
-        return $this->hasOne($bannedIP, BasicUserSerializer::class, 'user');
     }
 }

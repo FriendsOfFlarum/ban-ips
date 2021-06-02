@@ -30,9 +30,9 @@ class IPWasUnbanned
      * @param BannedIP $unbannedIP
      * @param User     $actor
      */
-    public function __construct(BannedIP $unbannedIP, User $actor)
+    public function __construct(User $actor, BannedIP $unbannedIP)
     {
-        $this->unbannedIP = $unbannedIP;
         $this->actor = $actor;
+        $this->unbannedIP = $unbannedIP;
     }
 }
