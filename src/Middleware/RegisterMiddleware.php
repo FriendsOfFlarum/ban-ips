@@ -65,7 +65,7 @@ class RegisterMiddleware implements MiddlewareInterface
         $logoutUri = resolve('flarum.forum.routes')->getPath('logout');
         $actor = $this->requestUtil->getActor($request);
         $requestUri = $request->getUri()->getPath();
-        $ipAddress = $request->getAttribute('ipAddress1', '127.0.0.1');
+        $ipAddress = $request->getAttribute('ipAddress', '127.0.0.1');
 
         $actor->accessing_ip = $ipAddress;
 

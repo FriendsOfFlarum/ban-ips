@@ -12,17 +12,24 @@
 namespace FoF\BanIPs;
 
 use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Settings\SettingsRepositoryInterface;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 
 class ForumAttributes
 {
     /**
+     * @var SettingsRepositoryInterface
+     */
+    protected $settings;
+
+    /**
      * @var BannedIPRepository
      */
     protected $bannedIPs;
 
-    public function __construct(BannedIPRepository $bannedIPs)
+    public function __construct(SettingsRepositoryInterface $settings, BannedIPRepository $bannedIPs)
     {
+        $this->settings = $settings;
         $this->bannedIPs = $bannedIPs;
     }
 
@@ -30,7 +37,7 @@ class ForumAttributes
     {
         $actor = $serializer->getActor();
 
-        if ($restricted = (bool) $this->bannedIPs->findByIPAddress($actor->accessing_ip)) {
+        if ($this->settings->get('fof-ban-ips.show-banned-ip-warning', false) && $restricted = (bool) $this->bannedIPs->findByIPAddress($actor->accessing_ip)) {
             $attributes['ipRestricted'] = $restricted;
         }
 

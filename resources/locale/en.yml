@@ -37,6 +37,9 @@ fof-ban-ips:
 
     empty_text: No banned IPs found.
 
+    settings:
+      display_warning_label: Display an alert to users and guests when they access the forum using a banned IP
+
   error:
     banned_ip_message: Authorization failed.
     no_ips_found_message: No IP(s) found for user.

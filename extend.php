@@ -84,5 +84,5 @@ return [
         ->attributes(ForumAttributes::class),
 
     (new Extend\User())
-        ->permissionGroups(RevokeAccess::class),
+        ->permissionGroups(RevokeAccessWhenIPBanned::class),
 ];

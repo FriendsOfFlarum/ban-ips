@@ -45,6 +45,15 @@ export default class SettingsPage extends ExtensionPage {
             <div className="BannedIPsPage">
                 <div className="BannedIPsPage-header">
                     <div className="container">
+                        <div className="Form-group">
+                            {this.buildSettingComponent({
+                                type: 'boolean',
+                                setting: 'fof-ban-ips.show-banned-ip-warning',
+                                label: app.translator.trans('fof-ban-ips.admin.settings.display_warning_label')
+                            })}
+                            {this.submitButton()}
+                        </div>
+                        <hr />
                         {Button.component(
                             {
                                 className: 'Button Button--primary',

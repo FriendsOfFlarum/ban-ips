@@ -16,7 +16,7 @@ use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 
-class RevokeAccess
+class RevokeAccessWhenIPBanned
 {
     /**
      * @var SettingsRepositoryInterface
