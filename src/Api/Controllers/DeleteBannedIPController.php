@@ -12,6 +12,7 @@
 namespace FoF\BanIPs\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractDeleteController;
+use Flarum\Http\RequestUtil;
 use FoF\BanIPs\Commands\DeleteBannedIP;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
@@ -38,7 +39,7 @@ class DeleteBannedIPController extends AbstractDeleteController
     protected function delete(ServerRequestInterface $request)
     {
         $this->bus->dispatch(
-            new DeleteBannedIP($request->getAttribute('actor'), Arr::get($request->getQueryParams(), 'id'))
+            new DeleteBannedIP(RequestUtil::getActor($request), Arr::get($request->getQueryParams(), 'id'))
         );
     }
 }

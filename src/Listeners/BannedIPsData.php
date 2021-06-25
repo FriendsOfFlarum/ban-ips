@@ -12,6 +12,7 @@
 namespace FoF\BanIPs\Listeners;
 
 use Flarum\Api\Controller\AbstractListController;
+use Flarum\Http\RequestUtil;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -29,7 +30,7 @@ class BannedIPsData
 
     public function __invoke(AbstractListController $controller, &$data, ServerRequestInterface $request)
     {
-        $canView = $request->getAttribute('actor')->can('fof.ban-ips.viewBannedIPList');
+        $canView = RequestUtil::getActor($request)->can('fof.ban-ips.viewBannedIPList');
 
         foreach ($data as $d) {
             $d['banned_ips'] = $canView ? $this->bannedIPs->getUserBannedIPs($d)->get() : [];

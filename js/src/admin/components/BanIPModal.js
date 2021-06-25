@@ -1,9 +1,9 @@
-import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
-import Alert from 'flarum/components/Alert';
-import punctuateSeries from 'flarum/helpers/punctuateSeries';
-import username from 'flarum/helpers/username';
-import Stream from 'flarum/utils/Stream';
+import Modal from 'flarum/common/components/Modal';
+import Button from 'flarum/common/components/Button';
+import Alert from 'flarum/common/components/Alert';
+import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
+import username from 'flarum/common/helpers/username';
+import Stream from 'flarum/common/utils/Stream';
 
 export default class BanIPModal extends Modal {
     oninit(vnode) {
@@ -51,15 +51,21 @@ export default class BanIPModal extends Modal {
 
                 {usersBanned
                     ? usersBanned.length
-                        ? Alert.component({
-                              dismissible: false,
-                        }, app.translator.transChoice('fof-ban-ips.lib.modal.ban_ip_users', usernames.length, {
-                            users: punctuateSeries(usernames),
-                        }))
-                        : Alert.component({
-                              dismissible: false,
-                              type: 'success',
-                        }, app.translator.trans('fof-ban-ips.admin.modal.ban_ip_no_users'))
+                        ? Alert.component(
+                              {
+                                  dismissible: false,
+                              },
+                              app.translator.transChoice('fof-ban-ips.lib.modal.ban_ip_users', usernames.length, {
+                                  users: punctuateSeries(usernames),
+                              })
+                          )
+                        : Alert.component(
+                              {
+                                  dismissible: false,
+                                  type: 'success',
+                              },
+                              app.translator.trans('fof-ban-ips.admin.modal.ban_ip_no_users')
+                          )
                     : ''}
 
                 {usersBanned && <br />}

@@ -15,6 +15,7 @@ use Flarum\Api\Controller\AbstractListController;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\Exception\RouteNotFoundException;
+use Flarum\Http\RequestUtil;
 use Flarum\User\User;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Validators\BannedIPValidator;
@@ -67,7 +68,7 @@ class CheckIPsController extends AbstractListController
         /**
          * @var User
          */
-        $actor = $request->getAttribute('actor');
+        $actor = RequestUtil::getActor($request);
         $params = $request->getQueryParams();
 
         $actor->assertCan('banIP');
@@ -93,7 +94,7 @@ class CheckIPsController extends AbstractListController
 
         if (empty($ips)) {
             throw new ValidationException([
-                app('translator')->trans('fof-ban-ips.error.no_ips_found_message'),
+                resolve('translator')->trans('fof-ban-ips.error.no_ips_found_message'),
             ]);
         }
 

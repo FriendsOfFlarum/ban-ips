@@ -1,7 +1,7 @@
-import Button from 'flarum/components/Button';
-import LoadingIndicator from 'flarum/components/LoadingIndicator';
-import Placeholder from 'flarum/components/Placeholder';
-import ExtensionPage from 'flarum/components/ExtensionPage';
+import Button from 'flarum/common/components/Button';
+import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
+import Placeholder from 'flarum/common/components/Placeholder';
+import ExtensionPage from 'flarum/admin/components/ExtensionPage';
 
 import BanIPModal from './BanIPModal';
 import SettingsPageItem from './SettingsPageItem';
@@ -17,7 +17,7 @@ export default class SettingsPage extends ExtensionPage {
     }
 
     oncreate(vnode) {
-        super.oncreate(vnode)
+        super.oncreate(vnode);
 
         this.refresh();
     }
@@ -45,11 +45,14 @@ export default class SettingsPage extends ExtensionPage {
             <div className="BannedIPsPage">
                 <div className="BannedIPsPage-header">
                     <div className="container">
-                        {Button.component({
-                            className: 'Button Button--primary',
-                            icon: 'fas fa-plus',
-                            onclick: () => app.modal.show(BanIPModal),
-                        }, app.translator.trans('fof-ban-ips.admin.page.create_button'))}
+                        {Button.component(
+                            {
+                                className: 'Button Button--primary',
+                                icon: 'fas fa-plus',
+                                onclick: () => app.modal.show(BanIPModal),
+                            },
+                            app.translator.trans('fof-ban-ips.admin.page.create_button')
+                        )}
                     </div>
                 </div>
                 <br />

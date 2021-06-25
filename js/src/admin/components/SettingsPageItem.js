@@ -1,6 +1,6 @@
-import Component from 'flarum/Component';
-import Button from 'flarum/components/Button';
-import username from 'flarum/helpers/username';
+import Component from 'flarum/common/Component';
+import Button from 'flarum/common/components/Button';
+import username from 'flarum/common/helpers/username';
 
 import UnbanIPModal from '../../common/components/UnbanIPModal';
 import ChangeReasonModal from './ChangeReasonModal';

@@ -73,6 +73,7 @@ class UnbanUserHandler
         $bannedIPs = $this->bannedIPs->getUserBannedIPs($user)->get();
 
         foreach ($bannedIPs as $bannedIP) {
+            /** @var \FoF\BanIPs\BannedIP $bannedIP */
             $bannedIP->delete();
 
             $this->events->dispatch(

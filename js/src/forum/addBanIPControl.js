@@ -1,7 +1,7 @@
-import { extend } from 'flarum/extend';
-import PostControls from 'flarum/utils/PostControls';
-import UserControls from 'flarum/utils/UserControls';
-import Button from 'flarum/components/Button';
+import { extend } from 'flarum/common/extend';
+import PostControls from 'flarum/forum/utils/PostControls';
+import UserControls from 'flarum/forum/utils/UserControls';
+import Button from 'flarum/common/components/Button';
 
 import BanIPModal from '../common/components/BanIPModal';
 import UnbanIPModal from '../common/components/UnbanIPModal';
@@ -18,10 +18,13 @@ export default () => {
 
         items.add(
             `${prefix}ban`,
-            Button.component({
-                icon: 'fas fa-gavel',
-                onclick: () => app.modal.show(isBanned ? UnbanIPModal : BanIPModal, { post }),
-            }, app.translator.trans(`fof-ban-ips.forum.${prefix}ban_ip_button`))
+            Button.component(
+                {
+                    icon: 'fas fa-gavel',
+                    onclick: () => app.modal.show(isBanned ? UnbanIPModal : BanIPModal, { post }),
+                },
+                app.translator.trans(`fof-ban-ips.forum.${prefix}ban_ip_button`)
+            )
         );
     });
 
@@ -33,10 +36,13 @@ export default () => {
 
         items.add(
             `${prefix}ban`,
-            Button.component({
-                icon: 'fas fa-gavel',
-                onclick: () => app.modal.show(isBanned ? UnbanIPModal : BanIPModal, { post }),
-            }, app.translator.trans(`fof-ban-ips.forum.user_controls.${prefix}ban_button`))
+            Button.component(
+                {
+                    icon: 'fas fa-gavel',
+                    onclick: () => app.modal.show(isBanned ? UnbanIPModal : BanIPModal, { post }),
+                },
+                app.translator.trans(`fof-ban-ips.forum.user_controls.${prefix}ban_button`)
+            )
         );
     });
 };
