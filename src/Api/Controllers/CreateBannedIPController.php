@@ -12,6 +12,7 @@
 namespace FoF\BanIPs\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractCreateController;
+use Flarum\Http\RequestUtil;
 use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
 use FoF\BanIPs\Commands\CreateBannedIP;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -55,7 +56,7 @@ class CreateBannedIPController extends AbstractCreateController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return $this->bus->dispatch(
-            new CreateBannedIP($request->getAttribute('actor'), Arr::get($request->getParsedBody(), 'data', []))
+            new CreateBannedIP(RequestUtil::getActor($request), Arr::get($request->getParsedBody(), 'data', []))
         );
     }
 }

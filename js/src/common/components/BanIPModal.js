@@ -1,8 +1,8 @@
-import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
-import Alert from 'flarum/components/Alert';
-import Stream from 'flarum/utils/Stream';
-import punctuateSeries from 'flarum/helpers/punctuateSeries';
+import Modal from 'flarum/common/components/Modal';
+import Button from 'flarum/common/components/Button';
+import Alert from 'flarum/common/components/Alert';
+import Stream from 'flarum/common/utils/Stream';
+import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
 
 export default class BanIPModal extends Modal {
     oninit(vnode) {
@@ -76,15 +76,21 @@ export default class BanIPModal extends Modal {
 
                 {otherUsersBanned
                     ? otherUsersBanned.length
-                        ? Alert.component({
-                            dismissible: false,
-                        }, app.translator.transChoice('fof-ban-ips.lib.modal.ban_ip_users', usernames.length, {
-                            users: punctuateSeries(usernames),
-                        }))
-                        : Alert.component({
-                            dismissible: false,
-                            type: 'success',
-                        }, app.translator.trans('fof-ban-ips.forum.modal.ban_ip_no_users'))
+                        ? Alert.component(
+                              {
+                                  dismissible: false,
+                              },
+                              app.translator.transChoice('fof-ban-ips.lib.modal.ban_ip_users', usernames.length, {
+                                  users: punctuateSeries(usernames),
+                              })
+                          )
+                        : Alert.component(
+                              {
+                                  dismissible: false,
+                                  type: 'success',
+                              },
+                              app.translator.trans('fof-ban-ips.forum.modal.ban_ip_no_users')
+                          )
                     : ''}
 
                 {otherUsersBanned && <br />}
@@ -129,7 +135,7 @@ export default class BanIPModal extends Modal {
             })
                 .then((res) => app.store.pushPayload(res).forEach(this.done.bind(this)))
                 .then(this.hide.bind(this))
-                .catch(() => { })
+                .catch(() => {})
                 .then(this.loaded.bind(this));
         }
     }
@@ -149,7 +155,7 @@ export default class BanIPModal extends Modal {
                 this.otherUsers[this.banOption()] = res.data.map((e) => app.store.pushObject(e)).filter((e) => e.bannedIPs().length === 0);
                 this.loading = false;
             })
-            .catch(() => { })
+            .catch(() => {})
             .then(this.loaded.bind(this));
     }
 

@@ -14,6 +14,7 @@ namespace FoF\BanIPs\Middleware;
 use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ValidationException;
+use Flarum\Http\RequestUtil;
 use Flarum\User\UserRepository;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use Illuminate\Support\Arr;
@@ -54,10 +55,10 @@ class RegisterMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $registerUri = app('flarum.forum.routes')->getPath('register');
-        $loginUri = app('flarum.forum.routes')->getPath('login');
-        $logoutUri = app('flarum.forum.routes')->getPath('logout');
-        $actor = $request->getAttribute('actor');
+        $registerUri = resolve('flarum.forum.routes')->getPath('register');
+        $loginUri = resolve('flarum.forum.routes')->getPath('login');
+        $logoutUri = resolve('flarum.forum.routes')->getPath('logout');
+        $actor = RequestUtil::getActor($request);
         $requestUri = $request->getUri()->getPath();
 
         if ($requestUri === $registerUri || $requestUri === $loginUri) {
@@ -75,9 +76,9 @@ class RegisterMiddleware implements MiddlewareInterface
 
                 return (new JsonApiFormatter())
                     ->format(
-                        app(Registry::class)
+                        resolve(Registry::class)
                             ->handle(new ValidationException([
-                                'ip' => app('translator')->trans('fof-ban-ips.error.banned_ip_message'),
+                                'ip' => resolve('translator')->trans('fof-ban-ips.error.banned_ip_message'),
                             ])),
                         $request
                     );

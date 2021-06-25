@@ -12,6 +12,7 @@
 namespace FoF\BanIPs\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractShowController;
+use Flarum\Http\RequestUtil;
 use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
 use FoF\BanIPs\Commands\EditBannedIP;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -45,7 +46,7 @@ class UpdateBannedIPController extends AbstractShowController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return $this->bus->dispatch(
-            new EditBannedIP($request->getAttribute('actor'), Arr::get($request->getQueryParams(), 'id'), Arr::get($request->getParsedBody(), 'data', []))
+            new EditBannedIP(RequestUtil::getActor($request), Arr::get($request->getQueryParams(), 'id'), Arr::get($request->getParsedBody(), 'data', []))
         );
     }
 }

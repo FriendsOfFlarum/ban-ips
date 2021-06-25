@@ -12,6 +12,7 @@
 namespace FoF\BanIPs\Api\Controllers;
 
 use Flarum\Api\Controller\AbstractListController;
+use Flarum\Http\RequestUtil;
 use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
 use FoF\BanIPs\Commands\BanUser;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -50,7 +51,7 @@ class BanUserController extends AbstractListController
     protected function data(ServerRequestInterface $request, Document $document)
     {
         return $this->bus->dispatch(
-            new BanUser($request->getAttribute('actor'), Arr::get($request->getQueryParams(), 'id'), Arr::get($request->getParsedBody(), 'data'))
+            new BanUser(RequestUtil::getActor($request), Arr::get($request->getQueryParams(), 'id'), Arr::get($request->getParsedBody(), 'data'))
         );
     }
 }

@@ -1,21 +1,21 @@
 # Ban IPs by FriendsOfFlarum
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg) [![Latest Stable Version](https://img.shields.io/packagist/v/fof/ban-ips.svg)](https://packagist.org/packages/fof/ban-ips) [![OpenCollective](https://img.shields.io/badge/opencollective-fof-blue.svg)](https://opencollective.com/fof/donate) [![Donate](https://img.shields.io/badge/donate-datitisev-important.svg)](https://datitisev.me/donate)
+![License](https://img.shields.io/badge/license-MIT-blue.svg) [![Latest Stable Version](https://img.shields.io/packagist/v/fof/ban-ips.svg)](https://packagist.org/packages/fof/ban-ips) [![Compatibility](https://flarum-badge-api.davwheat.dev/v1/compat-latest/fof/ban-ips)](https://flarum-badge-api.davwheat.dev/v1/compat-latest/fof/ban-ips) [![OpenCollective](https://img.shields.io/badge/opencollective-fof-blue.svg)](https://opencollective.com/fof/donate) [![Donate](https://img.shields.io/badge/donate-datitisev-important.svg)](https://datitisev.me/donate)
 
 A [Flarum](http://flarum.org) extension. Ban IP addresses from your forum.
 
 ### Installation
 
-Use [Bazaar](https://discuss.flarum.org/d/5151-flagrow-bazaar-the-extension-marketplace) or install manually with Composer:
+Install with Composer:
 
 ```sh
-composer require fof/ban-ips
+composer require fof/ban-ips:"*"
 ```
 
 ### Updating
 
 ```sh
-composer update fof/ban-ips
+composer update fof/ban-ips:"*"
 ```
 
 ### Links
