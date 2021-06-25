@@ -19,8 +19,6 @@ use Flarum\User\User;
 use FoF\BanIPs\Api\Serializers\BannedIPSerializer;
 use FoF\BanIPs\Search\BannedIPFilterer;
 use FoF\BanIPs\Search\BannedIPSearcher;
-use FoF\Pages\Search\Page\PageSearcher;
-use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
 
