@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "flarum-webpack-config": "^1.0.0",
-    "webpack": "^4.44.2",
-    "webpack-cli": "^3.3.12"
+    "flarum-webpack-config": "^2.0.0",
+    "webpack": "^5.69.1",
+    "webpack-cli": "^4.9.2"
   },
   "scripts": {
     "dev": "webpack --mode development --watch",
@@ -16,6 +16,6 @@
   "devDependencies": {
     "@flarum/prettier-config": "^1.0.0",
     "flarum-tsconfig": "^1.0.2",
-    "prettier": "^2.3.1"
+    "prettier": "^2.5.1"
   }
 }
