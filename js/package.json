@@ -1,5 +1,6 @@
 {
   "name": "@fof/ban-ips",
+  "prettier": "@flarum/prettier-config",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
@@ -10,9 +11,11 @@
   "scripts": {
     "dev": "webpack --mode development --watch",
     "build": "webpack --mode production",
-    "lint": "prettier --single-quote --trailing-comma es5 --print-width 150 --tab-width 4 --write src"
+    "format": "prettier --write src"
   },
   "devDependencies": {
+    "@flarum/prettier-config": "^1.0.0",
+    "flarum-tsconfig": "^1.0.2",
     "prettier": "^2.3.1"
   }
 }
