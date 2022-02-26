@@ -80,8 +80,9 @@ export default class BanIPModal extends Modal {
                 {
                   dismissible: false,
                 },
-                app.translator.transChoice('fof-ban-ips.lib.modal.ban_ip_users', usernames.length, {
+                app.translator.trans('fof-ban-ips.lib.modal.ban_ip_users', {
                   users: punctuateSeries(usernames),
+                  count: usernames.length,
                 })
               )
             : Alert.component(

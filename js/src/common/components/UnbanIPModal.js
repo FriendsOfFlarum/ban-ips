@@ -59,8 +59,9 @@ export default class UnbanIPModal extends BanIPModal {
                 {
                   dismissible: false,
                 },
-                app.translator.transChoice('fof-ban-ips.lib.modal.unban_ip_users', usernames.length, {
+                app.translator.trans('fof-ban-ips.lib.modal.unban_ip_users', {
                   users: punctuateSeries(usernames),
+                  count: usernames.length,
                 })
               )
             : Alert.component(
