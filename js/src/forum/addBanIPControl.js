@@ -39,7 +39,7 @@ export default () => {
       Button.component(
         {
           icon: 'fas fa-gavel',
-          onclick: () => app.modal.show(isBanned ? UnbanIPModal : BanIPModal, { post }),
+          onclick: () => app.modal.show(isBanned ? UnbanIPModal : BanIPModal, { user }),
         },
         app.translator.trans(`fof-ban-ips.forum.user_controls.${prefix}ban_button`)
       )
