@@ -1,3 +1,4 @@
+import app from 'flarum/common/app';
 import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
 import punctuateSeries from 'flarum/common/helpers/punctuateSeries';

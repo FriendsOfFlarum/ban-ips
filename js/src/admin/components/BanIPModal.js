@@ -1,3 +1,4 @@
+import app from 'flarum/admin/app';
 import Modal from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';

@@ -1,4 +1,4 @@
-import app from 'flarum/common/app';
+import app from 'flarum/forum/app';
 import Model from 'flarum/common/Model';
 import addBanIPControl from './addBanIPControl';
 import BannedIP from '../common/models/BannedIP';
