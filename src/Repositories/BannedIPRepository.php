@@ -93,9 +93,9 @@ class BannedIPRepository
     public function findUsers($ips)
     {
         return User::join('posts', function ($join) use ($ips) {
-                $join->on('users.id', '=', 'posts.user_id')
+            $join->on('users.id', '=', 'posts.user_id')
                     ->whereIn('posts.ip_address', Arr::wrap($ips));
-            })
+        })
             ->select('users.*', 'posts.ip_address')
             ->distinct()
             ->get()
