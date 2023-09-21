@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\BanIPs\Tests\integration\forum;
 
 use Carbon\Carbon;
@@ -22,9 +31,9 @@ class MiddlewareTest extends TestCase
 
         $this->prepareDatabase([
             'banned_ips' => $this->getBannedIPsForDB(),
-            'users' => [
+            'users'      => [
                 $this->normalUser(),
-                ['id' => 3, 'username' => 'ipBanned', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'ipbanned@machine.local', 'is_email_confirmed' => 1, 'last_seen_at' => Carbon::now()->subSecond(),]
+                ['id' => 3, 'username' => 'ipBanned', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'ipbanned@machine.local', 'is_email_confirmed' => 1, 'last_seen_at' => Carbon::now()->subSecond()],
             ],
             'discussions' => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
@@ -44,7 +53,7 @@ class MiddlewareTest extends TestCase
         ]);
 
         $this->extend(
-            (new Extend\Csrf)
+            (new Extend\Csrf())
                 ->exemptRoute('register')
                 ->exemptRoute('login')
         );
@@ -87,13 +96,13 @@ class MiddlewareTest extends TestCase
     {
         $response = $this->send($this->enhancedRequest('POST', '/register', [
             'serverParams' => [
-                'REMOTE_ADDR' => $bannedIP
+                'REMOTE_ADDR' => $bannedIP,
             ],
             'json' => [
                 'username' => 'test',
                 'password' => 'too-obscure',
-                'email' => 'test@machine.local',
-            ]
+                'email'    => 'test@machine.local',
+            ],
         ]));
 
         $this->assertEquals(422, $response->getStatusCode());
@@ -104,10 +113,10 @@ class MiddlewareTest extends TestCase
             'errors' => [
                 [
                     'status' => '422',
-                    'code' => 'validation_error',
+                    'code'   => 'validation_error',
                     'detail' => 'Authorization failed.',
                     'source' => ['pointer' => '/data/attributes/ip'],
-                ]
+                ],
             ],
         ], json_decode($body, true));
     }
@@ -119,13 +128,13 @@ class MiddlewareTest extends TestCase
     {
         $response = $this->send($this->enhancedRequest('POST', '/register', [
             'serverParams' => [
-                'REMOTE_ADDR' => $notBannedIP
+                'REMOTE_ADDR' => $notBannedIP,
             ],
             'json' => [
                 'username' => 'test',
                 'password' => 'too-obscure',
-                'email' => 'test@machine.local',
-            ]
+                'email'    => 'test@machine.local',
+            ],
         ]));
 
         $this->assertEquals(201, $response->getStatusCode());
@@ -139,12 +148,12 @@ class MiddlewareTest extends TestCase
         $response = $this->send(
             $this->enhancedRequest('POST', '/login', [
                 'serverParams' => [
-                    'REMOTE_ADDR' => $bannedIP
+                    'REMOTE_ADDR' => $bannedIP,
                 ],
                 'json' => [
                     'identification' => 'normal',
-                    'password' => 'too-obscure'
-                ]
+                    'password'       => 'too-obscure',
+                ],
             ])
         );
 
@@ -170,12 +179,12 @@ class MiddlewareTest extends TestCase
         $response = $this->send(
             $this->enhancedRequest('POST', '/login', [
                 'serverParams' => [
-                    'REMOTE_ADDR' => $notBannedIP
+                    'REMOTE_ADDR' => $notBannedIP,
                 ],
                 'json' => [
                     'identification' => 'normal',
-                    'password' => 'too-obscure'
-                ]
+                    'password'       => 'too-obscure',
+                ],
             ])
         );
 
@@ -201,12 +210,12 @@ class MiddlewareTest extends TestCase
         $response = $this->send(
             $this->enhancedRequest('POST', '/login', [
                 'serverParams' => [
-                    'REMOTE_ADDR' => $bannedIP
+                    'REMOTE_ADDR' => $bannedIP,
                 ],
                 'json' => [
                     'identification' => 'normal',
-                    'password' => 'too-obscure'
-                ]
+                    'password'       => 'too-obscure',
+                ],
             ])
         );
 
@@ -232,12 +241,12 @@ class MiddlewareTest extends TestCase
         $response = $this->send(
             $this->enhancedRequest('POST', '/login', [
                 'serverParams' => [
-                    'REMOTE_ADDR' => $notBannedIP
+                    'REMOTE_ADDR' => $notBannedIP,
                 ],
                 'json' => [
                     'identification' => 'normal',
-                    'password' => 'too-obscure'
-                ]
+                    'password'       => 'too-obscure',
+                ],
             ])
         );
 
@@ -255,18 +264,17 @@ class MiddlewareTest extends TestCase
         $this->assertEquals(2, AccessToken::whereToken($token)->firstOrFail()->user_id);
     }
 
-
     public function test_banned_user_cannot_login_using_non_associated_ip()
     {
         $response = $this->send(
             $this->enhancedRequest('POST', '/login', [
                 'serverParams' => [
-                    'REMOTE_ADDR' => $this->getIPv6Banned()[3]
+                    'REMOTE_ADDR' => $this->getIPv6Banned()[3],
                 ],
                 'json' => [
                     'identification' => 'ipBanned',
-                    'password' => 'too-obscure'
-                ]
+                    'password'       => 'too-obscure',
+                ],
             ])
         );
 
@@ -278,10 +286,10 @@ class MiddlewareTest extends TestCase
             'errors' => [
                 [
                     'status' => '422',
-                    'code' => 'validation_error',
+                    'code'   => 'validation_error',
                     'detail' => 'Authorization failed.',
                     'source' => ['pointer' => '/data/attributes/ip'],
-                ]
+                ],
             ],
         ], json_decode($body, true));
     }
@@ -291,12 +299,12 @@ class MiddlewareTest extends TestCase
         $response = $this->send(
             $this->enhancedRequest('POST', '/login', [
                 'serverParams' => [
-                    'REMOTE_ADDR' => $this->getIPv6Banned()[1]
+                    'REMOTE_ADDR' => $this->getIPv6Banned()[1],
                 ],
                 'json' => [
                     'identification' => 'ipBanned',
-                    'password' => 'too-obscure'
-                ]
+                    'password'       => 'too-obscure',
+                ],
             ])
         );
 
@@ -308,10 +316,10 @@ class MiddlewareTest extends TestCase
             'errors' => [
                 [
                     'status' => '422',
-                    'code' => 'validation_error',
+                    'code'   => 'validation_error',
                     'detail' => 'Authorization failed.',
                     'source' => ['pointer' => '/data/attributes/ip'],
-                ]
+                ],
             ],
         ], json_decode($body, true));
     }
@@ -324,18 +332,18 @@ class MiddlewareTest extends TestCase
         $response = $this->send(
             $this->enhancedRequest('POST', '/login', [
                 'serverParams' => [
-                    'REMOTE_ADDR' => $notBannedIP
+                    'REMOTE_ADDR' => $notBannedIP,
                 ],
                 'json' => [
                     'identification' => 'admin',
-                    'password' => 'password'
-                ]
+                    'password'       => 'password',
+                ],
             ])
         );
-        
+
         $response = $this->send($this->enhancedRequest('GET', '/settings', [
             'serverParams' => ['REMOTE_ADDR' => $notBannedIP],
-            'cookiesFrom' => $response
+            'cookiesFrom'  => $response,
         ]));
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -349,18 +357,18 @@ class MiddlewareTest extends TestCase
         $response = $this->send(
             $this->enhancedRequest('POST', '/login', [
                 'serverParams' => [
-                    'REMOTE_ADDR' => $bannedIP
+                    'REMOTE_ADDR' => $bannedIP,
                 ],
                 'json' => [
                     'identification' => 'admin',
-                    'password' => 'password'
-                ]
+                    'password'       => 'password',
+                ],
             ])
         );
-        
+
         $response = $this->send($this->enhancedRequest('GET', '/settings', [
             'serverParams' => ['REMOTE_ADDR' => $bannedIP],
-            'cookiesFrom' => $response
+            'cookiesFrom'  => $response,
         ]));
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -374,18 +382,18 @@ class MiddlewareTest extends TestCase
         $response = $this->send(
             $this->enhancedRequest('POST', '/login', [
                 'serverParams' => [
-                    'REMOTE_ADDR' => $bannedIP
+                    'REMOTE_ADDR' => $bannedIP,
                 ],
                 'json' => [
                     'identification' => 'normal',
-                    'password' => 'too-obscure'
-                ]
+                    'password'       => 'too-obscure',
+                ],
             ])
         );
-        
+
         $response = $this->send($this->enhancedRequest('GET', '/settings', [
             'serverParams' => ['REMOTE_ADDR' => $bannedIP],
-            'cookiesFrom' => $response
+            'cookiesFrom'  => $response,
         ]));
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -399,18 +407,18 @@ class MiddlewareTest extends TestCase
         $response = $this->send(
             $this->enhancedRequest('POST', '/login', [
                 'serverParams' => [
-                    'REMOTE_ADDR' => $notBannedIP
+                    'REMOTE_ADDR' => $notBannedIP,
                 ],
                 'json' => [
                     'identification' => 'normal',
-                    'password' => 'too-obscure'
-                ]
+                    'password'       => 'too-obscure',
+                ],
             ])
         );
-        
+
         $response = $this->send($this->enhancedRequest('GET', '/settings', [
             'serverParams' => ['REMOTE_ADDR' => $notBannedIP],
-            'cookiesFrom' => $response
+            'cookiesFrom'  => $response,
         ]));
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -421,24 +429,24 @@ class MiddlewareTest extends TestCase
         $response = $this->send(
             $this->enhancedRequest('POST', '/login', [
                 'serverParams' => [
-                    'REMOTE_ADDR' => $this->getIPv4Banned()[1]
+                    'REMOTE_ADDR' => $this->getIPv4Banned()[1],
                 ],
                 'json' => [
                     'identification' => 'ipBanned',
-                    'password' => 'too-obscure'
-                ]
+                    'password'       => 'too-obscure',
+                ],
             ])
         );
-        
+
         $response = $this->send($this->enhancedRequest('GET', '/settings', [
-            'serverParams' => ['REMOTE_ADDR' => $this->getIPv4Banned()[1]],
-            'cookiesFrom' => $response,
-            'authenticatedAs' => 3
+            'serverParams'    => ['REMOTE_ADDR' => $this->getIPv4Banned()[1]],
+            'cookiesFrom'     => $response,
+            'authenticatedAs' => 3,
         ]));
 
         // assert that we are redirected to /logout
         $this->assertEquals(302, $response->getStatusCode());
-        
+
         //$this->assertEquals(401, $response->getStatusCode());
     }
 }

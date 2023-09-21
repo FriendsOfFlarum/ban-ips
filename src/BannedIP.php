@@ -39,9 +39,9 @@ class BannedIP extends AbstractModel
     protected $dates = ['created_at', 'deleted_at'];
 
     /**
-     * @param $creatorId
-     * @param $userId
-     * @param $address
+     * @param      $creatorId
+     * @param      $userId
+     * @param      $address
      * @param null $reason
      *
      * @return BannedIP

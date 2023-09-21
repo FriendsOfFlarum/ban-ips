@@ -1,13 +1,22 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\BanIPs\Tests\integration;
 
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use FoF\BanIPs\Repositories\BannedIPRepository;
 use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
+use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Tests\fixtures\IPAddressesTrait;
 
 class BannedIPRepositoryTest extends TestCase
@@ -25,11 +34,11 @@ class BannedIPRepositoryTest extends TestCase
 
         $this->prepareDatabase([
             'banned_ips' => $bannedIPs,
-            'users' => [
+            'users'      => [
                 $this->normalUser(),
-                ['id' => 3, 'username' => 'ipBanned', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'ipbanned@machine.local', 'is_email_confirmed' => 1, 'last_seen_at' => Carbon::now()->subSecond(),],
-                ['id' => 4, 'username' => 'doubleIPUser', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'double@machine.local', 'is_email_confirmed' => 1, 'last_seen_at' => Carbon::now()->subSecond(),],
-                ['id' => 5, 'username' => 'noPostsUser', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'noPosts@machine.local', 'is_email_confirmed' => 1, 'last_seen_at' => Carbon::now()->subSecond(),],
+                ['id' => 3, 'username' => 'ipBanned', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'ipbanned@machine.local', 'is_email_confirmed' => 1, 'last_seen_at' => Carbon::now()->subSecond()],
+                ['id' => 4, 'username' => 'doubleIPUser', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'double@machine.local', 'is_email_confirmed' => 1, 'last_seen_at' => Carbon::now()->subSecond()],
+                ['id' => 5, 'username' => 'noPostsUser', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'noPosts@machine.local', 'is_email_confirmed' => 1, 'last_seen_at' => Carbon::now()->subSecond()],
             ],
             'discussions' => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
@@ -65,11 +74,11 @@ class BannedIPRepositoryTest extends TestCase
     {
         $user = User::find(2);
         $isBanned = $this->repository->isUserBanned($user);
-        $this->assertFalse($isBanned, "User should not be banned");
+        $this->assertFalse($isBanned, 'User should not be banned');
 
         $bannedUser = User::find(3);
         $isBanned = $this->repository->isUserBanned($bannedUser);
-        $this->assertTrue($isBanned, "User should be banned");
+        $this->assertTrue($isBanned, 'User should be banned');
     }
 
     /**
@@ -79,8 +88,8 @@ class BannedIPRepositoryTest extends TestCase
     {
         $user = User::find(3);
         $ips = $this->repository->getUserIPs($user);
-        $this->assertContains($this->getIPv4Banned()[1], $ips, "The IPs should contain the banned IPv4");
-        $this->assertContains($this->getIPv6Banned()[1], $ips, "The IPs should contain the banned IPv6");
+        $this->assertContains($this->getIPv4Banned()[1], $ips, 'The IPs should contain the banned IPv4');
+        $this->assertContains($this->getIPv6Banned()[1], $ips, 'The IPs should contain the banned IPv6');
     }
 
     /**
@@ -171,8 +180,8 @@ class BannedIPRepositoryTest extends TestCase
     {
         $user = User::find(4); // doubleIPUser
         $ips = $this->repository->getUserIPs($user);
-        $this->assertCount(1, $ips, "There should be only one unique IP for the user");
-        $this->assertContains($this->getIPv4NotBanned()[0], $ips, "The IPs should contain the IPv4 used twice");
+        $this->assertCount(1, $ips, 'There should be only one unique IP for the user');
+        $this->assertContains($this->getIPv4NotBanned()[0], $ips, 'The IPs should contain the IPv4 used twice');
     }
 
     /**
@@ -193,7 +202,7 @@ class BannedIPRepositoryTest extends TestCase
     {
         $user = User::find(2); // normal user
         $isBanned = $this->repository->isUserBanned($user);
-        $this->assertFalse($isBanned, "User should not be banned");
+        $this->assertFalse($isBanned, 'User should not be banned');
     }
 
     /**
@@ -203,7 +212,7 @@ class BannedIPRepositoryTest extends TestCase
     {
         $userWithoutPosts = User::find(5);
         $ips = $this->repository->getUserIPs($userWithoutPosts);
-        $this->assertCount(0, $ips, "A user with no posts should have no IP records");
+        $this->assertCount(0, $ips, 'A user with no posts should have no IP records');
     }
 
     /**
@@ -222,7 +231,7 @@ class BannedIPRepositoryTest extends TestCase
      */
     public function it_returns_null_for_invalid_ip_format()
     {
-        $bannedIP = $this->repository->findByIPAddress("InvalidIP");
+        $bannedIP = $this->repository->findByIPAddress('InvalidIP');
         $this->assertNull($bannedIP);
     }
 
@@ -234,7 +243,7 @@ class BannedIPRepositoryTest extends TestCase
         // Generate a large list of IPs
         $largeListOfIps = range(1, 30000); // Adjust as needed, this is just for demonstration
         $users = $this->repository->findUsers($largeListOfIps);
-        $this->assertNotNull($users, "The system should handle large IP lists without crashing");
+        $this->assertNotNull($users, 'The system should handle large IP lists without crashing');
     }
 
     /**
@@ -244,7 +253,7 @@ class BannedIPRepositoryTest extends TestCase
     {
         $admin = User::find(1);
         $isBanned = $this->repository->isUserBanned($admin);
-        $this->assertFalse($isBanned, "Admins should not be banned based on IP");
+        $this->assertFalse($isBanned, 'Admins should not be banned based on IP');
     }
 
     /**
@@ -254,6 +263,6 @@ class BannedIPRepositoryTest extends TestCase
     {
         $user = User::find(3);
         $isBanned = $this->repository->isUserBanned($user);
-        $this->assertTrue($isBanned, "Normal user with a banned IP should be banned");
+        $this->assertTrue($isBanned, 'Normal user with a banned IP should be banned');
     }
 }

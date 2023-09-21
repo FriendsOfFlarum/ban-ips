@@ -15,7 +15,6 @@ use Flarum\Foundation\ErrorHandling\JsonApiFormatter;
 use Flarum\Foundation\ErrorHandling\Registry;
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\RequestUtil;
-use Flarum\Locale\Translator;
 use Flarum\User\UserRepository;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use Illuminate\Support\Arr;

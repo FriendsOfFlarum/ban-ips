@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\BanIPs\Tests\fixtures;
 
 use Carbon\Carbon;
@@ -10,28 +19,28 @@ trait IPAddressesTrait
         '192.168.1.1',
         '192.168.1.100',
         '10.0.0.5',
-        '172.16.0.5'
+        '172.16.0.5',
     ];
 
     protected static $IPv4NotBanned = [
         '192.168.1.2',
         '192.168.1.101',
         '10.0.0.6',
-        '172.16.0.6'
+        '172.16.0.6',
     ];
 
     protected static $IPv6Banned = [
         '2001:0db8:85a3:0000:0000:8a2e:0370:7334',
         'fe80:0000:0000:0000:0204:61ff:fe9d:f156',
         '2001:0db8:0000:0042:0000:8a2e:0370:7334',
-        'fe80:0000:0000:0000:0204:61ff:fe9d:f157'
+        'fe80:0000:0000:0000:0204:61ff:fe9d:f157',
     ];
 
     protected static $IPv6NotBanned = [
         '2001:0db8:85a3:0000:0000:8a2e:0370:7335',
         'fe80:0000:0000:0000:0204:61ff:fe9d:f158',
         '2001:0db8:0000:0042:0000:8a2e:0370:7335',
-        'fe80:0000:0000:0000:0204:61ff:fe9d:f159'
+        'fe80:0000:0000:0000:0204:61ff:fe9d:f159',
     ];
 
     public function getIPv4Banned(): array
@@ -72,12 +81,12 @@ trait IPAddressesTrait
 
         foreach ($bannedIPs as $bannedIP) {
             $entries[] = [
-                'id' => $id,
+                'id'         => $id,
                 'creator_id' => 1,
-                'address' => $bannedIP,
-                'reason' => "Testing #{$id}",
-                'user_id' => 3,
-                'created_at' => Carbon::now()
+                'address'    => $bannedIP,
+                'reason'     => "Testing #{$id}",
+                'user_id'    => 3,
+                'created_at' => Carbon::now(),
             ];
 
             $id++;

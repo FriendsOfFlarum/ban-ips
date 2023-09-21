@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\BanIPs\Tests\fixtures;
 
 use Flarum\Testing\integration\BuildsHttpRequests;
@@ -9,13 +18,14 @@ use Psr\Http\Message\ServerRequestInterface;
 trait IPRequestTrait
 {
     use BuildsHttpRequests;
-    
+
     /**
      * Build a HTTP request that can be passed through middleware.
      *
      * @param string $method
      * @param string $path
-     * @param array $options
+     * @param array  $options
+     *
      * @return ServerRequestInterface
      */
     protected function enhancedRequest(string $method, string $path, array $options = []): ServerRequestInterface
