@@ -56,6 +56,7 @@ class EditBannedIPHandler
 
         $attributes = Arr::get($data, 'attributes', []);
 
+        /** @var BannedIP $bannedIP */
         $bannedIP = BannedIP::find($command->bannedId);
 
         $actor->assertCan('banIP');
@@ -80,7 +81,9 @@ class EditBannedIPHandler
 
         $this->validator->assertValid($bannedIP->getDirty());
 
-        $bannedIP->save();
+        if ($bannedIP->isDirty()) {
+            $bannedIP->save();
+        }
 
         return $bannedIP;
     }
