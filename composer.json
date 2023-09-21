@@ -86,6 +86,6 @@
     },
     "require-dev": {
         "flarum/testing": "^1.0.0",
-        "symfony/var-dumper": "^6.3"
+        "symfony/var-dumper": "*"
     }
 }
