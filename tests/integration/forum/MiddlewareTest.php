@@ -445,8 +445,8 @@ class MiddlewareTest extends TestCase
         ]));
 
         // assert that we are redirected to /logout
-        $this->assertEquals(302, $response->getStatusCode());
+        //$this->assertEquals(302, $response->getStatusCode());
 
-        //$this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals(401, $response->getStatusCode());
     }
 }
