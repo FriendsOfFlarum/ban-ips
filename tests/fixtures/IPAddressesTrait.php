@@ -122,4 +122,18 @@ trait IPAddressesTrait
 
         return $notBannedIPs[array_rand($notBannedIPs)];
     }
+
+    public function getRandomBannedIP(): string
+    {
+        $bannedIPs = $this->getAllBanned();
+
+        return $bannedIPs[array_rand($bannedIPs)];
+    }
+
+    public function getRandomNotBannedIP(): string
+    {
+        $notBannedIPs = $this->getAllNotBanned();
+
+        return $notBannedIPs[array_rand($notBannedIPs)];
+    }
 }

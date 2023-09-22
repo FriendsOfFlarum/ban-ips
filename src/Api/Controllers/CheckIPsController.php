@@ -21,6 +21,7 @@ use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Validators\BannedIPValidator;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tobscure\JsonApi\Document;
 
 class CheckIPsController extends AbstractListController
@@ -33,21 +34,27 @@ class CheckIPsController extends AbstractListController
     /**
      * @var BannedIPRepository
      */
-    private $bannedIPs;
+    protected $bannedIPs;
 
     /**
      * @var BannedIPValidator
      */
-    private $validator;
+    protected $validator;
+
+    /**
+     * @var TranslatorInterface
+     */
+    protected $translator;
 
     /**
      * @param BannedIPRepository $bannedIPs
      * @param BannedIPValidator  $validator
      */
-    public function __construct(BannedIPRepository $bannedIPs, BannedIPValidator $validator)
+    public function __construct(BannedIPRepository $bannedIPs, BannedIPValidator $validator, TranslatorInterface $translator)
     {
         $this->bannedIPs = $bannedIPs;
         $this->validator = $validator;
+        $this->translator = $translator;
     }
 
     /**
@@ -75,6 +82,7 @@ class CheckIPsController extends AbstractListController
 
         $userId = Arr::get($params, 'user');
         $ip = Arr::get($params, 'ip');
+
         $user = $userId != null ? User::where('id', $userId)->orWhere('username', $userId)->first() : null;
 
         $actor->assertCan('banIP', $user);
@@ -94,7 +102,7 @@ class CheckIPsController extends AbstractListController
 
         if (empty($ips)) {
             throw new ValidationException([
-                resolve('translator')->trans('fof-ban-ips.error.no_ips_found_message'),
+                $this->translator->trans('fof-ban-ips.error.no_ips_found_message'),
             ]);
         }
 

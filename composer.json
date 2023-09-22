@@ -85,7 +85,6 @@
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
     "require-dev": {
-        "flarum/testing": "^1.0.0",
-        "symfony/var-dumper": "*"
+        "flarum/testing": "^1.0.0"
     }
 }

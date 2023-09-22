@@ -24,12 +24,12 @@ class UserPolicy extends AbstractPolicy
      *
      * @return bool|null
      */
-    public function banIP(User $actor, User $user)
+    public function banIP(User $actor, ?User $user)
     {
-        if ($user == null || $actor->id == $user->id || $user->can($this->key)) {
-            return false;
+        if ($user && ($actor->id === $user->id || $user->hasPermission($this->key))) {
+            return $this->deny();
         }
 
-        return $actor->can($this->key, $user);
+        return $actor->hasPermission($this->key);
     }
 }

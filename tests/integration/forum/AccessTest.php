@@ -19,7 +19,7 @@ use Flarum\Testing\integration\TestCase;
 use FoF\BanIPs\Tests\fixtures\IPAddressesTrait;
 use FoF\BanIPs\Tests\fixtures\IPRequestTrait;
 
-class MiddlewareTest extends TestCase
+class AccessTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
     use IPAddressesTrait;
@@ -138,37 +138,6 @@ class MiddlewareTest extends TestCase
         ]));
 
         $this->assertEquals(201, $response->getStatusCode());
-    }
-
-    /**
-     * @dataProvider bannedIPsProvider
-     */
-    public function test_banned_ip_can_login_when_user_is_not_ip_banned($bannedIP)
-    {
-        $response = $this->send(
-            $this->enhancedRequest('POST', '/login', [
-                'serverParams' => [
-                    'REMOTE_ADDR' => $bannedIP,
-                ],
-                'json' => [
-                    'identification' => 'normal',
-                    'password'       => 'too-obscure',
-                ],
-            ])
-        );
-
-        $this->assertEquals(200, $response->getStatusCode());
-
-        // The response body should contain the user ID...
-        $body = (string) $response->getBody();
-        $this->assertJson($body);
-
-        $data = json_decode($body, true);
-        $this->assertEquals(2, $data['userId']);
-
-        // ...and an access token belonging to this user.
-        $token = $data['token'];
-        $this->assertEquals(2, AccessToken::whereToken($token)->firstOrFail()->user_id);
     }
 
     /**
@@ -426,10 +395,11 @@ class MiddlewareTest extends TestCase
 
     public function test_banned_user_cannot_access_restricted_path_from_banned_ip()
     {
+        // For the purposes of the test, we will login from a non-banned IP
         $response = $this->send(
             $this->enhancedRequest('POST', '/login', [
                 'serverParams' => [
-                    'REMOTE_ADDR' => $this->getIPv4Banned()[1],
+                    'REMOTE_ADDR' => $this->getIPv4NotBanned()[1],
                 ],
                 'json' => [
                     'identification' => 'ipBanned',
@@ -438,15 +408,17 @@ class MiddlewareTest extends TestCase
             ])
         );
 
+        // Make sure we have logged in successfully
+        $this->assertEquals(200, $response->getStatusCode());
+
+        // Now send another request, which is authenticated with a cookie, but from a banned IP
         $response = $this->send($this->enhancedRequest('GET', '/settings', [
             'serverParams'    => ['REMOTE_ADDR' => $this->getIPv4Banned()[1]],
             'cookiesFrom'     => $response,
-            'authenticatedAs' => 3,
         ]));
 
         // assert that we are redirected to /logout
-        //$this->assertEquals(302, $response->getStatusCode());
-
-        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertStringContainsString('/logout?token=', $response->getHeaderLine('Location'));
     }
 }

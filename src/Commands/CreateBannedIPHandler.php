@@ -55,7 +55,7 @@ class CreateBannedIPHandler
         $data = $command->data;
 
         $userId = Arr::get($data, 'attributes.userId');
-        $user = $userId != null ? User::where('id', $userId)->orWhere('username', $userId)->firstOrFail() : null;
+        $user = $userId ? User::query()->where('id', $userId)->orWhere('username', $userId)->firstOrFail() : null;
 
         $actor->assertCan('banIP', $user);
 

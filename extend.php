@@ -62,7 +62,7 @@ return [
 
     (new Extend\ApiSerializer(Serializer\PostSerializer::class))
         ->attributes(function (AbstractSerializer $serializer, AbstractModel $post, array $attributes): array {
-            $attributes['canBanIP'] = $serializer->getActor()->can('banIP', $post);
+            $attributes['canBanIP'] = $serializer->getActor()->can('banIP', $post->user);
 
             return $attributes;
         })

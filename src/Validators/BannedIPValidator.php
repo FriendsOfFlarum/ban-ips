@@ -16,7 +16,7 @@ use Flarum\Foundation\AbstractValidator;
 class BannedIPValidator extends AbstractValidator
 {
     protected $rules = [
-        'userId'  => ['required', 'integer'],
+        'creatorId'  => ['required', 'integer'],
         'address' => ['required', 'ip', 'unique:banned_ips,address'],
         'reason'  => ['nullable', 'string'],
     ];
