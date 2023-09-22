@@ -1,24 +1,33 @@
 <?php
 
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\BanIPs\Tests\integration\api;
 
 use Carbon\Carbon;
-use Flarum\Testing\integration\TestCase;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
 use FoF\BanIPs\Tests\fixtures\IPAddressesTrait;
 
 class CreateBannedIPControllerTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
     use IPAddressesTrait;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->prepareDatabase([
             'banned_ips' => $this->getBannedIPsForDB(),
-            'users' => [
+            'users'      => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'moderator', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'moderator@machine.local', 'is_email_confirmed' => 1, 'last_seen_at' => Carbon::now()->subSecond()],
                 ['id' => 4, 'username' => 'normal2', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'normal2@machine.local', 'is_email_confirmed' => 1, 'last_seen_at' => Carbon::now()->subSecond()],
@@ -29,8 +38,8 @@ class CreateBannedIPControllerTest extends TestCase
             'group_permission' => [
                 ['group_id' => 4, 'permission' => 'fof.ban-ips.banIP'],
                 ['group_id' => 4, 'permission' => 'fof.ban-ips.viewBannedIPList'],
-                ['group_id' => 4, 'permission' => 'discussion.viewIpsPosts']
-            ]
+                ['group_id' => 4, 'permission' => 'discussion.viewIpsPosts'],
+            ],
         ]);
 
         $this->extension('fof-ban-ips');
@@ -42,7 +51,7 @@ class CreateBannedIPControllerTest extends TestCase
             ['actorId' => 1, 'userId' => 2],
             ['actorId' => 1, 'userId' => null],
             ['actorId' => 3, 'userId' => 2],
-            ['actorId' => 3, 'userId' => null]
+            ['actorId' => 3, 'userId' => null],
         ];
     }
 
@@ -51,7 +60,7 @@ class CreateBannedIPControllerTest extends TestCase
         $response = $this->send(
             $this->request('POST', '/api/fof/ban-ips', [
                 'authenticatedAs' => 1,
-                'json' => [],
+                'json'            => [],
             ])
         );
 
@@ -66,14 +75,14 @@ class CreateBannedIPControllerTest extends TestCase
         $response = $this->send(
             $this->request('POST', '/api/fof/ban-ips', [
                 'authenticatedAs' => $actorId,
-                'json' => [
+                'json'            => [
                     'data' => [
                         'attributes' => [
                             'address' => $this->getIPv6NotBanned()[2],
-                            'reason' => 'Testing',
-                            'userId' => $userId
-                        ]
-                    ]
+                            'reason'  => 'Testing',
+                            'userId'  => $userId,
+                        ],
+                    ],
                 ],
             ])
         );
@@ -130,13 +139,13 @@ class CreateBannedIPControllerTest extends TestCase
         $response = $this->send(
             $this->request('POST', '/api/fof/ban-ips', [
                 'authenticatedAs' => 3,
-                'json' => [
+                'json'            => [
                     'data' => [
                         'attributes' => [
                             'address' => $this->getIPv6Banned()[1],
-                            'reason' => 'Testing',
-                        ]
-                    ]
+                            'reason'  => 'Testing',
+                        ],
+                    ],
                 ],
             ])
         );
@@ -162,13 +171,13 @@ class CreateBannedIPControllerTest extends TestCase
         $response = $this->send(
             $this->request('POST', '/api/fof/ban-ips', [
                 'authenticatedAs' => 2,
-                'json' => [
+                'json'            => [
                     'data' => [
                         'attributes' => [
                             'address' => $this->getIPv4NotBanned()[1],
-                            'reason' => 'Testing',
-                        ]
-                    ]
+                            'reason'  => 'Testing',
+                        ],
+                    ],
                 ],
             ])
         );
@@ -177,5 +186,4 @@ class CreateBannedIPControllerTest extends TestCase
     }
 
     // ... More test cases ...
-
 }
