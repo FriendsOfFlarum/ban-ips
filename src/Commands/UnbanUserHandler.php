@@ -14,17 +14,10 @@ namespace FoF\BanIPs\Commands;
 use Flarum\User\User;
 use FoF\BanIPs\Events\IPWasUnbanned;
 use FoF\BanIPs\Repositories\BannedIPRepository;
-use FoF\BanIPs\Validators\BannedIPValidator;
-use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Events\Dispatcher as DispatcherEvents;
 
 class UnbanUserHandler
 {
-    /**
-     * @var Dispatcher
-     */
-    private $bus;
-
     /**
      * @var DispatcherEvents
      */
@@ -36,26 +29,17 @@ class UnbanUserHandler
     private $bannedIPs;
 
     /**
-     * @var BannedIPValidator
-     */
-    private $validator;
-
-    /**
-     * @param Dispatcher         $bus
      * @param DispatcherEvents   $events
      * @param BannedIPRepository $bannedIPs
-     * @param BannedIPValidator  $validator
      */
-    public function __construct(Dispatcher $bus, DispatcherEvents $events, BannedIPRepository $bannedIPs, BannedIPValidator $validator)
+    public function __construct(DispatcherEvents $events, BannedIPRepository $bannedIPs)
     {
-        $this->bus = $bus;
         $this->events = $events;
         $this->bannedIPs = $bannedIPs;
-        $this->validator = $validator;
     }
 
     /**
-     * @param BanUser $command
+     * @param UnbanUser $command
      *
      * @return mixed
      */

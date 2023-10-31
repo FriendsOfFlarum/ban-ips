@@ -61,7 +61,7 @@ return [
         ->modelPolicy(User::class, Access\UserPolicy::class),
 
     (new Extend\ApiSerializer(Serializer\PostSerializer::class))
-        ->attributes(function (AbstractSerializer $serializer, AbstractModel $post, array $attributes): array {
+        ->attributes(function (AbstractSerializer $serializer, Post $post, array $attributes): array {
             $attributes['canBanIP'] = $serializer->getActor()->can('banIP', $post->user);
 
             return $attributes;
@@ -95,7 +95,7 @@ return [
     (new Extend\ApiController(Controller\ListPostsController::class))
         ->addInclude(['banned_ip', 'banned_ip.user']),
 
-    (new Extend\ApiController(Controller\ShowPostsController::class))
+    (new Extend\ApiController(Controller\ShowPostController::class))
         ->addInclude(['banned_ip', 'banned_ip.user']),
 
     (new Extend\ApiController(Controller\CreatePostController::class))

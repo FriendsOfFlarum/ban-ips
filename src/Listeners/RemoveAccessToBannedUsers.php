@@ -11,7 +11,6 @@
 
 namespace FoF\BanIPs\Listeners;
 
-use Flarum\Http\SessionAuthenticator;
 use Flarum\User\User;
 use FoF\BanIPs\Events\IPWasBanned;
 use FoF\BanIPs\Repositories\BannedIPRepository;
@@ -23,14 +22,8 @@ class RemoveAccessToBannedUsers
      */
     private $bannedIPs;
 
-    /**
-     * @var SessionAuthenticator
-     */
-    private $authenticator;
-
-    public function __construct(SessionAuthenticator $authenticator, BannedIPRepository $bannedIPs)
+    public function __construct(BannedIPRepository $bannedIPs)
     {
-        $this->authenticator = $authenticator;
         $this->bannedIPs = $bannedIPs;
     }
 
