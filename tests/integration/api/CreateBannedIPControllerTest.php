@@ -109,13 +109,13 @@ class CreateBannedIPControllerTest extends TestCase
         $response = $this->send(
             $this->request('POST', '/api/fof/ban-ips', [
                 'authenticatedAs' => $userId,
-                'json' => [
+                'json'            => [
                     'data' => [
                         'attributes' => [
                             'address' => $this->getIPv4NotBanned()[0],
-                            'reason' => 'Testing',
-                        ]
-                    ]
+                            'reason'  => 'Testing',
+                        ],
+                    ],
                 ],
             ])
         );

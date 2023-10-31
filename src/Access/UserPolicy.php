@@ -19,7 +19,7 @@ class UserPolicy extends AbstractPolicy
     private $key = 'fof.ban-ips.banIP';
 
     /**
-     * @param User $actor
+     * @param User  $actor
      * @param ?User $user
      *
      * @return bool|null
