@@ -31,7 +31,7 @@ class BannedIPRepository
     private static $ips = [];
 
     /**
-     * Get a new query builder for the pages table.
+     * Get a new query builder for the banned IP table.
      *
      * @return Builder
      */
@@ -47,8 +47,6 @@ class BannedIPRepository
      * @param User $actor
      *
      * @throws ModelNotFoundException
-     *
-     * @return BannedIP
      */
     public function findOrFail($id, User $actor = null)
     {
@@ -111,7 +109,7 @@ class BannedIPRepository
      */
     public function isUserBanned(User $user)
     {
-        if (Arr::has(self::$bans, $user->id)) {
+        if (Arr::has(self::$bans, [$user->id])) {
             return (bool) self::$bans[$user->id];
         }
 
@@ -120,7 +118,7 @@ class BannedIPRepository
 
     public function getUserIPs(User $user): Collection
     {
-        if (Arr::has(self::$ips, $user->id)) {
+        if (Arr::has(self::$ips, [$user->id])) {
             return self::$ips[$user->id];
         }
 

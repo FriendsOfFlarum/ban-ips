@@ -26,11 +26,6 @@ class DeleteBannedIPHandler
         $this->bannedIPs = $bannedIPs;
     }
 
-    /**
-     * @param DeleteBannedIP $command
-     *
-     * @return BanIP
-     */
     public function handle(DeleteBannedIP $command)
     {
         /**

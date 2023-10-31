@@ -15,29 +15,21 @@ use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
-use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Validators\BannedIPValidator;
 use Illuminate\Support\Arr;
 
 class EditBannedIPHandler
 {
     /**
-     * @var BannedIPRepository
-     */
-    private $bannedIPs;
-
-    /**
      * @var BannedIPValidator
      */
     private $validator;
 
     /**
-     * @param BannedIPRepository $bannedIPs
-     * @param BannedIPValidator  $validator
+     * @param BannedIPValidator $validator
      */
-    public function __construct(BannedIPRepository $bannedIPs, BannedIPValidator $validator)
+    public function __construct(BannedIPValidator $validator)
     {
-        $this->bannedIPs = $bannedIPs;
         $this->validator = $validator;
     }
 
@@ -56,6 +48,7 @@ class EditBannedIPHandler
 
         $attributes = Arr::get($data, 'attributes', []);
 
+        /** @var BannedIP $bannedIP */
         $bannedIP = BannedIP::find($command->bannedId);
 
         $actor->assertCan('banIP');
@@ -80,7 +73,9 @@ class EditBannedIPHandler
 
         $this->validator->assertValid($bannedIP->getDirty());
 
-        $bannedIP->save();
+        if ($bannedIP->isDirty()) {
+            $bannedIP->save();
+        }
 
         return $bannedIP;
     }

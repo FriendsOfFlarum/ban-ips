@@ -78,7 +78,7 @@ class RegisterMiddleware implements MiddlewareInterface
                     ->format(
                         resolve(Registry::class)
                             ->handle(new ValidationException([
-                                'ip' => resolve('translator')->trans('fof-ban-ips.error.banned_ip_message'),
+                                'ip' => 'Authorization failed.',
                             ])),
                         $request
                     );

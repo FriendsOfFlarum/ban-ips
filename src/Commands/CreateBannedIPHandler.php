@@ -12,6 +12,7 @@
 namespace FoF\BanIPs\Commands;
 
 use Carbon\Carbon;
+use Flarum\User\Guest;
 use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
 use FoF\BanIPs\Events\IPWasBanned;
@@ -55,13 +56,15 @@ class CreateBannedIPHandler
         $data = $command->data;
 
         $userId = Arr::get($data, 'attributes.userId');
-        $user = $userId != null ? User::where('id', $userId)->orWhere('username', $userId)->firstOrFail() : null;
+
+        /** @var User|Guest $user */
+        $user = $userId ? User::query()->where('id', $userId)->orWhere('username', $userId)->first() : new Guest();
 
         $actor->assertCan('banIP', $user);
 
         $bannedIP = BannedIP::build(
             $actor->id,
-            $user ? $user->id : null,
+            $user->isGuest() ? null : $user->id,
             Arr::get($data, 'attributes.address'),
             Arr::get($data, 'attributes.reason')
         );

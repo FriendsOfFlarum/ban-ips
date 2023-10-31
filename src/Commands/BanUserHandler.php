@@ -16,17 +16,11 @@ use FoF\BanIPs\BannedIP;
 use FoF\BanIPs\Events\IPWasBanned;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Validators\BannedIPValidator;
-use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Events\Dispatcher as DispatcherEvents;
 use Illuminate\Support\Arr;
 
 class BanUserHandler
 {
-    /**
-     * @var Dispatcher
-     */
-    private $bus;
-
     /**
      * @var DispatcherEvents
      */
@@ -43,14 +37,12 @@ class BanUserHandler
     private $validator;
 
     /**
-     * @param Dispatcher         $bus
      * @param DispatcherEvents   $events
      * @param BannedIPRepository $bannedIPs
      * @param BannedIPValidator  $validator
      */
-    public function __construct(Dispatcher $bus, DispatcherEvents $events, BannedIPRepository $bannedIPs, BannedIPValidator $validator)
+    public function __construct(DispatcherEvents $events, BannedIPRepository $bannedIPs, BannedIPValidator $validator)
     {
-        $this->bus = $bus;
         $this->events = $events;
         $this->bannedIPs = $bannedIPs;
         $this->validator = $validator;
