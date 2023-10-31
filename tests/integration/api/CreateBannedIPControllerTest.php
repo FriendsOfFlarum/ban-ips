@@ -25,8 +25,9 @@ class CreateBannedIPControllerTest extends TestCase
     {
         parent::setUp();
 
+        $this->extension('fof-ban-ips');
+
         $this->prepareDatabase([
-            'banned_ips' => $this->getBannedIPsForDB(),
             'users'      => [
                 $this->normalUser(),
                 ['id' => 3, 'username' => 'moderator', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'moderator@machine.local', 'is_email_confirmed' => 1, 'last_seen_at' => Carbon::now()->subSecond()],
@@ -40,9 +41,8 @@ class CreateBannedIPControllerTest extends TestCase
                 ['group_id' => 4, 'permission' => 'fof.ban-ips.viewBannedIPList'],
                 ['group_id' => 4, 'permission' => 'discussion.viewIpsPosts'],
             ],
+            'banned_ips' => $this->getBannedIPsForDB(),
         ]);
-
-        $this->extension('fof-ban-ips');
     }
 
     public function adminAndModeratorUserIdProvider(): array
@@ -101,38 +101,38 @@ class CreateBannedIPControllerTest extends TestCase
         $this->assertEquals($actorId, $attrs['creatorId']);
     }
 
-    // /**
-    //  * @dataProvider adminAndModeratorUserIdProvider
-    //  */
-    // public function test_user_with_permission_can_ban_ip_not_already_banned_without_associated_user(int $userId)
-    // {
-    //     $response = $this->send(
-    //         $this->request('POST', '/api/fof/ban-ips', [
-    //             'authenticatedAs' => $userId,
-    //             'json' => [
-    //                 'data' => [
-    //                     'attributes' => [
-    //                         'address' => $this->getIPv4NotBanned()[0],
-    //                         'reason' => 'Testing',
-    //                     ]
-    //                 ]
-    //             ],
-    //         ])
-    //     );
+    /**
+     * @dataProvider adminAndModeratorUserIdProvider
+     */
+    public function test_user_with_permission_can_ban_ip_not_already_banned_without_associated_user(int $userId)
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/fof/ban-ips', [
+                'authenticatedAs' => $userId,
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'address' => $this->getIPv4NotBanned()[0],
+                            'reason' => 'Testing',
+                        ]
+                    ]
+                ],
+            ])
+        );
 
-    //     $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode());
 
-    //     $body = $response->getBody();
+        $body = $response->getBody();
 
-    //     $this->assertJson($body);
+        $this->assertJson($body);
 
-    //     $attrs = json_decode($body, true)['data']['attributes'];
+        $attrs = json_decode($body, true)['data']['attributes'];
 
-    //     $this->assertEquals($this->getIPv4NotBanned()[0], $attrs['address']);
-    //     $this->assertEquals('Testing', $attrs['reason']);
-    //     $this->assertNull($attrs['userId']);
-    //     $this->assertEquals($userId, $attrs['creatorId']);
-    // }
+        $this->assertEquals($this->getIPv4NotBanned()[0], $attrs['address']);
+        $this->assertEquals('Testing', $attrs['reason']);
+        $this->assertNull($attrs['userId']);
+        $this->assertEquals($userId, $attrs['creatorId']);
+    }
 
     public function test_user_with_permission_cannot_ban_ip_already_banned()
     {

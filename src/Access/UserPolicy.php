@@ -20,13 +20,13 @@ class UserPolicy extends AbstractPolicy
 
     /**
      * @param User $actor
-     * @param User $user
+     * @param ?User $user
      *
      * @return bool|null
      */
     public function banIP(User $actor, ?User $user)
     {
-        if ($user && ($actor->id === $user->id || $user->hasPermission($this->key))) {
+        if (!$user->isGuest() && ($actor->id === $user->id || $user->hasPermission($this->key))) {
             return $this->deny();
         }
 
