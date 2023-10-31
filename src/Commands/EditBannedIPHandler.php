@@ -26,7 +26,7 @@ class EditBannedIPHandler
     private $validator;
 
     /**
-     * @param BannedIPValidator  $validator
+     * @param BannedIPValidator $validator
      */
     public function __construct(BannedIPValidator $validator)
     {

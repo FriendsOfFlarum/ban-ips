@@ -14,7 +14,6 @@ namespace FoF\BanIPs;
 use Flarum\Api\Controller;
 use Flarum\Api\Serializer;
 use Flarum\Api\Serializer\AbstractSerializer;
-use Flarum\Database\AbstractModel;
 use Flarum\Extend;
 use Flarum\Post\Post;
 use Flarum\User\User;
