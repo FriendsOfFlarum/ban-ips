@@ -11,6 +11,7 @@
 
 namespace FoF\BanIPs;
 
+use Blomstra\Gdpr\Extend\UserData;
 use Flarum\Api\Controller;
 use Flarum\Api\Serializer;
 use Flarum\Api\Serializer\AbstractSerializer;
@@ -108,4 +109,10 @@ return [
 
     (new Extend\Filter(Search\BannedIPFilterer::class))
         ->addFilter(Search\NxGambit::class),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('blomstra-gdpr', fn () => [
+            (new UserData())
+                ->addType(Data\BannedIPData::class),
+        ]),
 ];
