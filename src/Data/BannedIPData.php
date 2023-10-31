@@ -24,7 +24,7 @@ class BannedIPData extends Type
         BannedIP::query()
             ->where('user_id', $this->user->id)
             ->each(function (BannedIP $bannedIp) use (&$exportData) {
-                $exportData[] = ["bannedIP/{$bannedIp->id}.json" => $this->sanitize($bannedIp)];
+                $exportData[] = ["bannedIP/ip-{$bannedIp->id}.json" => $this->encodeForExport($this->sanitize($bannedIp))];
             });
 
         return $exportData;
@@ -32,7 +32,7 @@ class BannedIPData extends Type
 
     public function sanitize(BannedIP $bannedIP): array
     {
-        return Arr::except($bannedIP, ['id', 'creator_id', 'user_id']);
+        return Arr::except($bannedIP->toArray(), ['id', 'creator_id', 'user_id']);
     }
 
     public function anonymize(): void
