@@ -11,6 +11,10 @@ export default class UnbanIPModal extends BanIPModal {
     return app.translator.trans('fof-ban-ips.lib.modal.unban_title');
   }
 
+  className() {
+    return 'UnbanIPModal Modal--medium';
+  }
+
   content() {
     const otherUsers = this.otherUsers[this.banOption()];
     const usernames = otherUsers && otherUsers.map((u) => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));

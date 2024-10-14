@@ -33,7 +33,7 @@ export default class BanIPModal extends Modal {
   }
 
   className() {
-    return 'Modal--medium';
+    return 'BanIPModal Modal--medium';
   }
 
   title() {
