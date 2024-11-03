@@ -11,7 +11,7 @@
 
 namespace FoF\BanIPs\Data;
 
-use Blomstra\Gdpr\Data\Type;
+use Flarum\Gdpr\Data\Type;
 use FoF\BanIPs\BannedIP;
 use Illuminate\Support\Arr;
 

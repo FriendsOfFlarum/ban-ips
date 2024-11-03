@@ -52,7 +52,7 @@
                 "flarum/flags",
                 "flarum/tags",
                 "flarum/approval",
-                "blomstra/gdpr"
+                "flarum/gdpr"
             ]
         },
         "flagrow": {
@@ -91,6 +91,6 @@
     "require-dev": {
         "flarum/testing": "^1.0.0",
         "flarum/phpstan": "*",
-        "blomstra/gdpr": "@beta"
+        "flarum/gdpr": "dev-main"
     }
 }

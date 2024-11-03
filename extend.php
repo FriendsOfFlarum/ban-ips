@@ -11,11 +11,11 @@
 
 namespace FoF\BanIPs;
 
-use Blomstra\Gdpr\Extend\UserData;
 use Flarum\Api\Controller;
 use Flarum\Api\Serializer;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Extend;
+use Flarum\Gdpr\Extend\UserData;
 use Flarum\Post\Post;
 use Flarum\User\User;
 use FoF\BanIPs\Api\Controllers\CheckIPsController;
@@ -111,7 +111,7 @@ return [
         ->addFilter(Search\NxGambit::class),
 
     (new Extend\Conditional())
-        ->whenExtensionEnabled('blomstra-gdpr', fn () => [
+        ->whenExtensionEnabled('flarum-gdpr', fn () => [
             (new UserData())
                 ->addType(Data\BannedIPData::class),
         ]),
