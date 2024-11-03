@@ -75,7 +75,7 @@ fof-ban-ips:
     address_label: IP Address
     reason_label: Reason
 
-blomstra-gdpr:
+flarum-gdpr:
   lib:
     data:
       bannedipdata:
