@@ -11,11 +11,11 @@
 
 namespace FoF\BanIPs;
 
-use Flarum\Gdpr\Extend\UserData;
 use Flarum\Api\Controller;
 use Flarum\Api\Serializer;
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Extend;
+use Flarum\Gdpr\Extend\UserData;
 use Flarum\Post\Post;
 use Flarum\User\User;
 use FoF\BanIPs\Api\Controllers\CheckIPsController;
