@@ -48,7 +48,7 @@ class BannedIPRepository
      *
      * @throws ModelNotFoundException
      */
-    public function findOrFail($id, User $actor = null)
+    public function findOrFail($id, ?User $actor = null)
     {
         $query = BannedIP::where('id', $id);
 
@@ -140,7 +140,7 @@ class BannedIPRepository
      *
      * @return Builder
      */
-    protected function scopeVisibleTo(Builder $query, User $actor = null)
+    protected function scopeVisibleTo(Builder $query, ?User $actor = null)
     {
         if ($actor !== null) {
             $query->whereVisibleTo($actor);
