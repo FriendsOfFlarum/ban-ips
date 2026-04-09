@@ -20,4 +20,12 @@ class BannedIPValidator extends AbstractValidator
         'address'    => ['required', 'ip', 'unique:banned_ips,address'],
         'reason'     => ['nullable', 'string'],
     ];
+
+    protected function getAttributeNames(): array
+    {
+        return [
+            'address' => 'address',
+            'reason'  => 'reason',
+        ];
+    }
 }

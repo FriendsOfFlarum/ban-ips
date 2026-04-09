@@ -89,8 +89,8 @@
         "analyse:phpstan": "Run static analysis"
     },
     "require-dev": {
-        "flarum/testing": "^1.0.0",
-        "flarum/phpstan": "*",
-        "flarum/gdpr": "dev-main"
+        "flarum/testing": "^1.8",
+        "flarum/phpstan": "^1.8",
+        "flarum/gdpr": "^1.8"
     }
 }
