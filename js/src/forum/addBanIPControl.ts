@@ -4,8 +4,10 @@ import PostControls from 'flarum/forum/utils/PostControls';
 import UserControls from 'flarum/forum/utils/UserControls';
 import Button from 'flarum/common/components/Button';
 
-import BanIPModal from '../common/components/BanIPModal';
-import UnbanIPModal from '../common/components/UnbanIPModal';
+// The ban/unban modals are only needed once a moderator decides to act, so they
+// are lazy-loaded into their own chunks rather than shipped in the forum bundle.
+const BanIPModal = () => import('../common/components/BanIPModal');
+const UnbanIPModal = () => import('../common/components/UnbanIPModal');
 
 export default function addBanIPControl(): void {
   extend(PostControls, 'userControls', function (items, post) {

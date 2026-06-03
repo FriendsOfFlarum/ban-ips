@@ -1,8 +1,9 @@
 import app from 'flarum/common/app';
-import { IFormModalAttrs } from 'flarum/common/components/FormModal';
-import FormModal from 'flarum/common/components/FormModal';
+import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
+import Form from 'flarum/common/components/Form';
+import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
 import type Mithril from 'mithril';
@@ -19,7 +20,7 @@ export interface IBanIPModalAttrs extends IFormModalAttrs {
   redraw?: boolean;
 }
 
-export default class BanIPModal<CustomAttrs extends IBanIPModalAttrs = IBanIPModalAttrs> extends FormModal<CustomAttrs> {
+export default class BanIPModal extends FormModal<IBanIPModalAttrs> {
   protected address?: string;
   protected post?: Post;
   protected user?: User;
@@ -28,7 +29,7 @@ export default class BanIPModal<CustomAttrs extends IBanIPModalAttrs = IBanIPMod
   protected reason!: Stream<string>;
   protected otherUsers!: Record<string, (User | null)[] | undefined>;
 
-  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
+  oninit(vnode: Mithril.Vnode<IBanIPModalAttrs, this>) {
     super.oninit(vnode);
 
     this.address = this.attrs.address;
@@ -63,69 +64,115 @@ export default class BanIPModal<CustomAttrs extends IBanIPModalAttrs = IBanIPMod
   }
 
   content() {
-    const otherUsersBanned = this.otherUsers[this.banOption()];
-    const usernames =
-      otherUsersBanned && otherUsersBanned.map((u) => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));
-
     return (
       <div className="Modal-body">
-        <p>{app.translator.trans('fof-ban-ips.lib.modal.ban_ip_confirmation')}</p>
-
-        <div className="Form-group">
-          {this.banOptions.map((key) => (
-            <div>
-              <input
-                type="radio"
-                name="ban-option"
-                id={`ban-option-${key}`}
-                checked={this.banOption() === key}
-                onclick={this.banOption.bind(this, key)}
-              />
-              &nbsp;
-              <label htmlFor={`ban-option-${key}`}>
-                {app.translator.trans(`fof-ban-ips.forum.modal.ban_options_${key}_ip`, {
-                  user: this.user,
-                  ip: this.address || (this.post && this.post.ipAddress()),
-                })}
-              </label>
-            </div>
-          ))}
-        </div>
-
-        <div className="Form-group">
-          <label className="label">{app.translator.trans('fof-ban-ips.lib.modal.reason_label')}</label>
-          <input type="text" className="FormControl" bidi={this.reason} />
-        </div>
-
-        {otherUsersBanned
-          ? otherUsersBanned.length
-            ? Alert.component(
-                {
-                  dismissible: false,
-                },
-                app.translator.trans('fof-ban-ips.lib.modal.ban_ip_users', {
-                  users: punctuateSeries(usernames!),
-                  count: usernames!.length,
-                })
-              )
-            : Alert.component(
-                {
-                  dismissible: false,
-                  type: 'success',
-                },
-                app.translator.trans('fof-ban-ips.forum.modal.ban_ip_no_users')
-              )
-          : ''}
-
-        {otherUsersBanned && <br />}
-
-        <div className="Form-group">
-          <Button className="Button Button--primary" type="submit" loading={this.loading}>
-            {usernames ? app.translator.trans('fof-ban-ips.lib.modal.ban_button') : app.translator.trans('fof-ban-ips.lib.modal.check_button')}
-          </Button>
-        </div>
+        <Form>{this.fields().toArray()}</Form>
       </div>
     );
+  }
+
+  fields() {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('help', <p>{this.confirmationText()}</p>, 100);
+
+    items.add(
+      'banOptions',
+      <div className="Form-group">
+        {this.banOptions.map((key) => (
+          <div>
+            <input
+              type="radio"
+              name="ban-option"
+              id={`ban-option-${key}`}
+              checked={this.banOption() === key}
+              onclick={this.banOption.bind(this, key)}
+            />
+            &nbsp;
+            <label htmlFor={`ban-option-${key}`}>{this.optionLabel(key)}</label>
+          </div>
+        ))}
+      </div>,
+      90
+    );
+
+    items.add(
+      'reason',
+      <div className="Form-group">
+        <label className="label">{app.translator.trans('fof-ban-ips.lib.modal.reason_label')}</label>
+        <input type="text" className="FormControl" bidi={this.reason} />
+      </div>,
+      80
+    );
+
+    this.usersWarning(items);
+
+    items.add(
+      'submit',
+      <div className="Form-group Form-controls">
+        <Button className="Button Button--primary" type="submit" loading={this.loading}>
+          {this.submitLabel()}
+        </Button>
+      </div>,
+      -10
+    );
+
+    return items;
+  }
+
+  /**
+   * The confirmation text shown at the top of the modal. Overridden by the
+   * unban modal.
+   */
+  confirmationText() {
+    return app.translator.trans('fof-ban-ips.lib.modal.ban_ip_confirmation');
+  }
+
+  /**
+   * The label for a given ban-scope radio option ("only this IP" / "all IPs").
+   * Overridden by the unban modal to use its own wording.
+   */
+  optionLabel(key: string) {
+    return app.translator.trans(`fof-ban-ips.forum.modal.ban_options_${key}_ip`, {
+      user: this.user,
+      ip: this.address || (this.post && this.post.ipAddress()),
+    });
+  }
+
+  /**
+   * Add an alert describing which other users a ban/unban would affect, once the
+   * server has been asked. Overridden by the unban modal to use its own wording.
+   */
+  usersWarning(items: ItemList<Mithril.Children>) {
+    const otherUsersBanned = this.otherUsers[this.banOption()];
+
+    if (!otherUsersBanned) return;
+
+    const usernames = otherUsersBanned.map((u) => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));
+
+    items.add(
+      'otherUsers',
+      otherUsersBanned.length
+        ? Alert.component(
+            { dismissible: false },
+            app.translator.trans('fof-ban-ips.lib.modal.ban_ip_users', {
+              users: punctuateSeries(usernames),
+              count: usernames.length,
+            })
+          )
+        : Alert.component({ dismissible: false, type: 'success' }, app.translator.trans('fof-ban-ips.forum.modal.ban_ip_no_users')),
+      70
+    );
+  }
+
+  /**
+   * The label of the submit button. Switches to a "check" action until the
+   * affected users have been resolved.
+   */
+  submitLabel() {
+    return this.otherUsers[this.banOption()]
+      ? app.translator.trans('fof-ban-ips.lib.modal.ban_button')
+      : app.translator.trans('fof-ban-ips.lib.modal.check_button');
   }
 
   onsubmit(e: SubmitEvent) {

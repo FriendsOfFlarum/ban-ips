@@ -6,9 +6,11 @@ import ExtensionPage, { ExtensionPageAttrs } from 'flarum/admin/components/Exten
 import type Mithril from 'mithril';
 import type { ApiResponsePlural } from 'flarum/common/Store';
 
-import BanIPModal from './BanIPModal';
 import SettingsPageItem from './SettingsPageItem';
 import type BannedIP from '../../common/models/BannedIP';
+
+// Lazy-loaded: the create modal is only needed when the admin clicks "Ban IP".
+const BanIPModal = () => import('./BanIPModal');
 
 export default class SettingsPage<CustomAttrs extends ExtensionPageAttrs = ExtensionPageAttrs> extends ExtensionPage<CustomAttrs> {
   protected page!: number;

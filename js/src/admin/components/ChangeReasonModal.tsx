@@ -1,7 +1,8 @@
 import app from 'flarum/admin/app';
-import { IFormModalAttrs } from 'flarum/common/components/FormModal';
-import FormModal from 'flarum/common/components/FormModal';
+import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
+import Form from 'flarum/common/components/Form';
+import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 import type Mithril from 'mithril';
 import type BannedIP from '../../common/models/BannedIP';
@@ -10,11 +11,11 @@ export interface IChangeReasonModalAttrs extends IFormModalAttrs {
   item: BannedIP;
 }
 
-export default class ChangeReasonModal<CustomAttrs extends IChangeReasonModalAttrs = IChangeReasonModalAttrs> extends FormModal<CustomAttrs> {
+export default class ChangeReasonModal extends FormModal<IChangeReasonModalAttrs> {
   protected item!: BannedIP;
   protected reason!: Stream<string | null>;
 
-  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
+  oninit(vnode: Mithril.Vnode<IChangeReasonModalAttrs, this>) {
     super.oninit(vnode);
 
     this.item = this.attrs.item;
@@ -33,18 +34,34 @@ export default class ChangeReasonModal<CustomAttrs extends IChangeReasonModalAtt
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form-group">
-          <label className="label">{app.translator.trans('fof-ban-ips.lib.modal.reason_label')}</label>
-          <input type="text" className="FormControl" bidi={this.reason} />
-        </div>
-
-        <div className="Form-group">
-          <Button className="Button Button--primary" type="submit" loading={this.loading} disabled={this.reason() === this.item.reason()}>
-            {app.translator.trans('fof-ban-ips.lib.modal.save_button')}
-          </Button>
-        </div>
+        <Form>{this.fields().toArray()}</Form>
       </div>
     );
+  }
+
+  fields() {
+    const items = new ItemList<Mithril.Children>();
+
+    items.add(
+      'reason',
+      <div className="Form-group">
+        <label className="label">{app.translator.trans('fof-ban-ips.lib.modal.reason_label')}</label>
+        <input type="text" className="FormControl" bidi={this.reason} />
+      </div>,
+      90
+    );
+
+    items.add(
+      'submit',
+      <div className="Form-group Form-controls">
+        <Button className="Button Button--primary" type="submit" loading={this.loading} disabled={this.reason() === this.item.reason()}>
+          {app.translator.trans('fof-ban-ips.lib.modal.save_button')}
+        </Button>
+      </div>,
+      -10
+    );
+
+    return items;
   }
 
   onsubmit(e: SubmitEvent) {

@@ -1,7 +1,8 @@
 import app from 'flarum/common/app';
-import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
+import ItemList from 'flarum/common/utils/ItemList';
 import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
+import type Mithril from 'mithril';
 import type User from 'flarum/common/models/User';
 import type { ModelIdentifier, SavedModelData } from 'flarum/common/Model';
 import type { ApiPayloadPlural } from 'flarum/common/Store';
@@ -21,77 +22,68 @@ export default class UnbanIPModal extends BanIPModal {
   }
 
   content() {
-    const otherUsers = this.otherUsers[this.banOption()];
-    const usernames = otherUsers && otherUsers.map((u) => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));
-
+    // Once the unban has completed, replace the form with a success summary of
+    // the IPs that were removed.
     if (this.bannedIPs) {
       return (
         <div className="Modal-body">
           {Alert.component(
-            {
-              dismissible: false,
-              type: 'success',
-            },
+            { dismissible: false, type: 'success' },
             app.translator.trans('fof-ban-ips.lib.modal.unbanned_ips', { ips: punctuateSeries(this.bannedIPs) })
           )}
         </div>
       );
     }
 
-    return (
-      <div className="Modal-body">
-        <p>{app.translator.trans('fof-ban-ips.lib.modal.unban_ip_confirmation')}</p>
+    return super.content();
+  }
 
-        <div className="Form-group">
-          {this.banOptions.map((key) => (
-            <div>
-              <input
-                type="radio"
-                name="ban-option"
-                id={`ban-option-${key}`}
-                checked={this.banOption() === key}
-                onclick={this.banOption.bind(this, key)}
-              />
-              &nbsp;
-              <label htmlFor={`ban-option-${key}`}>
-                {app.translator.trans(`fof-ban-ips.lib.modal.unban_options_${key}_ip`, {
-                  user: this.user,
-                  ip: this.address || (this.post && this.post.ipAddress()),
-                })}
-              </label>
-            </div>
-          ))}
-        </div>
+  fields() {
+    const items = super.fields();
 
-        {otherUsers
-          ? otherUsers.length
-            ? Alert.component(
-                {
-                  dismissible: false,
-                },
-                app.translator.trans('fof-ban-ips.lib.modal.unban_ip_users', {
-                  users: punctuateSeries(usernames!),
-                  count: usernames!.length,
-                })
-              )
-            : Alert.component(
-                {
-                  dismissible: false,
-                  type: 'success',
-                },
-                app.translator.trans('fof-ban-ips.lib.modal.unban_ip_no_users')
-              )
-          : ''}
+    // Unbanning does not take a reason.
+    items.remove('reason');
 
-        {otherUsers && <br />}
+    return items;
+  }
 
-        <div className="Form-group">
-          <Button className="Button Button--primary" type="submit" loading={this.loading}>
-            {usernames ? app.translator.trans('fof-ban-ips.lib.modal.unban_button') : app.translator.trans('fof-ban-ips.lib.modal.check_button')}
-          </Button>
-        </div>
-      </div>
+  confirmationText() {
+    return app.translator.trans('fof-ban-ips.lib.modal.unban_ip_confirmation');
+  }
+
+  optionLabel(key: string) {
+    return app.translator.trans(`fof-ban-ips.lib.modal.unban_options_${key}_ip`, {
+      user: this.user,
+      ip: this.address || (this.post && this.post.ipAddress()),
+    });
+  }
+
+  usersWarning(items: ItemList<Mithril.Children>) {
+    const otherUsers = this.otherUsers[this.banOption()];
+
+    if (!otherUsers) return;
+
+    const usernames = otherUsers.map((u) => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));
+
+    items.add(
+      'otherUsers',
+      otherUsers.length
+        ? Alert.component(
+            { dismissible: false },
+            app.translator.trans('fof-ban-ips.lib.modal.unban_ip_users', {
+              users: punctuateSeries(usernames),
+              count: usernames.length,
+            })
+          )
+        : Alert.component({ dismissible: false, type: 'success' }, app.translator.trans('fof-ban-ips.lib.modal.unban_ip_no_users')),
+      70
     );
+  }
+
+  submitLabel() {
+    return this.otherUsers[this.banOption()]
+      ? app.translator.trans('fof-ban-ips.lib.modal.unban_button')
+      : app.translator.trans('fof-ban-ips.lib.modal.check_button');
   }
 
   onsubmit(e: SubmitEvent) {

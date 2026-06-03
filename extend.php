@@ -39,7 +39,11 @@ return [
 
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
+        ->jsDirectory(__DIR__.'/js/dist/admin')
         ->css(__DIR__.'/resources/less/admin.less'),
+
+    (new Extend\Frontend('common'))
+        ->jsDirectory(__DIR__.'/js/dist/common'),
 
     new Extend\Locales(__DIR__.'/resources/locale'),
 
