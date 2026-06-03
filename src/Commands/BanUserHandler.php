@@ -21,31 +21,8 @@ use Illuminate\Support\Arr;
 
 class BanUserHandler
 {
-    /**
-     * @var DispatcherEvents
-     */
-    private $events;
-
-    /**
-     * @var BannedIPRepository
-     */
-    private $bannedIPs;
-
-    /**
-     * @var BannedIPValidator
-     */
-    private $validator;
-
-    /**
-     * @param DispatcherEvents   $events
-     * @param BannedIPRepository $bannedIPs
-     * @param BannedIPValidator  $validator
-     */
-    public function __construct(DispatcherEvents $events, BannedIPRepository $bannedIPs, BannedIPValidator $validator)
+    public function __construct(private DispatcherEvents $events, private BannedIPRepository $bannedIPs, private BannedIPValidator $validator)
     {
-        $this->events = $events;
-        $this->bannedIPs = $bannedIPs;
-        $this->validator = $validator;
     }
 
     /**

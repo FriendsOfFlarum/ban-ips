@@ -37,14 +37,8 @@ class ListUserBannedIPsController extends AbstractListController
      */
     public $serializer = BannedIPSerializer::class;
 
-    /**
-     * @var BannedIPRepository
-     */
-    private $bannedIPs;
-
-    public function __construct(BannedIPRepository $bannedIPs)
+    public function __construct(private BannedIPRepository $bannedIPs)
     {
-        $this->bannedIPs = $bannedIPs;
     }
 
     /**

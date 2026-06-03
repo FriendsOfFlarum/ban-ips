@@ -17,14 +17,8 @@ use FoF\BanIPs\Repositories\BannedIPRepository;
 
 class RemoveAccessToBannedUsers
 {
-    /**
-     * @var BannedIPRepository
-     */
-    private $bannedIPs;
-
-    public function __construct(BannedIPRepository $bannedIPs)
+    public function __construct(private BannedIPRepository $bannedIPs)
     {
-        $this->bannedIPs = $bannedIPs;
     }
 
     public function handle(IPWasBanned $event): void

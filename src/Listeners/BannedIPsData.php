@@ -20,14 +20,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class BannedIPsData
 {
-    /**
-     * @var BannedIPRepository
-     */
-    private $bannedIPs;
-
-    public function __construct(BannedIPRepository $bannedIPs)
+    public function __construct(private BannedIPRepository $bannedIPs)
     {
-        $this->bannedIPs = $bannedIPs;
     }
 
     /**

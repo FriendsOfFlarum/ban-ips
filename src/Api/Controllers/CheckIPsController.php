@@ -31,30 +31,8 @@ class CheckIPsController extends AbstractListController
      */
     public $include = ['banned_ips'];
 
-    /**
-     * @var BannedIPRepository
-     */
-    protected $bannedIPs;
-
-    /**
-     * @var BannedIPValidator
-     */
-    protected $validator;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @param BannedIPRepository $bannedIPs
-     * @param BannedIPValidator  $validator
-     */
-    public function __construct(BannedIPRepository $bannedIPs, BannedIPValidator $validator, TranslatorInterface $translator)
+    public function __construct(protected BannedIPRepository $bannedIPs, protected BannedIPValidator $validator, protected TranslatorInterface $translator)
     {
-        $this->bannedIPs = $bannedIPs;
-        $this->validator = $validator;
-        $this->translator = $translator;
     }
 
     /**

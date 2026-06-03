@@ -20,19 +20,11 @@ use Illuminate\Database\Eloquent\Builder;
 class BannedIPSearcher extends AbstractSearcher
 {
     /**
-     * @var BannedIPRepository
-     */
-    protected $bannedIPs;
-
-    /**
      * @param GambitManager      $gambits
-     * @param BannedIPRepository $bannedIPs
-     */
-    public function __construct(BannedIPRepository $bannedIPs, GambitManager $gambits, array $searchMutators)
+    
+    public function __construct(protected BannedIPRepository $bannedIPs, GambitManager $gambits, array $searchMutators)
     {
         parent::__construct($gambits, $searchMutators);
-
-        $this->bannedIPs = $bannedIPs;
     }
 
     public function getQuery(User $actor): Builder

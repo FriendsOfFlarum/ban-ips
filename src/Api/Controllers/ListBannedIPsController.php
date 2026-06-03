@@ -34,31 +34,8 @@ class ListBannedIPsController extends AbstractListController
      */
     public $include = ['user', 'creator'];
 
-    /**
-     * @var BannedIPSearcher
-     */
-    protected $searcher;
-
-    /**
-     * @var BannedIPFilterer
-     */
-    protected $filterer;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param BannedIPSearcher $searcher
-     * @param BannedIPFilterer $filterer
-     * @param UrlGenerator     $url
-     */
-    public function __construct(BannedIPSearcher $searcher, BannedIPFilterer $filterer, UrlGenerator $url)
+    public function __construct(protected BannedIPSearcher $searcher, protected BannedIPFilterer $filterer, protected UrlGenerator $url)
     {
-        $this->searcher = $searcher;
-        $this->filterer = $filterer;
-        $this->url = $url;
     }
 
     /**

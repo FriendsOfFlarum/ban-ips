@@ -18,13 +18,9 @@ use Illuminate\Database\Eloquent\Builder;
 
 class BannedIPFilterer extends AbstractFilterer
 {
-    protected BannedIPRepository $bannedIPs;
-
-    public function __construct(array $filters, array $filterMutators, BannedIPRepository $bannedIPs)
+    public function __construct(array $filters, array $filterMutators, protected BannedIPRepository $bannedIPs)
     {
         parent::__construct($filters, $filterMutators);
-
-        $this->bannedIPs = $bannedIPs;
     }
 
     protected function getQuery(User $actor): Builder

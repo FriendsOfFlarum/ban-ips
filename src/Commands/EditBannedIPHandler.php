@@ -20,17 +20,8 @@ use Illuminate\Support\Arr;
 
 class EditBannedIPHandler
 {
-    /**
-     * @var BannedIPValidator
-     */
-    private $validator;
-
-    /**
-     * @param BannedIPValidator $validator
-     */
-    public function __construct(BannedIPValidator $validator)
+    public function __construct(private BannedIPValidator $validator)
     {
-        $this->validator = $validator;
     }
 
     /**

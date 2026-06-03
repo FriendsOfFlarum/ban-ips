@@ -15,30 +15,7 @@ use Flarum\User\User;
 
 class BanUser
 {
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @var int
-     */
-    public $userId;
-
-    /**
-     * @var array
-     */
-    public $data;
-
-    /**
-     * @param User  $actor
-     * @param int   $userId
-     * @param array $data
-     */
-    public function __construct(User $actor, int $userId, array $data)
+    public function __construct(public User $actor, public int $userId, public array $data)
     {
-        $this->actor = $actor;
-        $this->userId = $userId;
-        $this->data = $data;
     }
 }

@@ -15,23 +15,7 @@ use Flarum\User\User;
 
 class UnbanUser
 {
-    /**
-     * @var int
-     */
-    public $userId;
-
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @param User $actor
-     * @param int  $userId
-     */
-    public function __construct(User $actor, int $userId)
+    public function __construct(public User $actor, public int $userId)
     {
-        $this->actor = $actor;
-        $this->userId = $userId;
     }
 }

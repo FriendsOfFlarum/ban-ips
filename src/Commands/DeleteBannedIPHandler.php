@@ -18,20 +18,8 @@ use Illuminate\Events\Dispatcher as DispatcherEvents;
 
 class DeleteBannedIPHandler
 {
-    /**
-     * @var DispatcherEvents
-     */
-    private $events;
-
-    /**
-     * @var BannedIPRepository
-     */
-    private $bannedIPs;
-
-    public function __construct(DispatcherEvents $events, BannedIPRepository $bannedIPs)
+    public function __construct(private DispatcherEvents $events, private BannedIPRepository $bannedIPs)
     {
-        $this->events = $events;
-        $this->bannedIPs = $bannedIPs;
     }
 
     public function handle(DeleteBannedIP $command): void

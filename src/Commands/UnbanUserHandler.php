@@ -18,24 +18,8 @@ use Illuminate\Events\Dispatcher as DispatcherEvents;
 
 class UnbanUserHandler
 {
-    /**
-     * @var DispatcherEvents
-     */
-    private $events;
-
-    /**
-     * @var BannedIPRepository
-     */
-    private $bannedIPs;
-
-    /**
-     * @param DispatcherEvents   $events
-     * @param BannedIPRepository $bannedIPs
-     */
-    public function __construct(DispatcherEvents $events, BannedIPRepository $bannedIPs)
+    public function __construct(private DispatcherEvents $events, private BannedIPRepository $bannedIPs)
     {
-        $this->events = $events;
-        $this->bannedIPs = $bannedIPs;
     }
 
     /**
