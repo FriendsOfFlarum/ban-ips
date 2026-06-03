@@ -9,8 +9,5 @@ app.initializers.add('fof/ban-ips', () => {
   addBannedBadge();
 });
 
-// Expose compat API
-import extCompat from '../common/compat';
-import { compat } from '@flarum/core/forum';
-
-Object.assign(compat, extCompat);
+// Allow flarum to discover modules
+import '../common/common';

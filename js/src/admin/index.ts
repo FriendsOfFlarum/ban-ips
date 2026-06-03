@@ -25,8 +25,5 @@ app.initializers.add('fof/ban-ips', () => {
     .registerPage(SettingsPage);
 });
 
-// Expose compat API
-import extCompat from './compat';
-import { compat } from '@flarum/core/admin';
-
-Object.assign(compat, extCompat);
+// Allow flarum to discover modules
+import './admin';
