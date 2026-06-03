@@ -52,7 +52,7 @@ class UpdateBannedIPControllerTest extends TestCase
     public function test_user_with_permission_can_edit_the_reason()
     {
         $response = $this->send(
-            $this->request('PATCH', '/api/fof/ban-ips/1', [
+            $this->request('PATCH', '/api/banned_ips/1', [
                 'authenticatedAs' => 3,
                 'json'            => [
                     'data' => [
@@ -71,7 +71,7 @@ class UpdateBannedIPControllerTest extends TestCase
     public function test_admin_can_edit_the_reason()
     {
         $response = $this->send(
-            $this->request('PATCH', '/api/fof/ban-ips/2', [
+            $this->request('PATCH', '/api/banned_ips/2', [
                 'authenticatedAs' => 1,
                 'json'            => [
                     'data' => [
@@ -91,7 +91,7 @@ class UpdateBannedIPControllerTest extends TestCase
     {
         // The moderator (user 3) created ban #2.
         $response = $this->send(
-            $this->request('PATCH', '/api/fof/ban-ips/2', [
+            $this->request('PATCH', '/api/banned_ips/2', [
                 'authenticatedAs' => 3,
                 'json'            => [
                     'data' => [
@@ -110,7 +110,7 @@ class UpdateBannedIPControllerTest extends TestCase
     public function test_user_without_permission_cannot_edit_a_ban()
     {
         $response = $this->send(
-            $this->request('PATCH', '/api/fof/ban-ips/1', [
+            $this->request('PATCH', '/api/banned_ips/1', [
                 'authenticatedAs' => 2,
                 'json'            => [
                     'data' => [
@@ -128,7 +128,7 @@ class UpdateBannedIPControllerTest extends TestCase
     public function test_editing_a_missing_ban_returns_not_found()
     {
         $response = $this->send(
-            $this->request('PATCH', '/api/fof/ban-ips/9999', [
+            $this->request('PATCH', '/api/banned_ips/9999', [
                 'authenticatedAs' => 3,
                 'json'            => [
                     'data' => [

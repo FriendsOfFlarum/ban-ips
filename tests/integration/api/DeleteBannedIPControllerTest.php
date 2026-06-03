@@ -48,7 +48,7 @@ class DeleteBannedIPControllerTest extends TestCase
     public function test_admin_can_delete_a_banned_ip()
     {
         $response = $this->send(
-            $this->request('DELETE', '/api/fof/ban-ips/1', [
+            $this->request('DELETE', '/api/banned_ips/1', [
                 'authenticatedAs' => 1,
             ])
         );
@@ -60,7 +60,7 @@ class DeleteBannedIPControllerTest extends TestCase
     public function test_user_with_permission_can_delete_a_banned_ip()
     {
         $response = $this->send(
-            $this->request('DELETE', '/api/fof/ban-ips/2', [
+            $this->request('DELETE', '/api/banned_ips/2', [
                 'authenticatedAs' => 3,
             ])
         );
@@ -72,7 +72,7 @@ class DeleteBannedIPControllerTest extends TestCase
     public function test_user_without_permission_cannot_delete_a_banned_ip()
     {
         $response = $this->send(
-            $this->request('DELETE', '/api/fof/ban-ips/1', [
+            $this->request('DELETE', '/api/banned_ips/1', [
                 'authenticatedAs' => 2,
             ])
         );
@@ -90,7 +90,7 @@ class DeleteBannedIPControllerTest extends TestCase
         });
 
         $response = $this->send(
-            $this->request('DELETE', '/api/fof/ban-ips/1', [
+            $this->request('DELETE', '/api/banned_ips/1', [
                 'authenticatedAs' => 1,
             ])
         );

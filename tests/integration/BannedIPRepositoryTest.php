@@ -18,6 +18,7 @@ use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Tests\fixtures\IPAddressesTrait;
+use PHPUnit\Framework\Attributes\Test;
 
 class BannedIPRepositoryTest extends TestCase
 {
@@ -41,11 +42,11 @@ class BannedIPRepositoryTest extends TestCase
                 ['id' => 5, 'username' => 'noPostsUser', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'noPosts@machine.local', 'is_email_confirmed' => 1, 'last_seen_at' => Carbon::now()->subSecond()],
             ],
             'discussions' => [
-                ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
-                ['id' => 2, 'title' => 'lightsail in title', 'created_at' => Carbon::createFromDate(1985, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1985, 5, 21)->toDateTimeString(), 'user_id' => 2, 'comment_count' => 1],
-                ['id' => 3, 'title' => 'not in title', 'created_at' => Carbon::createFromDate(1995, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1995, 5, 21)->toDateTimeString(), 'user_id' => 2, 'comment_count' => 1],
-                ['id' => 4, 'title' => 'hidden', 'created_at' => Carbon::createFromDate(2005, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2005, 5, 21)->toDateTimeString(), 'hidden_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
-                ['id' => 5, 'title' => 'ipbanned', 'created_at' => Carbon::createFromDate(2015, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2015, 5, 21)->toDateTimeString(), 'user_id' => 3, 'comment_count' => 1],
+                ['id' => 1, 'slug' => 'discussion-1', 'title' => __CLASS__, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
+                ['id' => 2, 'slug' => 'discussion-2', 'title' => 'lightsail in title', 'created_at' => Carbon::createFromDate(1985, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1985, 5, 21)->toDateTimeString(), 'user_id' => 2, 'comment_count' => 1],
+                ['id' => 3, 'slug' => 'discussion-3', 'title' => 'not in title', 'created_at' => Carbon::createFromDate(1995, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1995, 5, 21)->toDateTimeString(), 'user_id' => 2, 'comment_count' => 1],
+                ['id' => 4, 'slug' => 'discussion-4', 'title' => 'hidden', 'created_at' => Carbon::createFromDate(2005, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2005, 5, 21)->toDateTimeString(), 'hidden_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
+                ['id' => 5, 'slug' => 'discussion-5', 'title' => 'ipbanned', 'created_at' => Carbon::createFromDate(2015, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2015, 5, 21)->toDateTimeString(), 'user_id' => 3, 'comment_count' => 1],
             ],
             'posts' => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'ip_address' => $this->getIPv4NotBanned()[0]],
@@ -67,9 +68,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->app();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_checks_if_user_is_banned()
     {
         $user = User::find(2);
@@ -81,9 +80,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertTrue($isBanned, 'User should be banned');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_retrieves_user_ips()
     {
         $user = User::find(3);
@@ -92,9 +89,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertContains($this->getIPv6Banned()[1], $ips, 'The IPs should contain the banned IPv6');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_identifies_banned_ips_for_user()
     {
         $user = User::find(3);
@@ -103,9 +98,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertContains($this->getIPv6Banned()[1], $bannedIps, "The user's banned IPs should contain the given IPv6");
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_finds_banned_ip_by_id()
     {
         $bannedIP = $this->repository->findOrFail(1);
@@ -113,9 +106,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertEquals($this->getIPv4Banned()[0], $bannedIP->address);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_finds_banned_ip_by_address()
     {
         $bannedIP = $this->repository->findByIPAddress($this->getIPv4Banned()[3]);
@@ -127,9 +118,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertEquals($this->getIPv6Banned()[2], $bannedIP->address);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_finds_other_users_by_ips()
     {
         $ips = [$this->getIPv4Banned()[1], $this->getIPv4Banned()[0]];
@@ -145,9 +134,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertContains(3, $otherUsers->pluck('id')->toArray()); // User ID of ipBanned
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_finds_users_by_ips()
     {
         $ips = [$this->getIPv4Banned()[1]];
@@ -161,9 +148,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertContains(3, $users->pluck('id')->toArray()); // User ID of ipBanned
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_gets_user_banned_ips()
     {
         $user = User::find(3); // ipBanned user
@@ -173,9 +158,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertContains($this->getIPv6Banned()[1], $bannedIPs->pluck('address')->toArray());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_multiple_posts_with_same_ip_correctly()
     {
         $user = User::find(4); // doubleIPUser
@@ -184,9 +167,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertContains($this->getIPv4NotBanned()[0], $ips, 'The IPs should contain the IPv4 used twice');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_users_with_same_banned_ip_correctly()
     {
         $ips = [$this->getIPv4Banned()[1]];
@@ -195,9 +176,7 @@ class BannedIPRepositoryTest extends TestCase
         // If there's another user with the same IP, check for their ID here.
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_does_not_flag_non_banned_user_as_banned()
     {
         $user = User::find(2); // normal user
@@ -205,9 +184,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertFalse($isBanned, 'User should not be banned');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_users_with_no_posts()
     {
         $userWithoutPosts = User::find(5);
@@ -215,9 +192,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertCount(0, $ips, 'A user with no posts should have no IP records');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_identifies_multiple_banned_ips_for_user()
     {
         $user = User::find(3);
@@ -226,18 +201,14 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertContains($this->getIPv4Banned()[2], $bannedIps, "The user's banned IPs should contain the second banned IPv4");
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_returns_null_for_invalid_ip_format()
     {
         $bannedIP = $this->repository->findByIPAddress('InvalidIP');
         $this->assertNull($bannedIP);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_handles_large_list_of_ips_efficiently()
     {
         // Generate a large list of IPs
@@ -246,9 +217,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertNotNull($users, 'The system should handle large IP lists without crashing');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_does_not_ban_admins_based_on_ip()
     {
         $admin = User::find(1);
@@ -256,9 +225,7 @@ class BannedIPRepositoryTest extends TestCase
         $this->assertFalse($isBanned, 'Admins should not be banned based on IP');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function it_does_ban_normal_user_based_on_ip()
     {
         $user = User::find(3);

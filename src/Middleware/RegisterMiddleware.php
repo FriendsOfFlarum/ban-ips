@@ -26,24 +26,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class RegisterMiddleware implements MiddlewareInterface
 {
-    /**
-     * @var BannedIPRepository
-     */
-    private $bannedIPs;
-
-    /**
-     * @var UserRepository
-     */
-    private $users;
-
-    /**
-     * @param BannedIPRepository $bannedIPs
-     * @param UserRepository     $users
-     */
-    public function __construct(BannedIPRepository $bannedIPs, UserRepository $users)
+    public function __construct(private BannedIPRepository $bannedIPs, private UserRepository $users)
     {
-        $this->bannedIPs = $bannedIPs;
-        $this->users = $users;
     }
 
     /**

@@ -18,6 +18,7 @@ use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use FoF\BanIPs\Tests\fixtures\IPAddressesTrait;
 use FoF\BanIPs\Tests\fixtures\IPRequestTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class AccessTest extends TestCase
 {
@@ -36,11 +37,11 @@ class AccessTest extends TestCase
                 ['id' => 3, 'username' => 'ipBanned', 'password' => '$2y$10$LO59tiT7uggl6Oe23o/O6.utnF6ipngYjvMvaxo1TciKqBttDNKim', 'email' => 'ipbanned@machine.local', 'is_email_confirmed' => 1, 'last_seen_at' => Carbon::now()->subSecond()],
             ],
             'discussions' => [
-                ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
-                ['id' => 2, 'title' => 'lightsail in title', 'created_at' => Carbon::createFromDate(1985, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1985, 5, 21)->toDateTimeString(), 'user_id' => 2, 'comment_count' => 1],
-                ['id' => 3, 'title' => 'not in title', 'created_at' => Carbon::createFromDate(1995, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1995, 5, 21)->toDateTimeString(), 'user_id' => 2, 'comment_count' => 1],
-                ['id' => 4, 'title' => 'hidden', 'created_at' => Carbon::createFromDate(2005, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2005, 5, 21)->toDateTimeString(), 'hidden_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
-                ['id' => 5, 'title' => 'ipbanned', 'created_at' => Carbon::createFromDate(2015, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2015, 5, 21)->toDateTimeString(), 'user_id' => 3, 'comment_count' => 2],
+                ['id' => 1, 'slug' => 'discussion-1', 'title' => __CLASS__, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1],
+                ['id' => 2, 'slug' => 'discussion-2', 'title' => 'lightsail in title', 'created_at' => Carbon::createFromDate(1985, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1985, 5, 21)->toDateTimeString(), 'user_id' => 2, 'comment_count' => 1],
+                ['id' => 3, 'slug' => 'discussion-3', 'title' => 'not in title', 'created_at' => Carbon::createFromDate(1995, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(1995, 5, 21)->toDateTimeString(), 'user_id' => 2, 'comment_count' => 1],
+                ['id' => 4, 'slug' => 'discussion-4', 'title' => 'hidden', 'created_at' => Carbon::createFromDate(2005, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2005, 5, 21)->toDateTimeString(), 'hidden_at' => Carbon::now()->toDateTimeString(), 'user_id' => 1, 'comment_count' => 1],
+                ['id' => 5, 'slug' => 'discussion-5', 'title' => 'ipbanned', 'created_at' => Carbon::createFromDate(2015, 5, 21)->toDateTimeString(), 'last_posted_at' => Carbon::createFromDate(2015, 5, 21)->toDateTimeString(), 'user_id' => 3, 'comment_count' => 2],
             ],
             'posts' => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::createFromDate(1975, 5, 21)->toDateTimeString(), 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>foo bar</p></t>', 'ip_address' => $this->getIPv4NotBanned()[0]],
@@ -61,37 +62,35 @@ class AccessTest extends TestCase
         $this->extension('fof-ban-ips');
     }
 
-    public function bannedIPsProvider(): array
+    public static function bannedIPsProvider(): array
     {
         return [
-            [$this->getIPv4Banned()[0]],
-            [$this->getIPv6Banned()[0]],
-            [$this->getIPv4Banned()[1]],
-            [$this->getIPv6Banned()[1]],
-            [$this->getIPv4Banned()[2]],
-            [$this->getIPv6Banned()[2]],
-            [$this->getIPv4Banned()[3]],
-            [$this->getIPv6Banned()[3]],
+            [self::$IPv4Banned[0]],
+            [self::$IPv6Banned[0]],
+            [self::$IPv4Banned[1]],
+            [self::$IPv6Banned[1]],
+            [self::$IPv4Banned[2]],
+            [self::$IPv6Banned[2]],
+            [self::$IPv4Banned[3]],
+            [self::$IPv6Banned[3]],
         ];
     }
 
-    public function notBannedIPsProvider(): array
+    public static function notBannedIPsProvider(): array
     {
         return [
-            [$this->getIPv4NotBanned()[0]],
-            [$this->getIPv6NotBanned()[0]],
-            [$this->getIPv4NotBanned()[1]],
-            [$this->getIPv6NotBanned()[1]],
-            [$this->getIPv4NotBanned()[2]],
-            [$this->getIPv6NotBanned()[2]],
-            [$this->getIPv4NotBanned()[3]],
-            [$this->getIPv6NotBanned()[3]],
+            [self::$IPv4NotBanned[0]],
+            [self::$IPv6NotBanned[0]],
+            [self::$IPv4NotBanned[1]],
+            [self::$IPv6NotBanned[1]],
+            [self::$IPv4NotBanned[2]],
+            [self::$IPv6NotBanned[2]],
+            [self::$IPv4NotBanned[3]],
+            [self::$IPv6NotBanned[3]],
         ];
     }
 
-    /**
-     * @dataProvider bannedIPsProvider
-     */
+    #[DataProvider('bannedIPsProvider')]
     public function test_banned_ips_cannot_register($bannedIP)
     {
         $response = $this->send($this->enhancedRequest('POST', '/register', [
@@ -121,9 +120,7 @@ class AccessTest extends TestCase
         ], json_decode($body, true));
     }
 
-    /**
-     * @dataProvider notBannedIPsProvider
-     */
+    #[DataProvider('notBannedIPsProvider')]
     public function test_not_banned_ips_can_register($notBannedIP)
     {
         $response = $this->send($this->enhancedRequest('POST', '/register', [
@@ -140,9 +137,7 @@ class AccessTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider notBannedIPsProvider
-     */
+    #[DataProvider('notBannedIPsProvider')]
     public function test_not_banned_ip_can_login_when_user_is_not_ip_banned($notBannedIP)
     {
         $response = $this->send(
@@ -171,9 +166,7 @@ class AccessTest extends TestCase
         $this->assertEquals(2, AccessToken::whereToken($token)->firstOrFail()->user_id);
     }
 
-    /**
-     * @dataProvider bannedIPsProvider
-     */
+    #[DataProvider('bannedIPsProvider')]
     public function test_banned_ip_can_login_if_user_is_not_associated_with_a_banned_ip($bannedIP)
     {
         $response = $this->send(
@@ -202,9 +195,7 @@ class AccessTest extends TestCase
         $this->assertEquals(2, AccessToken::whereToken($token)->firstOrFail()->user_id);
     }
 
-    /**
-     * @dataProvider notBannedIPsProvider
-     */
+    #[DataProvider('notBannedIPsProvider')]
     public function test_non_banned_ip_can_login($notBannedIP)
     {
         $response = $this->send(
@@ -293,9 +284,7 @@ class AccessTest extends TestCase
         ], json_decode($body, true));
     }
 
-    /**
-     * @dataProvider notBannedIPsProvider
-     */
+    #[DataProvider('notBannedIPsProvider')]
     public function test_admin_can_access_restriced_path_from_not_banned_ip($notBannedIP)
     {
         $response = $this->send(
@@ -318,9 +307,7 @@ class AccessTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider bannedIPsProvider
-     */
+    #[DataProvider('bannedIPsProvider')]
     public function test_admin_can_access_restriced_path_from_banned_ip($bannedIP)
     {
         $response = $this->send(
@@ -343,9 +330,7 @@ class AccessTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider bannedIPsProvider
-     */
+    #[DataProvider('bannedIPsProvider')]
     public function test_not_banned_user_is_able_to_access_restriced_path_from_banned_ip($bannedIP)
     {
         $response = $this->send(
@@ -368,9 +353,7 @@ class AccessTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider notBannedIPsProvider
-     */
+    #[DataProvider('notBannedIPsProvider')]
     public function test_not_banned_user_is_able_to_access_restriced_path_from_not_banned_ip($notBannedIP)
     {
         $response = $this->send(

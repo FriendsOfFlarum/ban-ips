@@ -11,32 +11,21 @@
 
 namespace FoF\BanIPs\Search;
 
-use Flarum\Search\AbstractSearcher;
-use Flarum\Search\GambitManager;
+use Flarum\Search\Database\AbstractSearcher;
 use Flarum\User\User;
-use FoF\BanIPs\Repositories\BannedIPRepository;
+use FoF\BanIPs\BannedIP;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * Registers the banned IP model with the database search driver. We do not ship
+ * any fulltext gambit or filters of our own; the searcher exists so that the
+ * listing endpoint is paginated through the search pipeline and so other
+ * extensions can hook in their own filters.
+ */
 class BannedIPSearcher extends AbstractSearcher
 {
-    /**
-     * @var BannedIPRepository
-     */
-    protected $bannedIPs;
-
-    /**
-     * @param GambitManager      $gambits
-     * @param BannedIPRepository $bannedIPs
-     */
-    public function __construct(BannedIPRepository $bannedIPs, GambitManager $gambits, array $searchMutators)
-    {
-        parent::__construct($gambits, $searchMutators);
-
-        $this->bannedIPs = $bannedIPs;
-    }
-
     public function getQuery(User $actor): Builder
     {
-        return $this->bannedIPs->query();
+        return BannedIP::query();
     }
 }

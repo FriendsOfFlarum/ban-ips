@@ -4,9 +4,11 @@ import Button from 'flarum/common/components/Button';
 import username from 'flarum/common/helpers/username';
 import type Mithril from 'mithril';
 
-import UnbanIPModal from '../../common/components/UnbanIPModal';
-import ChangeReasonModal from './ChangeReasonModal';
 import type BannedIP from '../../common/models/BannedIP';
+
+// Lazy-loaded: these modals are only needed when the admin edits or removes a row.
+const UnbanIPModal = () => import('../../common/components/UnbanIPModal');
+const ChangeReasonModal = () => import('./ChangeReasonModal');
 
 export interface ISettingsPageItemAttrs extends ComponentAttrs {
   bannedIP: BannedIP;
@@ -35,7 +37,9 @@ export default class SettingsPageItem<CustomAttrs extends ISettingsPageItemAttrs
             {Button.component({
               className: 'Button Button--warning',
               icon: 'fas fa-pencil-alt',
-              disabled: this.item.creator() !== app.session.user,
+              // A ban's own creator may not edit it (enforced by the API policy);
+              // anyone else with permission can. Disable the button accordingly.
+              disabled: this.item.creator() === app.session.user,
               onclick: () => app.modal.show(ChangeReasonModal, { item: this.item }),
             })}
             {Button.component({

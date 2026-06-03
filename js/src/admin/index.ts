@@ -4,7 +4,7 @@ import SettingsPage from './components/SettingsPage';
 export { default as extend } from './extend';
 
 app.initializers.add('fof/ban-ips', () => {
-  app.extensionData
+  app.registry
     .for('fof-ban-ips')
     .registerPermission(
       {
@@ -25,8 +25,5 @@ app.initializers.add('fof/ban-ips', () => {
     .registerPage(SettingsPage);
 });
 
-// Expose compat API
-import extCompat from './compat';
-import { compat } from '@flarum/core/admin';
-
-Object.assign(compat, extCompat);
+// Allow flarum to discover modules
+import './admin';

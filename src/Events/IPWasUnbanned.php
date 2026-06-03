@@ -16,23 +16,7 @@ use FoF\BanIPs\BannedIP;
 
 class IPWasUnbanned
 {
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @var BannedIP
-     */
-    public $unbannedIP;
-
-    /**
-     * @param BannedIP $unbannedIP
-     * @param User     $actor
-     */
-    public function __construct(BannedIP $unbannedIP, User $actor)
+    public function __construct(public BannedIP $unbannedIP, public User $actor)
     {
-        $this->unbannedIP = $unbannedIP;
-        $this->actor = $actor;
     }
 }

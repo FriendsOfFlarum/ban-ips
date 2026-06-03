@@ -34,10 +34,7 @@ class BannedIP extends AbstractModel
      */
     protected $table = 'banned_ips';
 
-    /**
-     * @var array
-     */
-    protected $dates = ['created_at', 'deleted_at'];
+    protected $casts = ['created_at' => 'datetime', 'deleted_at' => 'datetime'];
 
     /**
      * @param int         $creatorId

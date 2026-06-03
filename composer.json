@@ -19,8 +19,7 @@
         }
     ],
     "require": {
-        "php": "^8.0",
-        "flarum/core": "^1.8.3"
+        "flarum/core": "^2.0.0"
     },
     "authors": [
         {
@@ -90,8 +89,10 @@
         "analyse:phpstan": "Run static analysis"
     },
     "require-dev": {
-        "flarum/testing": "^1.8",
-        "flarum/phpstan": "^1.8",
-        "flarum/gdpr": "^1.8"
-    }
+        "flarum/testing": "^2.0.0",
+        "flarum/phpstan": "^2.0.0",
+        "flarum/gdpr": "^2.0.0"
+    },
+    "minimum-stability": "beta",
+    "prefer-stable": true
 }

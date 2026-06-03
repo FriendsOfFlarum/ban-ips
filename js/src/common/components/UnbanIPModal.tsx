@@ -1,8 +1,10 @@
 import app from 'flarum/common/app';
-import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
+import ItemList from 'flarum/common/utils/ItemList';
 import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
+import type Mithril from 'mithril';
 import type User from 'flarum/common/models/User';
+import type RequestError from 'flarum/common/utils/RequestError';
 import type { ModelIdentifier, SavedModelData } from 'flarum/common/Model';
 import type { ApiPayloadPlural } from 'flarum/common/Store';
 
@@ -21,145 +23,131 @@ export default class UnbanIPModal extends BanIPModal {
   }
 
   content() {
-    const otherUsers = this.otherUsers[this.banOption()];
-    const usernames = otherUsers && otherUsers.map((u) => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));
-
+    // Once the unban has completed, replace the form with a success summary of
+    // the IPs that were removed.
     if (this.bannedIPs) {
       return (
         <div className="Modal-body">
           {Alert.component(
-            {
-              dismissible: false,
-              type: 'success',
-            },
+            { dismissible: false, type: 'success' },
             app.translator.trans('fof-ban-ips.lib.modal.unbanned_ips', { ips: punctuateSeries(this.bannedIPs) })
           )}
         </div>
       );
     }
 
-    return (
-      <div className="Modal-body">
-        <p>{app.translator.trans('fof-ban-ips.lib.modal.unban_ip_confirmation')}</p>
+    return super.content();
+  }
 
-        <div className="Form-group">
-          {this.banOptions.map((key) => (
-            <div>
-              <input
-                type="radio"
-                name="ban-option"
-                id={`ban-option-${key}`}
-                checked={this.banOption() === key}
-                onclick={this.banOption.bind(this, key)}
-              />
-              &nbsp;
-              <label htmlFor={`ban-option-${key}`}>
-                {app.translator.trans(`fof-ban-ips.lib.modal.unban_options_${key}_ip`, {
-                  user: this.user,
-                  ip: this.address || (this.post && this.post.ipAddress()),
-                })}
-              </label>
-            </div>
-          ))}
-        </div>
+  fields() {
+    const items = super.fields();
 
-        {otherUsers
-          ? otherUsers.length
-            ? Alert.component(
-                {
-                  dismissible: false,
-                },
-                app.translator.trans('fof-ban-ips.lib.modal.unban_ip_users', {
-                  users: punctuateSeries(usernames!),
-                  count: usernames!.length,
-                })
-              )
-            : Alert.component(
-                {
-                  dismissible: false,
-                  type: 'success',
-                },
-                app.translator.trans('fof-ban-ips.lib.modal.unban_ip_no_users')
-              )
-          : ''}
+    // Unbanning does not take a reason.
+    items.remove('reason');
 
-        {otherUsers && <br />}
+    return items;
+  }
 
-        <div className="Form-group">
-          <Button className="Button Button--primary" type="submit" loading={this.loading}>
-            {usernames ? app.translator.trans('fof-ban-ips.lib.modal.unban_button') : app.translator.trans('fof-ban-ips.lib.modal.check_button')}
-          </Button>
-        </div>
-      </div>
+  confirmationText() {
+    return app.translator.trans('fof-ban-ips.lib.modal.unban_ip_confirmation');
+  }
+
+  optionLabel(key: string) {
+    return app.translator.trans(`fof-ban-ips.lib.modal.unban_options_${key}_ip`, {
+      user: this.user,
+      ip: this.address || (this.post && this.post.ipAddress()),
+    });
+  }
+
+  usersWarning(items: ItemList<Mithril.Children>) {
+    const otherUsers = this.otherUsers[this.banOption()];
+
+    if (!otherUsers) return;
+
+    const usernames = otherUsers.map((u) => (u && u.displayName()) || app.translator.trans('core.lib.username.deleted_text'));
+
+    items.add(
+      'otherUsers',
+      otherUsers.length
+        ? Alert.component(
+            { dismissible: false },
+            app.translator.trans('fof-ban-ips.lib.modal.unban_ip_users', {
+              users: punctuateSeries(usernames),
+              count: usernames.length,
+            })
+          )
+        : Alert.component({ dismissible: false, type: 'success' }, app.translator.trans('fof-ban-ips.lib.modal.unban_ip_no_users')),
+      70
     );
   }
 
-  onsubmit(e: SubmitEvent) {
+  submitLabel() {
+    return this.otherUsers[this.banOption()]
+      ? app.translator.trans('fof-ban-ips.lib.modal.unban_button')
+      : app.translator.trans('fof-ban-ips.lib.modal.check_button');
+  }
+
+  async onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     this.loading = true;
 
-    if (typeof this.otherUsers[this.banOption()] === 'undefined') return this.getOtherUsers();
+    if (typeof this.otherUsers[this.banOption()] === 'undefined') {
+      await this.getOtherUsers();
 
-    const attrs: { address?: string | null } = {};
+      return;
+    }
 
-    if (this.banOption() === 'only') {
-      attrs.address = this.address || this.post!.ipAddress();
+    try {
+      if (this.banOption() === 'only') {
+        const bannedIP = (this.post ? this.post.bannedIP() : app.store.getBy<BannedIP>('banned_ips', 'address', this.address)) as BannedIP;
 
-      const bannedIP = (this.post ? this.post.bannedIP() : app.store.getBy<BannedIP>('banned_ips', 'address', this.address)) as BannedIP;
+        await bannedIP.delete();
 
-      bannedIP.delete().then(this.done.bind(this, bannedIP)).catch(this.onerror.bind(this)).then(this.hide.bind(this));
-    } else if (this.banOption() === 'all') {
-      app
-        .request<ApiPayloadPlural>({
-          body: {
-            data: {
-              attributes: attrs,
-            },
-          },
+        this.done(bannedIP);
+      } else {
+        const response = await app.request<ApiPayloadPlural>({
+          body: { data: { attributes: {} } },
           url: `${app.forum.attribute<string>('apiUrl')}${(this.user as unknown as { apiEndpoint(): string }).apiEndpoint()}/unban`,
           method: 'POST',
-          errorHandler: this.onerror.bind(this),
-        })
-        .then(this.done.bind(this))
-        .catch(this.onerror.bind(this))
-        .then(this.hide.bind(this));
+        });
+
+        this.done(response);
+      }
+
+      this.hide();
+    } catch (error) {
+      this.onerror(error as RequestError);
+    } finally {
+      this.loaded();
     }
   }
 
-  getOtherUsers() {
-    const data: { ip?: string | null; skipValidation?: boolean } = {};
+  async getOtherUsers() {
+    const params: { ipAddress?: string | null; skipValidation?: boolean } = {};
 
     if (this.banOption() === 'only') {
-      data.ip = this.address || this.post!.ipAddress();
-      data.skipValidation = true;
+      params.ipAddress = this.address || this.post!.ipAddress();
+      params.skipValidation = true;
     }
 
-    let url = `${app.forum.attribute<string>('apiUrl')}/fof/ban-ips/check-users`;
+    let url = `${app.forum.attribute<string>('apiUrl')}/banned_ips/check-users`;
 
     if (this.user) url += `/${this.user.id()}`;
 
-    app
-      .request<ApiPayloadPlural>({
-        params: data,
-        url: url,
-        method: 'GET',
-        errorHandler: this.onerror.bind(this),
-      })
-      .then((res) => {
-        const data = app.store.pushPayload<User[]>(res);
+    try {
+      const response = await app.request<ApiPayloadPlural>({ params, url, method: 'GET' });
 
-        this.otherUsers[this.banOption()] = data.filter((e) => {
-          const bannedIPs = e.bannedIPs();
+      this.otherUsers[this.banOption()] = app.store.pushPayload<User[]>(response).filter((user) => {
+        const bannedIPs = user.banned_ips();
 
-          return !!bannedIPs && bannedIPs.length === 1;
-        });
-        this.loading = false;
-
-        m.redraw();
-      })
-      .catch(() => {})
-      .then(this.loaded.bind(this));
+        return !!bannedIPs && bannedIPs.length === 1;
+      });
+    } catch (error) {
+      this.onerror(error as RequestError);
+    } finally {
+      this.loaded();
+    }
   }
 
   done(bannedIP?: BannedIP | ApiPayloadPlural) {

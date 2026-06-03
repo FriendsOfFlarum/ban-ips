@@ -10,6 +10,6 @@ export default class BannedIP extends Model {
   deletedAt = Model.attribute<Date | null | undefined, string | null | undefined>('deletedAt', Model.transformDate);
 
   apiEndpoint(): string {
-    return `/fof/ban-ips${this.exists ? `/${this.id()}` : ''}`;
+    return `/banned_ips${this.exists ? `/${this.id()}` : ''}`;
   }
 }

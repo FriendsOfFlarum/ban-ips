@@ -41,7 +41,7 @@ class CheckIPsControllerTest extends TestCase
                 ['group_id' => 4, 'permission' => 'fof.ban-ips.viewBannedIPList'],
             ],
             'discussions' => [
-                ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 5, 'first_post_id' => 1, 'comment_count' => 1],
+                ['id' => 1, 'slug' => 'discussion-1', 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 5, 'first_post_id' => 1, 'comment_count' => 1],
             ],
             'posts' => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 5, 'type' => 'comment', 'content' => '<t><p>foo</p></t>', 'ip_address' => $this->getIPv4NotBanned()[0]],
@@ -52,9 +52,9 @@ class CheckIPsControllerTest extends TestCase
     public function test_user_with_permission_can_check_users_by_ip()
     {
         $response = $this->send(
-            $this->request('GET', '/api/fof/ban-ips/check-users', [
+            $this->request('GET', '/api/banned_ips/check-users', [
                 'authenticatedAs' => 3,
-            ])->withQueryParams(['ip' => $this->getIPv4NotBanned()[0]])
+            ])->withQueryParams(['ipAddress' => $this->getIPv4NotBanned()[0]])
         );
 
         $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
@@ -67,9 +67,9 @@ class CheckIPsControllerTest extends TestCase
     public function test_user_without_permission_cannot_check_users()
     {
         $response = $this->send(
-            $this->request('GET', '/api/fof/ban-ips/check-users', [
+            $this->request('GET', '/api/banned_ips/check-users', [
                 'authenticatedAs' => 2,
-            ])->withQueryParams(['ip' => $this->getIPv4NotBanned()[0]])
+            ])->withQueryParams(['ipAddress' => $this->getIPv4NotBanned()[0]])
         );
 
         $this->assertEquals(403, $response->getStatusCode());
@@ -78,9 +78,9 @@ class CheckIPsControllerTest extends TestCase
     public function test_invalid_ip_is_rejected()
     {
         $response = $this->send(
-            $this->request('GET', '/api/fof/ban-ips/check-users', [
+            $this->request('GET', '/api/banned_ips/check-users', [
                 'authenticatedAs' => 3,
-            ])->withQueryParams(['ip' => 'not-an-ip'])
+            ])->withQueryParams(['ipAddress' => 'not-an-ip'])
         );
 
         $this->assertEquals(422, $response->getStatusCode());

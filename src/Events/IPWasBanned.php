@@ -16,23 +16,7 @@ use FoF\BanIPs\BannedIP;
 
 class IPWasBanned
 {
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @var BannedIP
-     */
-    public $bannedIP;
-
-    /**
-     * @param User     $actor
-     * @param BannedIP $bannedIP
-     */
-    public function __construct(User $actor, BannedIP $bannedIP)
+    public function __construct(public User $actor, public BannedIP $bannedIP)
     {
-        $this->actor = $actor;
-        $this->bannedIP = $bannedIP;
     }
 }

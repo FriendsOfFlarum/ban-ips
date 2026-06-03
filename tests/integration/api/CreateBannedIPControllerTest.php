@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use FoF\BanIPs\Tests\fixtures\IPAddressesTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class CreateBannedIPControllerTest extends TestCase
 {
@@ -45,7 +46,7 @@ class CreateBannedIPControllerTest extends TestCase
         ]);
     }
 
-    public function adminAndModeratorUserIdProvider(): array
+    public static function adminAndModeratorUserIdProvider(): array
     {
         return [
             ['actorId' => 1, 'userId' => 2],
@@ -55,25 +56,37 @@ class CreateBannedIPControllerTest extends TestCase
         ];
     }
 
+    public static function permittedActorProvider(): array
+    {
+        return [
+            'admin'     => [1],
+            'moderator' => [3],
+        ];
+    }
+
     public function test_user_cannot_create_ip_ban_with_no_data()
     {
         $response = $this->send(
-            $this->request('POST', '/api/fof/ban-ips', [
+            $this->request('POST', '/api/banned_ips', [
                 'authenticatedAs' => 1,
-                'json'            => [],
+                'json'            => [
+                    'data' => [
+                        'type'       => 'banned_ips',
+                        'attributes' => [],
+                    ],
+                ],
             ])
         );
 
-        $this->assertEquals(422, $response->getStatusCode());
+        // The address is required, so an empty payload fails validation.
+        $this->assertEquals(422, $response->getStatusCode(), (string) $response->getBody());
     }
 
-    /**
-     * @dataProvider adminAndModeratorUserIdProvider
-     */
+    #[DataProvider('adminAndModeratorUserIdProvider')]
     public function test_user_with_permission_can_ban_ip_not_already_banned(int $actorId, ?int $userId)
     {
         $response = $this->send(
-            $this->request('POST', '/api/fof/ban-ips', [
+            $this->request('POST', '/api/banned_ips', [
                 'authenticatedAs' => $actorId,
                 'json'            => [
                     'data' => [
@@ -101,14 +114,12 @@ class CreateBannedIPControllerTest extends TestCase
         $this->assertEquals($actorId, $attrs['creatorId']);
     }
 
-    /**
-     * @dataProvider adminAndModeratorUserIdProvider
-     */
-    public function test_user_with_permission_can_ban_ip_not_already_banned_without_associated_user(int $userId)
+    #[DataProvider('permittedActorProvider')]
+    public function test_user_with_permission_can_ban_ip_not_already_banned_without_associated_user(int $actorId)
     {
         $response = $this->send(
-            $this->request('POST', '/api/fof/ban-ips', [
-                'authenticatedAs' => $userId,
+            $this->request('POST', '/api/banned_ips', [
+                'authenticatedAs' => $actorId,
                 'json'            => [
                     'data' => [
                         'attributes' => [
@@ -131,13 +142,13 @@ class CreateBannedIPControllerTest extends TestCase
         $this->assertEquals($this->getIPv4NotBanned()[0], $attrs['address']);
         $this->assertEquals('Testing', $attrs['reason']);
         $this->assertNull($attrs['userId']);
-        $this->assertEquals($userId, $attrs['creatorId']);
+        $this->assertEquals($actorId, $attrs['creatorId']);
     }
 
     public function test_user_with_permission_cannot_ban_ip_already_banned()
     {
         $response = $this->send(
-            $this->request('POST', '/api/fof/ban-ips', [
+            $this->request('POST', '/api/banned_ips', [
                 'authenticatedAs' => 3,
                 'json'            => [
                     'data' => [
@@ -169,7 +180,7 @@ class CreateBannedIPControllerTest extends TestCase
     public function test_user_without_permission_cannnot_ban_ip()
     {
         $response = $this->send(
-            $this->request('POST', '/api/fof/ban-ips', [
+            $this->request('POST', '/api/banned_ips', [
                 'authenticatedAs' => 2,
                 'json'            => [
                     'data' => [

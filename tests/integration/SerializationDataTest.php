@@ -12,17 +12,11 @@
 namespace FoF\BanIPs\Tests\integration;
 
 use Carbon\Carbon;
-use Flarum\Api\Controller\AbstractListController;
-use Flarum\Api\Controller\AbstractSerializeController;
-use Flarum\Http\RequestUtil;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use Flarum\User\User;
-use FoF\BanIPs\Listeners\BannedIPData;
-use FoF\BanIPs\Listeners\BannedIPsData;
 use FoF\BanIPs\Tests\fixtures\IPAddressesTrait;
-use Laminas\Diactoros\ServerRequest;
-use Psr\Http\Message\ServerRequestInterface;
+use Illuminate\Support\Arr;
+use PHPUnit\Framework\Attributes\Test;
 
 class SerializationDataTest extends TestCase
 {
@@ -45,69 +39,66 @@ class SerializationDataTest extends TestCase
         ]);
     }
 
-    protected function requestAsAdmin(): ServerRequestInterface
+    #[Test]
+    public function user_with_view_permission_sees_banned_ips_relation()
     {
-        $this->app();
+        $response = $this->send(
+            $this->request('GET', '/api/users/3', [
+                'authenticatedAs' => 1,
+            ])
+        );
 
-        return RequestUtil::withActor(new ServerRequest([], [], null, 'GET'), User::find(1));
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        $body = json_decode((string) $response->getBody(), true);
+
+        // The user's banned IPs are exposed as a relation, included by default.
+        $linkage = Arr::get($body, 'data.relationships.banned_ips.data', []);
+        $this->assertNotEmpty($linkage, 'banned_ips relationship should be populated for a privileged actor');
+
+        $includedBans = array_filter(
+            Arr::get($body, 'included', []),
+            fn ($resource) => $resource['type'] === 'banned_ips'
+        );
+        $this->assertNotEmpty($includedBans, 'banned IPs should be present in the included resources');
     }
 
-    /**
-     * @test
-     */
-    public function show_user_listener_sets_banned_ips_as_a_relation_not_an_attribute()
+    #[Test]
+    public function user_without_view_permission_does_not_see_banned_ips_relation()
     {
-        $request = $this->requestAsAdmin();
-        $listener = $this->app()->getContainer()->make(BannedIPData::class);
+        $response = $this->send(
+            $this->request('GET', '/api/users/3', [
+                'authenticatedAs' => 2,
+            ])
+        );
 
-        $user = User::find(3);
-        $listener($this->createMock(AbstractSerializeController::class), $user, $request);
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
 
-        $this->assertTrue($user->relationLoaded('banned_ips'), 'banned_ips should be set as a loaded relation');
-        $this->assertArrayNotHasKey('banned_ips', $user->getAttributes(), 'banned_ips must not be stored as a model attribute');
-        $this->assertFalse($user->isDirty(), 'the user instance must not be left dirty');
+        $body = json_decode((string) $response->getBody(), true);
 
-        // Sanity check: the relation still carries the expected data for serialization.
-        $this->assertNotEmpty($user->getRelation('banned_ips'));
+        $linkage = Arr::get($body, 'data.relationships.banned_ips.data', []);
+        $this->assertEmpty($linkage, 'banned_ips must not be disclosed to an actor without the view permission');
+
+        $includedBans = array_filter(
+            Arr::get($body, 'included', []),
+            fn ($resource) => $resource['type'] === 'banned_ips'
+        );
+        $this->assertEmpty($includedBans, 'no banned IPs should leak into the included resources');
     }
 
-    /**
-     * Reproduces the reported incompatibility: another extension calling save() on the user
-     * instance after our listener has populated its banned IPs. Previously this threw
-     * "Unknown column 'banned_ips'" because the value was stored as a model attribute.
-     *
-     * @test
-     */
-    public function user_can_still_be_saved_after_show_user_listener_runs()
+    #[Test]
+    public function is_banned_attribute_is_exposed()
     {
-        $request = $this->requestAsAdmin();
-        $listener = $this->app()->getContainer()->make(BannedIPData::class);
+        $response = $this->send(
+            $this->request('GET', '/api/users/3', [
+                'authenticatedAs' => 1,
+            ])
+        );
 
-        $user = User::find(3);
-        $listener($this->createMock(AbstractSerializeController::class), $user, $request);
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
 
-        $user->save();
+        $body = json_decode((string) $response->getBody(), true);
 
-        $this->assertNull(User::find(3)->getAttributes()['banned_ips'] ?? null);
-    }
-
-    /**
-     * @test
-     */
-    public function list_users_listener_sets_banned_ips_as_a_relation_not_an_attribute()
-    {
-        $request = $this->requestAsAdmin();
-        $listener = $this->app()->getContainer()->make(BannedIPsData::class);
-
-        $users = User::whereIn('id', [2, 3])->get();
-        $listener($this->createMock(AbstractListController::class), $users, $request);
-
-        foreach ($users as $user) {
-            $this->assertTrue($user->relationLoaded('banned_ips'), 'banned_ips should be set as a loaded relation');
-            $this->assertArrayNotHasKey('banned_ips', $user->getAttributes(), 'banned_ips must not be stored as a model attribute');
-
-            // Must not throw "Unknown column 'banned_ips'".
-            $user->save();
-        }
+        $this->assertTrue(Arr::get($body, 'data.attributes.isBanned'), 'a user posting from a banned IP should report as banned');
     }
 }

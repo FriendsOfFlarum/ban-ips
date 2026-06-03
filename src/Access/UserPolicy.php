@@ -22,7 +22,7 @@ class UserPolicy extends AbstractPolicy
      * @param User  $actor
      * @param ?User $user
      *
-     * @return bool|null
+     * @return bool|string
      */
     public function banIP(User $actor, ?User $user)
     {
