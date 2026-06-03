@@ -4,6 +4,7 @@ import ItemList from 'flarum/common/utils/ItemList';
 import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
 import type Mithril from 'mithril';
 import type User from 'flarum/common/models/User';
+import type RequestError from 'flarum/common/utils/RequestError';
 import type { ModelIdentifier, SavedModelData } from 'flarum/common/Model';
 import type { ApiPayloadPlural } from 'flarum/common/Store';
 
@@ -86,72 +87,67 @@ export default class UnbanIPModal extends BanIPModal {
       : app.translator.trans('fof-ban-ips.lib.modal.check_button');
   }
 
-  onsubmit(e: SubmitEvent) {
+  async onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     this.loading = true;
 
-    if (typeof this.otherUsers[this.banOption()] === 'undefined') return this.getOtherUsers();
+    if (typeof this.otherUsers[this.banOption()] === 'undefined') {
+      await this.getOtherUsers();
 
-    const attrs: { address?: string | null } = {};
+      return;
+    }
 
-    if (this.banOption() === 'only') {
-      attrs.address = this.address || this.post!.ipAddress();
+    try {
+      if (this.banOption() === 'only') {
+        const bannedIP = (this.post ? this.post.bannedIP() : app.store.getBy<BannedIP>('banned_ips', 'address', this.address)) as BannedIP;
 
-      const bannedIP = (this.post ? this.post.bannedIP() : app.store.getBy<BannedIP>('banned_ips', 'address', this.address)) as BannedIP;
+        await bannedIP.delete();
 
-      bannedIP.delete().then(this.done.bind(this, bannedIP)).catch(this.onerror.bind(this)).then(this.hide.bind(this));
-    } else if (this.banOption() === 'all') {
-      app
-        .request<ApiPayloadPlural>({
-          body: {
-            data: {
-              attributes: attrs,
-            },
-          },
+        this.done(bannedIP);
+      } else {
+        const response = await app.request<ApiPayloadPlural>({
+          body: { data: { attributes: {} } },
           url: `${app.forum.attribute<string>('apiUrl')}${(this.user as unknown as { apiEndpoint(): string }).apiEndpoint()}/unban`,
           method: 'POST',
-          errorHandler: this.onerror.bind(this),
-        })
-        .then(this.done.bind(this))
-        .catch(this.onerror.bind(this))
-        .then(this.hide.bind(this));
+        });
+
+        this.done(response);
+      }
+
+      this.hide();
+    } catch (error) {
+      this.onerror(error as RequestError);
+    } finally {
+      this.loaded();
     }
   }
 
-  getOtherUsers() {
-    const data: { ipAddress?: string | null; skipValidation?: boolean } = {};
+  async getOtherUsers() {
+    const params: { ipAddress?: string | null; skipValidation?: boolean } = {};
 
     if (this.banOption() === 'only') {
-      data.ipAddress = this.address || this.post!.ipAddress();
-      data.skipValidation = true;
+      params.ipAddress = this.address || this.post!.ipAddress();
+      params.skipValidation = true;
     }
 
     let url = `${app.forum.attribute<string>('apiUrl')}/banned_ips/check-users`;
 
     if (this.user) url += `/${this.user.id()}`;
 
-    app
-      .request<ApiPayloadPlural>({
-        params: data,
-        url: url,
-        method: 'GET',
-        errorHandler: this.onerror.bind(this),
-      })
-      .then((res) => {
-        const data = app.store.pushPayload<User[]>(res);
+    try {
+      const response = await app.request<ApiPayloadPlural>({ params, url, method: 'GET' });
 
-        this.otherUsers[this.banOption()] = data.filter((e) => {
-          const bannedIPs = e.bannedIPs();
+      this.otherUsers[this.banOption()] = app.store.pushPayload<User[]>(response).filter((user) => {
+        const bannedIPs = user.banned_ips();
 
-          return !!bannedIPs && bannedIPs.length === 1;
-        });
-        this.loading = false;
-
-        m.redraw();
-      })
-      .catch(() => {})
-      .then(this.loaded.bind(this));
+        return !!bannedIPs && bannedIPs.length === 1;
+      });
+    } catch (error) {
+      this.onerror(error as RequestError);
+    } finally {
+      this.loaded();
+    }
   }
 
   done(bannedIP?: BannedIP | ApiPayloadPlural) {

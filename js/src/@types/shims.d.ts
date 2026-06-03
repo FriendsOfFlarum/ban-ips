@@ -4,7 +4,7 @@ declare module 'flarum/common/models/User' {
   export default interface User {
     canBanIP(): boolean;
     isBanned(): boolean;
-    bannedIPs(): (BannedIP | undefined)[] | false;
+    banned_ips(): (BannedIP | undefined)[] | false;
   }
 }
 

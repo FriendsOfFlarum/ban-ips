@@ -9,6 +9,7 @@ import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
 import type Mithril from 'mithril';
 import type Post from 'flarum/common/models/Post';
 import type User from 'flarum/common/models/User';
+import type RequestError from 'flarum/common/utils/RequestError';
 import type { ModelIdentifier, SavedModelData } from 'flarum/common/Model';
 import type { ApiPayloadPlural } from 'flarum/common/Store';
 import type BannedIP from '../models/BannedIP';
@@ -175,67 +176,73 @@ export default class BanIPModal extends FormModal<IBanIPModalAttrs> {
       : app.translator.trans('fof-ban-ips.lib.modal.check_button');
   }
 
-  onsubmit(e: SubmitEvent) {
+  async onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     this.loading = true;
 
-    if (typeof this.otherUsers[this.banOption()] === 'undefined') return this.getOtherUsers();
+    // The first submit only resolves who would be affected; the operator then
+    // confirms with a second submit.
+    if (typeof this.otherUsers[this.banOption()] === 'undefined') {
+      await this.getOtherUsers();
+
+      return;
+    }
 
     const attrs: { reason: string; userId?: string; address?: string | null } = {
       reason: this.reason(),
       userId: this.user?.id(),
     };
 
-    if (this.banOption() === 'only') {
-      attrs.address = this.post!.ipAddress();
+    try {
+      if (this.banOption() === 'only') {
+        attrs.address = this.post!.ipAddress();
 
-      app.store.createRecord('banned_ips').save(attrs).then(this.hide.bind(this)).catch(this.onerror.bind(this)).then(this.loaded.bind(this));
-    } else if (this.banOption() === 'all') {
-      app
-        .request<ApiPayloadPlural>({
-          body: {
-            data: {
-              attributes: attrs,
-            },
-          },
+        await app.store.createRecord('banned_ips').save(attrs);
+      } else {
+        const response = await app.request<ApiPayloadPlural>({
+          body: { data: { attributes: attrs } },
           url: `${app.forum.attribute<string>('apiUrl')}${(this.user as unknown as { apiEndpoint(): string }).apiEndpoint()}/ban`,
           method: 'POST',
-          errorHandler: this.onerror.bind(this),
-        })
-        .then((res) => app.store.pushPayload<BannedIP[]>(res).forEach(this.done.bind(this)))
-        .then(this.hide.bind(this))
-        .catch(() => {})
-        .then(this.loaded.bind(this));
+        });
+
+        app.store.pushPayload<BannedIP[]>(response).forEach(this.done.bind(this));
+      }
+
+      this.hide();
+    } catch (error) {
+      this.onerror(error as RequestError);
+    } finally {
+      this.loaded();
     }
   }
 
-  getOtherUsers() {
-    const data: { ipAddress?: string | null } = {};
+  async getOtherUsers() {
+    const params: { ipAddress?: string | null } = {};
 
-    if (this.banOption() === 'only') data.ipAddress = this.address || this.post!.ipAddress();
+    if (this.banOption() === 'only') {
+      params.ipAddress = this.address || this.post!.ipAddress();
+    }
 
-    app
-      .request<ApiPayloadPlural>({
-        params: data,
+    try {
+      const response = await app.request<ApiPayloadPlural>({
+        params,
         url: `${app.forum.attribute<string>('apiUrl')}/banned_ips/check-users/${this.user!.id()}`,
         method: 'GET',
-        errorHandler: this.onerror.bind(this),
-      })
-      .then((res) => {
-        this.otherUsers[this.banOption()] = res.data
-          .map((e) => app.store.pushObject<User>(e))
-          .filter((e): e is User => {
-            if (!e) return false;
+      });
 
-            const bannedIPs = e.bannedIPs();
+      this.otherUsers[this.banOption()] = response.data
+        .map((data) => app.store.pushObject<User>(data))
+        .filter((user): user is User => {
+          const bannedIPs = user?.banned_ips();
 
-            return !!bannedIPs && bannedIPs.length === 0;
-          });
-        this.loading = false;
-      })
-      .catch(() => {})
-      .then(this.loaded.bind(this));
+          return !!bannedIPs && bannedIPs.length === 0;
+        });
+    } catch (error) {
+      this.onerror(error as RequestError);
+    } finally {
+      this.loaded();
+    }
   }
 
   done(bannedIP: BannedIP) {

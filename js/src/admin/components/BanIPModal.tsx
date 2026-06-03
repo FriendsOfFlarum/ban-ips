@@ -110,43 +110,48 @@ export default class BanIPModal extends FormModal<IFormModalAttrs> {
     return items;
   }
 
-  onsubmit(e: SubmitEvent) {
+  async onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     if (!this.address()) return;
 
     this.loading = true;
 
-    if (typeof this.usersBanned[this.address()] === 'undefined') return this.getOtherUsers();
+    // The first submit only resolves who would be affected; the admin then
+    // confirms with a second submit.
+    if (typeof this.usersBanned[this.address()] === 'undefined') {
+      await this.getOtherUsers();
 
-    const attrs = {
-      address: this.address(),
-      reason: this.reason(),
-    };
+      return;
+    }
 
-    app.store.createRecord('banned_ips').save(attrs).then(this.hide.bind(this), this.onerror.bind(this));
+    try {
+      await app.store.createRecord('banned_ips').save({
+        address: this.address(),
+        reason: this.reason(),
+      });
+
+      this.hide();
+    } catch (error) {
+      this.onerror(error as RequestError);
+    } finally {
+      this.loaded();
+    }
   }
 
-  getOtherUsers() {
-    const data = {
-      ipAddress: this.address(),
-    };
-
-    app
-      .request<ApiPayloadPlural>({
-        params: data,
+  async getOtherUsers() {
+    try {
+      const response = await app.request<ApiPayloadPlural>({
+        params: { ipAddress: this.address() },
         url: `${app.forum.attribute<string>('apiUrl')}/banned_ips/check-users`,
         method: 'GET',
-      })
-      .then((res) => {
-        this.usersBanned[this.address()] = res.data.map((e) => app.store.pushObject<User>(e));
-
-        m.redraw();
-      })
-      .then(this.loaded.bind(this))
-      .catch((e: RequestError) => {
-        this.onerror(e);
-        this.loading = false;
       });
+
+      this.usersBanned[this.address()] = response.data.map((data) => app.store.pushObject<User>(data));
+    } catch (error) {
+      this.onerror(error as RequestError);
+    } finally {
+      this.loaded();
+    }
   }
 }
