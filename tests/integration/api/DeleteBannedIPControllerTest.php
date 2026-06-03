@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use FoF\BanIPs\BannedIP;
+use FoF\BanIPs\Events\IPWasUnbanned;
 use FoF\BanIPs\Tests\fixtures\IPAddressesTrait;
 
 class DeleteBannedIPControllerTest extends TestCase
@@ -78,5 +79,24 @@ class DeleteBannedIPControllerTest extends TestCase
 
         $this->assertEquals(403, $response->getStatusCode());
         $this->assertNotNull(BannedIP::find(1));
+    }
+
+    public function test_deleting_a_banned_ip_fires_the_unbanned_event()
+    {
+        $events = [];
+
+        $this->app()->getContainer()->make('events')->listen(IPWasUnbanned::class, function (IPWasUnbanned $event) use (&$events) {
+            $events[] = $event;
+        });
+
+        $response = $this->send(
+            $this->request('DELETE', '/api/fof/ban-ips/1', [
+                'authenticatedAs' => 1,
+            ])
+        );
+
+        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertCount(1, $events, 'IPWasUnbanned should be dispatched once when an IP is unbanned');
+        $this->assertEquals($this->getIPv4Banned()[0], $events[0]->unbannedIP->address);
     }
 }
