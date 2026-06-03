@@ -36,7 +36,7 @@ class DeleteBannedIPController extends AbstractDeleteController
     /**
      * @param ServerRequestInterface $request
      */
-    protected function delete(ServerRequestInterface $request)
+    protected function delete(ServerRequestInterface $request): void
     {
         $this->bus->dispatch(
             new DeleteBannedIP(RequestUtil::getActor($request), Arr::get($request->getQueryParams(), 'id'))

@@ -47,12 +47,17 @@ class BannedIPRepository
      * @param User $actor
      *
      * @throws ModelNotFoundException
+     *
+     * @return BannedIP
      */
     public function findOrFail($id, ?User $actor = null)
     {
         $query = BannedIP::where('id', $id);
 
-        return $this->scopeVisibleTo($query, $actor)->firstOrFail();
+        /** @var BannedIP $bannedIP */
+        $bannedIP = $this->scopeVisibleTo($query, $actor)->firstOrFail();
+
+        return $bannedIP;
     }
 
     /**

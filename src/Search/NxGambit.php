@@ -27,7 +27,7 @@ class NxGambit implements GambitInterface, FilterInterface
         return 'ban-ips-nx';
     }
 
-    public function filter(FilterState $filterState, string $filterValue, bool $negate)
+    public function filter(FilterState $filterState, string $filterValue, bool $negate): void
     {
         // Does nothing
     }

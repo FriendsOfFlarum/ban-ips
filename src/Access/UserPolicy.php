@@ -16,7 +16,7 @@ use Flarum\User\User;
 
 class UserPolicy extends AbstractPolicy
 {
-    private $key = 'fof.ban-ips.banIP';
+    private string $key = 'fof.ban-ips.banIP';
 
     /**
      * @param User  $actor
