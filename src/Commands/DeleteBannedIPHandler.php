@@ -33,7 +33,7 @@ class DeleteBannedIPHandler
          */
         $actor = $command->actor;
 
-        $actor->assertCan('banIP');
+        $actor->assertPermission($actor->hasPermission('fof.ban-ips.banIP'));
 
         $banIP = $this->bannedIPs->findOrFail($command->bannedId);
 

@@ -15,7 +15,7 @@ composer require fof/ban-ips:"*"
 ### Updating
 
 ```sh
-composer update fof/ban-ips:"*"
+composer update fof/ban-ips
 ```
 
 ### Links

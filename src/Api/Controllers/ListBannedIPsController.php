@@ -71,7 +71,7 @@ class ListBannedIPsController extends AbstractListController
          */
         $actor = RequestUtil::getActor($request);
 
-        $actor->assertCan('fof.banips.viewBannedIPList');
+        $actor->assertCan('fof.ban-ips.viewBannedIPList');
 
         $filters = $this->extractFilter($request);
         $sort = $this->extractSort($request);

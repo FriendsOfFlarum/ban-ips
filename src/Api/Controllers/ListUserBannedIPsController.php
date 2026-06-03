@@ -57,7 +57,7 @@ class ListUserBannedIPsController extends AbstractListController
          */
         $actor = RequestUtil::getActor($request);
 
-        $actor->assertCan('fof.banips.viewBannedIPList');
+        $actor->assertCan('fof.ban-ips.viewBannedIPList');
 
         $id = Arr::get($request->getQueryParams(), 'id');
         $user = User::where('id', $id)->orWhere('username', $id)->firstOrFail();
