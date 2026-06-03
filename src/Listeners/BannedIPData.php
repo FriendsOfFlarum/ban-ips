@@ -15,6 +15,7 @@ use Flarum\Api\Controller\AbstractSerializeController;
 use Flarum\Http\RequestUtil;
 use Flarum\User\User;
 use FoF\BanIPs\Repositories\BannedIPRepository;
+use Illuminate\Database\Eloquent\Collection;
 use Psr\Http\Message\ServerRequestInterface;
 
 class BannedIPData
@@ -38,7 +39,11 @@ class BannedIPData
     {
         $canView = RequestUtil::getActor($request)->can('fof.ban-ips.viewBannedIPList');
 
-        $data['banned_ips'] = $canView ? $this->bannedIPs->getUserBannedIPs($data)->get() : [];
+        // Set as a loaded relation rather than an attribute. Assigning via array access
+        // (`$data['banned_ips'] = ...`) would store it in the model's attributes, causing a
+        // later `$data->save()` by another extension to attempt to persist a non-existent
+        // `banned_ips` column.
+        $data->setRelation('banned_ips', $canView ? $this->bannedIPs->getUserBannedIPs($data)->get() : new Collection());
 
         return $data;
     }
