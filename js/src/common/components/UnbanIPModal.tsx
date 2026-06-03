@@ -165,16 +165,26 @@ export default class UnbanIPModal extends BanIPModal {
   done(bannedIP?: BannedIP | ApiPayloadPlural) {
     this.loading = false;
 
-    if (this.post) delete this.post.data.relationships!.banned_ip;
+    if (this.post && this.post.data.relationships) {
+      delete this.post.data.relationships.banned_ip;
+    }
 
-    if (this.user && !this.user.data.relationships && !bannedIP) {
-      this.user.data.relationships!.banned_ips.data = [];
-      this.user.data.attributes!.isBanned = false;
-    } else if (this.user && bannedIP instanceof app.store.models.banned_ips) {
-      this.user.data.relationships!.banned_ips = {
-        data: (this.user.data.relationships!.banned_ips.data as ModelIdentifier[]).filter((e) => e.id !== (bannedIP as BannedIP).id()),
-      };
-      this.user.data.attributes!.isBanned = (this.user.data.relationships!.banned_ips.data as ModelIdentifier[]).length !== 0;
+    if (this.user && bannedIP instanceof app.store.models.banned_ips) {
+      const relationships = this.user.data.relationships;
+
+      // Only mutate the user's banned IPs relationship when it was actually loaded.
+      // When unbanning a single IP from the admin panel, the associated user (if any) is
+      // loaded as an included resource without its `banned_ips` relationship, so this would
+      // otherwise throw "Cannot read property 'banned_ips' of undefined".
+      if (relationships && relationships.banned_ips) {
+        relationships.banned_ips = {
+          data: (relationships.banned_ips.data as ModelIdentifier[]).filter((e) => e.id !== (bannedIP as BannedIP).id()),
+        };
+
+        if (this.user.data.attributes) {
+          this.user.data.attributes.isBanned = (relationships.banned_ips.data as ModelIdentifier[]).length !== 0;
+        }
+      }
     }
 
     if (bannedIP && Array.isArray((bannedIP as ApiPayloadPlural).data)) {
