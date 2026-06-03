@@ -27,7 +27,7 @@ class RemoveAccessToBannedUsers
         $this->bannedIPs = $bannedIPs;
     }
 
-    public function handle(IPWasBanned $event)
+    public function handle(IPWasBanned $event): void
     {
         $bannedIP = $event->bannedIP;
         $users = $this->bannedIPs->findUsers($bannedIP->address);

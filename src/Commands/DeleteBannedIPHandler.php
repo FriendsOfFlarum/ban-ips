@@ -26,7 +26,7 @@ class DeleteBannedIPHandler
         $this->bannedIPs = $bannedIPs;
     }
 
-    public function handle(DeleteBannedIP $command)
+    public function handle(DeleteBannedIP $command): void
     {
         /**
          * @var User

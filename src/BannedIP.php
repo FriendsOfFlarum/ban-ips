@@ -14,6 +14,7 @@ namespace FoF\BanIPs;
 use Carbon\Carbon;
 use Flarum\Database\AbstractModel;
 use Flarum\User\User;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property User        $creator
@@ -39,10 +40,10 @@ class BannedIP extends AbstractModel
     protected $dates = ['created_at', 'deleted_at'];
 
     /**
-     * @param      $creatorId
-     * @param      $userId
-     * @param      $address
-     * @param null $reason
+     * @param int         $creatorId
+     * @param int|null    $userId
+     * @param string      $address
+     * @param string|null $reason
      *
      * @return BannedIP
      */
@@ -58,12 +59,12 @@ class BannedIP extends AbstractModel
         return $banIP;
     }
 
-    public function creator()
+    public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creator_id');
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }

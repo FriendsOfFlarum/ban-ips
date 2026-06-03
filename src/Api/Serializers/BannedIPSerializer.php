@@ -47,7 +47,7 @@ class BannedIPSerializer extends AbstractSerializer
     }
 
     /**
-     * @param $bannedIP
+     * @param BannedIP $bannedIP
      *
      * @return \Tobscure\JsonApi\Relationship
      */
@@ -57,7 +57,7 @@ class BannedIPSerializer extends AbstractSerializer
     }
 
     /**
-     * @param $bannedIP
+     * @param BannedIP $bannedIP
      *
      * @return \Tobscure\JsonApi\Relationship
      */
