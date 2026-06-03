@@ -128,14 +128,14 @@ export default class UnbanIPModal extends BanIPModal {
   }
 
   getOtherUsers() {
-    const data: { ip?: string | null; skipValidation?: boolean } = {};
+    const data: { ipAddress?: string | null; skipValidation?: boolean } = {};
 
     if (this.banOption() === 'only') {
-      data.ip = this.address || this.post!.ipAddress();
+      data.ipAddress = this.address || this.post!.ipAddress();
       data.skipValidation = true;
     }
 
-    let url = `${app.forum.attribute<string>('apiUrl')}/fof/ban-ips/check-users`;
+    let url = `${app.forum.attribute<string>('apiUrl')}/banned_ips/check-users`;
 
     if (this.user) url += `/${this.user.id()}`;
 

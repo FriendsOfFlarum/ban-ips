@@ -164,14 +164,14 @@ export default class BanIPModal<CustomAttrs extends IBanIPModalAttrs = IBanIPMod
   }
 
   getOtherUsers() {
-    const data: { ip?: string | null } = {};
+    const data: { ipAddress?: string | null } = {};
 
-    if (this.banOption() === 'only') data.ip = this.address || this.post!.ipAddress();
+    if (this.banOption() === 'only') data.ipAddress = this.address || this.post!.ipAddress();
 
     app
       .request<ApiPayloadPlural>({
         params: data,
-        url: `${app.forum.attribute<string>('apiUrl')}/fof/ban-ips/check-users/${this.user!.id()}`,
+        url: `${app.forum.attribute<string>('apiUrl')}/banned_ips/check-users/${this.user!.id()}`,
         method: 'GET',
         errorHandler: this.onerror.bind(this),
       })

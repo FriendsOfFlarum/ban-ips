@@ -45,7 +45,7 @@ class ListBannedIPsControllerTest extends TestCase
     public function test_admin_can_list_banned_ips()
     {
         $response = $this->send(
-            $this->request('GET', '/api/fof/ban-ips', [
+            $this->request('GET', '/api/banned_ips', [
                 'authenticatedAs' => 1,
             ])
         );
@@ -63,7 +63,7 @@ class ListBannedIPsControllerTest extends TestCase
     public function test_user_with_view_permission_can_list_banned_ips()
     {
         $response = $this->send(
-            $this->request('GET', '/api/fof/ban-ips', [
+            $this->request('GET', '/api/banned_ips', [
                 'authenticatedAs' => 3,
             ])
         );
@@ -74,7 +74,7 @@ class ListBannedIPsControllerTest extends TestCase
     public function test_user_without_permission_cannot_list_banned_ips()
     {
         $response = $this->send(
-            $this->request('GET', '/api/fof/ban-ips', [
+            $this->request('GET', '/api/banned_ips', [
                 'authenticatedAs' => 2,
             ])
         );

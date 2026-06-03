@@ -42,7 +42,7 @@ class BanUserControllerTest extends TestCase
                 ['group_id' => 4, 'permission' => 'fof.ban-ips.viewBannedIPList'],
             ],
             'discussions' => [
-                ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 5, 'first_post_id' => 1, 'comment_count' => 2],
+                ['id' => 1, 'slug' => 'discussion-1', 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 5, 'first_post_id' => 1, 'comment_count' => 2],
             ],
             'posts' => [
                 ['id' => 1, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 5, 'type' => 'comment', 'content' => '<t><p>foo</p></t>', 'ip_address' => $this->getIPv4NotBanned()[0]],

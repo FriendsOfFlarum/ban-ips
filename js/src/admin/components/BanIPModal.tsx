@@ -115,13 +115,13 @@ export default class BanIPModal<CustomAttrs extends IFormModalAttrs = IFormModal
 
   getOtherUsers() {
     const data = {
-      ip: this.address(),
+      ipAddress: this.address(),
     };
 
     app
       .request<ApiPayloadPlural>({
         params: data,
-        url: `${app.forum.attribute<string>('apiUrl')}/fof/ban-ips/check-users`,
+        url: `${app.forum.attribute<string>('apiUrl')}/banned_ips/check-users`,
         method: 'GET',
       })
       .then((res) => {

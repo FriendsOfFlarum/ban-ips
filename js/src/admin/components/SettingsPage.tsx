@@ -113,7 +113,7 @@ export default class SettingsPage<CustomAttrs extends ExtensionPageAttrs = Exten
   loadResults() {
     const offset = this.page * this.pageSize;
 
-    return app.store.find<BannedIP[]>('fof/ban-ips', { page: { offset, limit: this.pageSize } });
+    return app.store.find<BannedIP[]>('banned_ips', { page: { offset, limit: this.pageSize } });
   }
 
   /**
