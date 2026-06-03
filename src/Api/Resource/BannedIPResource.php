@@ -19,9 +19,9 @@ use Flarum\Api\Schema;
 use Flarum\Foundation\ValidationException;
 use Flarum\Http\Exception\RouteNotFoundException;
 use Flarum\Locale\TranslatorInterface;
+use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\User\Guest;
 use Flarum\User\User;
-use Flarum\User\Exception\PermissionDeniedException;
 use FoF\BanIPs\Api\JsonApiResponse;
 use FoF\BanIPs\BannedIP;
 use FoF\BanIPs\Events\IPWasBanned;
@@ -192,11 +192,11 @@ class BannedIPResource extends AbstractDatabaseResource
             $actor->assertCan('banIP', $user);
         }
 
-        if (! isset($ip) && ! isset($user)) {
+        if (!isset($ip) && !isset($user)) {
             throw new RouteNotFoundException();
         }
 
-        $validate = ! Arr::has($params, 'skipValidation');
+        $validate = !Arr::has($params, 'skipValidation');
 
         if ($ip && $validate) {
             $this->validator->assertValid(['address' => $ip]);

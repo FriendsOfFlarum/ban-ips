@@ -61,7 +61,7 @@ return [
                 ->type('banned_ips')
                 ->includable()
                 ->get(function (User $user, Context $context) {
-                    if (! $context->getActor()->can('fof.ban-ips.viewBannedIPList')) {
+                    if (!$context->getActor()->can('fof.ban-ips.viewBannedIPList')) {
                         return [];
                     }
 
