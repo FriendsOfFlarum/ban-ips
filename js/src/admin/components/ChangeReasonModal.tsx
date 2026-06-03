@@ -1,15 +1,16 @@
 import app from 'flarum/admin/app';
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import { IFormModalAttrs } from 'flarum/common/components/FormModal';
+import FormModal from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
 import type Mithril from 'mithril';
 import type BannedIP from '../../common/models/BannedIP';
 
-export interface IChangeReasonModalAttrs extends IInternalModalAttrs {
+export interface IChangeReasonModalAttrs extends IFormModalAttrs {
   item: BannedIP;
 }
 
-export default class ChangeReasonModal<CustomAttrs extends IChangeReasonModalAttrs = IChangeReasonModalAttrs> extends Modal<CustomAttrs> {
+export default class ChangeReasonModal<CustomAttrs extends IChangeReasonModalAttrs = IChangeReasonModalAttrs> extends FormModal<CustomAttrs> {
   protected item!: BannedIP;
   protected reason!: Stream<string | null>;
 

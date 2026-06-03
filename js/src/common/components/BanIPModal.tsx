@@ -1,5 +1,6 @@
 import app from 'flarum/common/app';
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import { IFormModalAttrs } from 'flarum/common/components/FormModal';
+import FormModal from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
 import Stream from 'flarum/common/utils/Stream';
@@ -11,14 +12,14 @@ import type { ModelIdentifier, SavedModelData } from 'flarum/common/Model';
 import type { ApiPayloadPlural } from 'flarum/common/Store';
 import type BannedIP from '../models/BannedIP';
 
-export interface IBanIPModalAttrs extends IInternalModalAttrs {
+export interface IBanIPModalAttrs extends IFormModalAttrs {
   address?: string;
   post?: Post;
   user?: User;
   redraw?: boolean;
 }
 
-export default class BanIPModal<CustomAttrs extends IBanIPModalAttrs = IBanIPModalAttrs> extends Modal<CustomAttrs> {
+export default class BanIPModal<CustomAttrs extends IBanIPModalAttrs = IBanIPModalAttrs> extends FormModal<CustomAttrs> {
   protected address?: string;
   protected post?: Post;
   protected user?: User;

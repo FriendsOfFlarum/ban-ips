@@ -4,7 +4,7 @@ import SettingsPage from './components/SettingsPage';
 export { default as extend } from './extend';
 
 app.initializers.add('fof/ban-ips', () => {
-  app.extensionData
+  app.registry
     .for('fof-ban-ips')
     .registerPermission(
       {

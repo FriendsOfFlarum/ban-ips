@@ -1,5 +1,6 @@
 import app from 'flarum/admin/app';
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import { IFormModalAttrs } from 'flarum/common/components/FormModal';
+import FormModal from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
 import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
@@ -11,7 +12,7 @@ import type RequestError from 'flarum/common/utils/RequestError';
 import type { ApiPayloadPlural } from 'flarum/common/Store';
 import type BannedIP from '../../common/models/BannedIP';
 
-export default class BanIPModal<CustomAttrs extends IInternalModalAttrs = IInternalModalAttrs> extends Modal<CustomAttrs> {
+export default class BanIPModal<CustomAttrs extends IFormModalAttrs = IFormModalAttrs> extends FormModal<CustomAttrs> {
   protected address!: Stream<string>;
   protected reason!: Stream<string>;
   protected usersBanned!: Record<string, (User | null)[] | undefined>;
