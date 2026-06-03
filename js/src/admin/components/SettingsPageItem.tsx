@@ -1,13 +1,21 @@
 import app from 'flarum/admin/app';
-import Component from 'flarum/common/Component';
+import Component, { ComponentAttrs } from 'flarum/common/Component';
 import Button from 'flarum/common/components/Button';
 import username from 'flarum/common/helpers/username';
+import type Mithril from 'mithril';
 
 import UnbanIPModal from '../../common/components/UnbanIPModal';
 import ChangeReasonModal from './ChangeReasonModal';
+import type BannedIP from '../../common/models/BannedIP';
 
-export default class SettingsPageItem extends Component {
-  oninit(vnode) {
+export interface ISettingsPageItemAttrs extends ComponentAttrs {
+  bannedIP: BannedIP;
+}
+
+export default class SettingsPageItem<CustomAttrs extends ISettingsPageItemAttrs = ISettingsPageItemAttrs> extends Component<CustomAttrs> {
+  protected item!: BannedIP;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.item = this.attrs.bannedIP;
@@ -21,7 +29,7 @@ export default class SettingsPageItem extends Component {
         <td>{this.item.user() && username(this.item.user())}</td>
         <td>{this.item.address()}</td>
         <td>{this.item.reason()}</td>
-        <td>{this.item.createdAt().toLocaleDateString()}</td>
+        <td>{this.item.createdAt()!.toLocaleDateString()}</td>
         <td>
           <div className="Button--group">
             {Button.component({

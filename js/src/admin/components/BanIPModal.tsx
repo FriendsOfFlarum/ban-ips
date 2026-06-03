@@ -1,13 +1,22 @@
 import app from 'flarum/admin/app';
-import Modal from 'flarum/common/components/Modal';
+import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
 import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
 import username from 'flarum/common/helpers/username';
 import Stream from 'flarum/common/utils/Stream';
+import type Mithril from 'mithril';
+import type User from 'flarum/common/models/User';
+import type RequestError from 'flarum/common/utils/RequestError';
+import type { ApiPayloadPlural } from 'flarum/common/Store';
+import type BannedIP from '../../common/models/BannedIP';
 
-export default class BanIPModal extends Modal {
-  oninit(vnode) {
+export default class BanIPModal<CustomAttrs extends IInternalModalAttrs = IInternalModalAttrs> extends Modal<CustomAttrs> {
+  protected address!: Stream<string>;
+  protected reason!: Stream<string>;
+  protected usersBanned!: Record<string, (User | null)[] | undefined>;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.address = Stream('');
@@ -28,7 +37,7 @@ export default class BanIPModal extends Modal {
 
   content() {
     const usersBanned = this.usersBanned[this.address()];
-    const usernames = usersBanned && usersBanned.map(username);
+    const usernames = usersBanned && usersBanned.map((u) => username(u));
 
     return (
       <div className="Modal-body">
@@ -57,8 +66,8 @@ export default class BanIPModal extends Modal {
                   dismissible: false,
                 },
                 app.translator.trans('fof-ban-ips.lib.modal.ban_ip_users', {
-                  users: punctuateSeries(usernames),
-                  count: usernames.length,
+                  users: punctuateSeries(usernames!),
+                  count: usernames!.length,
                 })
               )
             : Alert.component(
@@ -77,7 +86,7 @@ export default class BanIPModal extends Modal {
             className="Button Button--primary"
             type="submit"
             loading={this.loading}
-            disabled={app.store.getBy('banned_ips', 'address', this.address())}
+            disabled={!!app.store.getBy<BannedIP>('banned_ips', 'address', this.address())}
           >
             {usernames ? app.translator.trans('fof-ban-ips.lib.modal.ban_button') : app.translator.trans('fof-ban-ips.lib.modal.check_button')}
           </Button>
@@ -86,7 +95,7 @@ export default class BanIPModal extends Modal {
     );
   }
 
-  onsubmit(e) {
+  onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     if (!this.address()) return;
@@ -100,7 +109,7 @@ export default class BanIPModal extends Modal {
       reason: this.reason(),
     };
 
-    app.store.createRecord('banned_ips').save(attrs).then(this.hide.bind(this), this.onerror.bind(this), this.loaded.bind(this));
+    app.store.createRecord('banned_ips').save(attrs).then(this.hide.bind(this), this.onerror.bind(this));
   }
 
   getOtherUsers() {
@@ -109,18 +118,18 @@ export default class BanIPModal extends Modal {
     };
 
     app
-      .request({
+      .request<ApiPayloadPlural>({
         params: data,
-        url: `${app.forum.attribute('apiUrl')}/fof/ban-ips/check-users`,
+        url: `${app.forum.attribute<string>('apiUrl')}/fof/ban-ips/check-users`,
         method: 'GET',
       })
       .then((res) => {
-        this.usersBanned[this.address()] = res.data.map((e) => app.store.pushObject(e));
+        this.usersBanned[this.address()] = res.data.map((e) => app.store.pushObject<User>(e));
 
         m.redraw();
       })
       .then(this.loaded.bind(this))
-      .catch((e) => {
+      .catch((e: RequestError) => {
         this.onerror(e);
         this.loading = false;
       });
