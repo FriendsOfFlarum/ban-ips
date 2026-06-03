@@ -78,14 +78,18 @@ class CheckIPsController extends AbstractListController
         $actor = RequestUtil::getActor($request);
         $params = $request->getQueryParams();
 
-        $actor->assertCan('banIP');
+        $actor->assertPermission($actor->hasPermission('fof.ban-ips.banIP'));
 
         $userId = Arr::get($params, 'user');
         $ip = Arr::get($params, 'ip');
 
         $user = $userId != null ? User::where('id', $userId)->orWhere('username', $userId)->first() : null;
 
-        $actor->assertCan('banIP', $user);
+        // When a specific user is targeted, enforce the per-user policy (e.g. cannot target
+        // yourself or another user who also holds the ban permission).
+        if ($user !== null) {
+            $actor->assertCan('banIP', $user);
+        }
 
         if (!isset($ip) && !isset($user)) {
             throw new RouteNotFoundException();

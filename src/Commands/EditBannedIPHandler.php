@@ -51,9 +51,9 @@ class EditBannedIPHandler
         /** @var BannedIP $bannedIP */
         $bannedIP = BannedIP::find($command->bannedId);
 
-        $actor->assertCan('banIP');
+        $actor->assertPermission($actor->hasPermission('fof.ban-ips.banIP'));
 
-        if ($bannedIP !== null && $actor === $bannedIP->creator) {
+        if ($bannedIP !== null && $actor->id === $bannedIP->creator_id) {
             throw new PermissionDeniedException();
         } elseif ($bannedIP == null) {
             throw new RouteNotFoundException();
