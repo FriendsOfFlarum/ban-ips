@@ -95,12 +95,17 @@ class BannedIPRepository
      */
     public function findUsers($ips)
     {
-        return User::join('posts', function ($join) use ($ips) {
-            $join->on('users.id', '=', 'posts.user_id')
-                    ->whereIn('posts.ip_address', Arr::wrap($ips));
-        })
-            ->select('users.*', 'posts.ip_address')
-            ->distinct()
+        // Select the distinct users who have posted from one of these IPs via a
+        // subquery on `user_id`, rather than joining `posts` and using DISTINCT
+        // over `users.*`. The latter forces the database to compare every user
+        // column, which fails on PostgreSQL because the `preferences` json column
+        // has no equality operator.
+        return User::query()
+            ->whereIn('id', function ($query) use ($ips) {
+                $query->select('user_id')
+                    ->from('posts')
+                    ->whereIn('ip_address', Arr::wrap($ips));
+            })
             ->get()
             ->filter(function (User $user) {
                 return $user->cannot('banIP');
