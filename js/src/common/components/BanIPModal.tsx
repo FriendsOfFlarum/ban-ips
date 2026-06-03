@@ -1,22 +1,43 @@
 import app from 'flarum/common/app';
-import Modal from 'flarum/common/components/Modal';
+import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
 import Stream from 'flarum/common/utils/Stream';
 import punctuateSeries from 'flarum/common/helpers/punctuateSeries';
+import type Mithril from 'mithril';
+import type Post from 'flarum/common/models/Post';
+import type User from 'flarum/common/models/User';
+import type { ModelIdentifier, SavedModelData } from 'flarum/common/Model';
+import type { ApiPayloadPlural } from 'flarum/common/Store';
+import type BannedIP from '../models/BannedIP';
 
-export default class BanIPModal extends Modal {
-  oninit(vnode) {
+export interface IBanIPModalAttrs extends IInternalModalAttrs {
+  address?: string;
+  post?: Post;
+  user?: User;
+  redraw?: boolean;
+}
+
+export default class BanIPModal<CustomAttrs extends IBanIPModalAttrs = IBanIPModalAttrs> extends Modal<CustomAttrs> {
+  protected address?: string;
+  protected post?: Post;
+  protected user?: User;
+  protected banOptions!: string[];
+  protected banOption!: Stream<string>;
+  protected reason!: Stream<string>;
+  protected otherUsers!: Record<string, (User | null)[] | undefined>;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.address = this.attrs.address;
     this.post = this.attrs.post;
-    this.user = this.attrs.user || (this.post && this.post.user());
+    this.user = this.attrs.user || (this.post && this.post.user()) || undefined;
 
     if (!this.user && this.address) {
-      const bannedIP = app.store.getBy('banned_ips', 'address', this.address);
+      const bannedIP = app.store.getBy<BannedIP>('banned_ips', 'address', this.address);
 
-      if (bannedIP) this.user = bannedIP.user();
+      if (bannedIP) this.user = bannedIP.user() || undefined;
     }
 
     this.banOptions = [];
@@ -82,8 +103,8 @@ export default class BanIPModal extends Modal {
                   dismissible: false,
                 },
                 app.translator.trans('fof-ban-ips.lib.modal.ban_ip_users', {
-                  users: punctuateSeries(usernames),
-                  count: usernames.length,
+                  users: punctuateSeries(usernames!),
+                  count: usernames!.length,
                 })
               )
             : Alert.component(
@@ -106,35 +127,35 @@ export default class BanIPModal extends Modal {
     );
   }
 
-  onsubmit(e) {
+  onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     this.loading = true;
 
     if (typeof this.otherUsers[this.banOption()] === 'undefined') return this.getOtherUsers();
 
-    const attrs = {
+    const attrs: { reason: string; userId?: string; address?: string | null } = {
       reason: this.reason(),
-      userId: this.user.id(),
+      userId: this.user?.id(),
     };
 
     if (this.banOption() === 'only') {
-      attrs.address = this.post.ipAddress();
+      attrs.address = this.post!.ipAddress();
 
       app.store.createRecord('banned_ips').save(attrs).then(this.hide.bind(this)).catch(this.onerror.bind(this)).then(this.loaded.bind(this));
     } else if (this.banOption() === 'all') {
       app
-        .request({
+        .request<ApiPayloadPlural>({
           body: {
             data: {
               attributes: attrs,
             },
           },
-          url: `${app.forum.attribute('apiUrl')}${this.user.apiEndpoint()}/ban`,
+          url: `${app.forum.attribute<string>('apiUrl')}${(this.user as unknown as { apiEndpoint(): string }).apiEndpoint()}/ban`,
           method: 'POST',
           errorHandler: this.onerror.bind(this),
         })
-        .then((res) => app.store.pushPayload(res).forEach(this.done.bind(this)))
+        .then((res) => app.store.pushPayload<BannedIP[]>(res).forEach(this.done.bind(this)))
         .then(this.hide.bind(this))
         .catch(() => {})
         .then(this.loaded.bind(this));
@@ -142,45 +163,53 @@ export default class BanIPModal extends Modal {
   }
 
   getOtherUsers() {
-    const data = {};
+    const data: { ip?: string | null } = {};
 
-    if (this.banOption() === 'only') data.ip = this.address || this.post.ipAddress();
+    if (this.banOption() === 'only') data.ip = this.address || this.post!.ipAddress();
 
     app
-      .request({
+      .request<ApiPayloadPlural>({
         params: data,
-        url: `${app.forum.attribute('apiUrl')}/fof/ban-ips/check-users/${this.user.id()}`,
+        url: `${app.forum.attribute<string>('apiUrl')}/fof/ban-ips/check-users/${this.user!.id()}`,
         method: 'GET',
         errorHandler: this.onerror.bind(this),
       })
       .then((res) => {
-        this.otherUsers[this.banOption()] = res.data.map((e) => app.store.pushObject(e)).filter((e) => e.bannedIPs().length === 0);
+        this.otherUsers[this.banOption()] = res.data
+          .map((e) => app.store.pushObject<User>(e))
+          .filter((e): e is User => {
+            if (!e) return false;
+
+            const bannedIPs = e.bannedIPs();
+
+            return !!bannedIPs && bannedIPs.length === 0;
+          });
         this.loading = false;
       })
       .catch(() => {})
       .then(this.loaded.bind(this));
   }
 
-  done(bannedIP) {
-    const obj = {
+  done(bannedIP: BannedIP) {
+    const obj: ModelIdentifier = {
       type: 'banned_ips',
-      id: bannedIP.id(),
+      id: bannedIP.id()!,
     };
 
     if (this.post) {
-      this.post.data.relationships.banned_ip = {
+      this.post.data.relationships!.banned_ip = {
         data: obj,
       };
     }
 
-    if (!this.user.data.relationships.banned_ips)
-      this.user.data.relationships.banned_ips = {
+    if (!this.user!.data.relationships!.banned_ips)
+      this.user!.data.relationships!.banned_ips = {
         data: [],
       };
 
-    this.user.data.relationships.banned_ips.data.push(obj);
-    this.user.data.attributes.isBanned = true;
+    (this.user!.data.relationships!.banned_ips.data as ModelIdentifier[]).push(obj);
+    this.user!.data.attributes!.isBanned = true;
 
-    app.store.pushObject(this.user.data);
+    app.store.pushObject(this.user!.data as SavedModelData);
   }
 }

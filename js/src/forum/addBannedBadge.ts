@@ -3,8 +3,8 @@ import { extend } from 'flarum/common/extend';
 import User from 'flarum/common/models/User';
 import Badge from 'flarum/common/components/Badge';
 
-export default () => {
-  extend(User.prototype, 'badges', function (items) {
+export default function addBannedBadge(): void {
+  extend(User.prototype, 'badges', function (this: User, items) {
     if (this.isBanned()) {
       items.add(
         'banned',
@@ -16,4 +16,4 @@ export default () => {
       );
     }
   });
-};
+}

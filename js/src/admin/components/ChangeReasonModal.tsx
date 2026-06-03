@@ -1,10 +1,19 @@
 import app from 'flarum/admin/app';
-import Modal from 'flarum/common/components/Modal';
+import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import Stream from 'flarum/common/utils/Stream';
+import type Mithril from 'mithril';
+import type BannedIP from '../../common/models/BannedIP';
 
-export default class ChangeReasonModal extends Modal {
-  oninit(vnode) {
+export interface IChangeReasonModalAttrs extends IInternalModalAttrs {
+  item: BannedIP;
+}
+
+export default class ChangeReasonModal<CustomAttrs extends IChangeReasonModalAttrs = IChangeReasonModalAttrs> extends Modal<CustomAttrs> {
+  protected item!: BannedIP;
+  protected reason!: Stream<string | null>;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.item = this.attrs.item;
@@ -37,7 +46,7 @@ export default class ChangeReasonModal extends Modal {
     );
   }
 
-  onsubmit(e) {
+  onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
     if (!this.reason()) return;

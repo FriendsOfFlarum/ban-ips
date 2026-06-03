@@ -1,14 +1,9 @@
 import app from 'flarum/admin/app';
-import Model from 'flarum/common/Model';
-
-import BannedIP from '../common/models/BannedIP';
 import SettingsPage from './components/SettingsPage';
 
+export { default as extend } from './extend';
+
 app.initializers.add('fof/ban-ips', () => {
-  app.store.models.banned_ips = BannedIP;
-
-  app.store.models.users.prototype.bannedIPs = Model.hasMany('banned_ips');
-
   app.extensionData
     .for('fof-ban-ips')
     .registerPermission(

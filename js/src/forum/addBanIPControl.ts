@@ -7,15 +7,17 @@ import Button from 'flarum/common/components/Button';
 import BanIPModal from '../common/components/BanIPModal';
 import UnbanIPModal from '../common/components/UnbanIPModal';
 
-export default () => {
+export default function addBanIPControl(): void {
   extend(PostControls, 'userControls', function (items, post) {
-    if (!post || !post.user()) return;
+    const user = post && post.user();
 
-    const isBanned = post.user().isBanned();
+    if (!post || !user) return;
+
+    const isBanned = user.isBanned();
     const prefix = isBanned ? 'un' : '';
 
     // Removes ability to ban thyself and also does permission check.
-    if (!post.canBanIP() || post.isHidden() || post.user() === app.session.user || post.contentType() !== 'comment') return;
+    if (!post.canBanIP() || post.isHidden() || user === app.session.user || post.contentType() !== 'comment') return;
 
     items.add(
       `${prefix}ban`,
@@ -46,4 +48,4 @@ export default () => {
       )
     );
   });
-};
+}

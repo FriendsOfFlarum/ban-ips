@@ -2,13 +2,21 @@ import app from 'flarum/admin/app';
 import Button from 'flarum/common/components/Button';
 import LoadingIndicator from 'flarum/common/components/LoadingIndicator';
 import Placeholder from 'flarum/common/components/Placeholder';
-import ExtensionPage from 'flarum/admin/components/ExtensionPage';
+import ExtensionPage, { ExtensionPageAttrs } from 'flarum/admin/components/ExtensionPage';
+import type Mithril from 'mithril';
+import type { ApiResponsePlural } from 'flarum/common/Store';
 
 import BanIPModal from './BanIPModal';
 import SettingsPageItem from './SettingsPageItem';
+import type BannedIP from '../../common/models/BannedIP';
 
-export default class SettingsPage extends ExtensionPage {
-  oninit(vnode) {
+export default class SettingsPage<CustomAttrs extends ExtensionPageAttrs = ExtensionPageAttrs> extends ExtensionPage<CustomAttrs> {
+  protected page!: number;
+  protected pageSize!: number;
+  protected nextResults?: boolean;
+  protected prevResults?: boolean;
+
+  oninit(vnode: Mithril.Vnode<CustomAttrs, this>) {
     super.oninit(vnode);
 
     this.loading = true;
@@ -17,14 +25,15 @@ export default class SettingsPage extends ExtensionPage {
     this.pageSize = 20;
   }
 
-  oncreate(vnode) {
+  oncreate(vnode: Mithril.VnodeDOM<CustomAttrs, this>) {
     super.oncreate(vnode);
 
     this.refresh();
   }
 
   content() {
-    let next, prev;
+    let next: Mithril.Children;
+    let prev: Mithril.Children;
 
     if (this.nextResults === true) {
       next = Button.component({
@@ -61,7 +70,7 @@ export default class SettingsPage extends ExtensionPage {
           <div className="container">
             {this.loading ? (
               LoadingIndicator.component()
-            ) : app.store.all('banned_ips').length ? (
+            ) : app.store.all<BannedIP>('banned_ips').length ? (
               <table style={{ width: '100%', textAlign: 'left' }} className="table">
                 <thead>
                   <tr>
@@ -76,7 +85,7 @@ export default class SettingsPage extends ExtensionPage {
                 </thead>
                 <tbody>
                   {app.store
-                    .all('banned_ips')
+                    .all<BannedIP>('banned_ips')
                     .slice(this.page, this.page + this.pageSize)
                     .map((bannedIP) => SettingsPageItem.component({ bannedIP }))}
                 </tbody>
@@ -99,21 +108,16 @@ export default class SettingsPage extends ExtensionPage {
   }
 
   /**
-   * Load a new page of Pages results.
-   *
-   * @param {Integer} page number.
-   * @return {Promise}
+   * Load a new page of results.
    */
   loadResults() {
     const offset = this.page * this.pageSize;
 
-    return app.store.find('fof/ban-ips', { page: { offset, limit: this.pageSize } });
+    return app.store.find<BannedIP[]>('fof/ban-ips', { page: { offset, limit: this.pageSize } });
   }
 
   /**
    * Load the next page of results.
-   *
-   * @public
    */
   loadNext() {
     if (this.nextResults === true) {
@@ -124,8 +128,6 @@ export default class SettingsPage extends ExtensionPage {
 
   /**
    * Load the previous page of results.
-   *
-   * @public
    */
   loadPrev() {
     if (this.prevResults === true) {
@@ -136,15 +138,12 @@ export default class SettingsPage extends ExtensionPage {
 
   /**
    * Parse results and append them to the page list.
-   *
-   * @param {Page[]} results
-   * @return {Page[]}
    */
-  parseResults(results) {
+  parseResults(results: ApiResponsePlural<BannedIP>) {
     this.loading = false;
 
-    this.nextResults = !!results.payload.links.next;
-    this.prevResults = !!results.payload.links.prev;
+    this.nextResults = !!results.payload.links?.next;
+    this.prevResults = !!results.payload.links?.prev;
 
     m.redraw();
   }
