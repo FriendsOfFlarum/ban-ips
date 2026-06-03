@@ -1,16 +1,17 @@
-/// <reference types="flarum/@types/translator-icu-rich" />
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import FormModal, { IFormModalAttrs } from 'flarum/common/components/FormModal';
+import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 import type Mithril from 'mithril';
 import type User from 'flarum/common/models/User';
-export default class BanIPModal<CustomAttrs extends IInternalModalAttrs = IInternalModalAttrs> extends Modal<CustomAttrs> {
+export default class BanIPModal extends FormModal<IFormModalAttrs> {
     protected address: Stream<string>;
     protected reason: Stream<string>;
     protected usersBanned: Record<string, (User | null)[] | undefined>;
-    oninit(vnode: Mithril.Vnode<CustomAttrs, this>): void;
+    oninit(vnode: Mithril.Vnode<IFormModalAttrs, this>): void;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     content(): JSX.Element;
-    onsubmit(e: SubmitEvent): void;
-    getOtherUsers(): void;
+    fields(): ItemList<Mithril.Children>;
+    onsubmit(e: SubmitEvent): Promise<void>;
+    getOtherUsers(): Promise<void>;
 }
