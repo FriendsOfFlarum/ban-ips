@@ -12,17 +12,25 @@
 namespace FoF\BanIPs\Commands;
 
 use Flarum\User\User;
+use FoF\BanIPs\Events\IPWasUnbanned;
 use FoF\BanIPs\Repositories\BannedIPRepository;
+use Illuminate\Events\Dispatcher as DispatcherEvents;
 
 class DeleteBannedIPHandler
 {
+    /**
+     * @var DispatcherEvents
+     */
+    private $events;
+
     /**
      * @var BannedIPRepository
      */
     private $bannedIPs;
 
-    public function __construct(BannedIPRepository $bannedIPs)
+    public function __construct(DispatcherEvents $events, BannedIPRepository $bannedIPs)
     {
+        $this->events = $events;
         $this->bannedIPs = $bannedIPs;
     }
 
@@ -38,5 +46,9 @@ class DeleteBannedIPHandler
         $banIP = $this->bannedIPs->findOrFail($command->bannedId);
 
         $banIP->delete();
+
+        $this->events->dispatch(
+            new IPWasUnbanned($banIP, $actor)
+        );
     }
 }
