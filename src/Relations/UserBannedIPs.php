@@ -11,6 +11,8 @@
 
 namespace FoF\BanIPs\Relations;
 
+use Flarum\User\User;
+use FoF\BanIPs\BannedIP;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -18,8 +20,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * We use a custom relation due to the fact that a user can have banned IPs not associated with it.
  * We need special logic for eager-loading and properly querying the user's post IPs to check for bans.
  * If we do a simpler ->hasMany()->orWhereIn(), eager-loading doesn't work since $user->id is NULL.
+ *
+ * @extends HasMany<BannedIP, User>
  */
-class UserBannedIps extends HasMany
+class UserBannedIPs extends HasMany
 {
     public function addConstraints()
     {
@@ -30,6 +34,7 @@ class UserBannedIps extends HasMany
             // (loadMissing handles both collections and single models).
             $this->parent->loadMissing('post_ips');
 
+            /** @phpstan-ignore-next-line */
             $ips = $this->parent->post_ips->pluck('ip_address');
 
             if ($ips->isNotEmpty()) {
@@ -38,7 +43,7 @@ class UserBannedIps extends HasMany
         }
     }
 
-    public function addEagerConstraints(array $models)
+    public function addEagerConstraints($models): void
     {
         $userIds = $this->getKeys($models, $this->localKey);
 
@@ -47,8 +52,10 @@ class UserBannedIps extends HasMany
         Collection::make($models)->loadMissing('post_ips');
 
         // Now post_ips is guaranteed to be cached on all models in the array
-        $ips = collect($models)->flatMap(function ($model) {
-            return $model->post_ips->pluck('ip_address');
+        /** @phpstan-ignore-next-line -- flatMap and post_ips gives error */
+        $ips = collect($models)->flatMap(function (User $model) {
+            /** @phpstan-ignore-next-line */
+            return $model->post_ips->pluck('ip_address')->all();
         })->filter()->unique();
 
         $this->query->where(function ($query) use ($userIds, $ips) {
@@ -62,18 +69,22 @@ class UserBannedIps extends HasMany
 
     /**
      * For matching retrieved records back to parent models.
+     * @param User[] $models
      */
     public function match(array $models, Collection $results, $relation)
     {
         foreach ($models as $model) {
-            $matched = $results->filter(function ($bannedIp) use ($model) {
+            $matched = $results->filter(function (BannedIP $bannedIp) use ($model) {
                 if ($bannedIp->user_id == $model->id) {
                     return true;
                 }
 
                 // Since we ensured post_ips is loaded in addEagerConstraints,
                 // we can safely read it directly here.
-                return $model->post_ips->pluck('ip_address')->contains($bannedIp->address);
+                /** @phpstan-ignore-next-line */
+                $ips = $model->post_ips->pluck('ip_address');
+
+                return $ips->contains($bannedIp->address);
             });
 
             $model->setRelation($relation, $matched);

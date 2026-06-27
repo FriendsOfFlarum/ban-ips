@@ -13,7 +13,7 @@ namespace FoF\BanIPs\Repositories;
 
 use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
-use FoF\BanIPs\Relations\UserBannedIps;
+use FoF\BanIPs\Relations\UserBannedIPs;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
@@ -133,11 +133,17 @@ class BannedIPRepository
         }
 
         // Use pre-loaded banned ips if available, otherwise run EXISTS query.
+        /** @phpstan-ignore-next-line */
         $loadedIps = $user->relationLoaded('banned_ips') ? $user->banned_ips : null;
 
-        return self::$bans[$user->id] = ($user->cannot('banIP') && (
-            $loadedIps ? $loadedIps->isNotEmpty() : $user->banned_ips()->exists()
-        ));
+        $value = $user->cannot('banIP');
+
+        if ($value) {
+            /** @phpstan-ignore-next-line */
+            $value = $value && ($loadedIps ? $loadedIps->isNotEmpty() : $user->banned_ips()->exists());
+        }
+
+        return self::$bans[$user->id] = $value;
     }
 
     public function getUserIPs(User $user): Collection
@@ -146,11 +152,13 @@ class BannedIPRepository
             return self::$ips[$user->id];
         }
 
+        /** @phpstan-ignore-next-line */
         return self::$ips[$user->id] = $user->post_ips->pluck('ip_address');
     }
 
-    public function getUserBannedIPs(User $user): UserBannedIps
+    public function getUserBannedIPs(User $user): UserBannedIPs
     {
+        /** @phpstan-ignore-next-line */
         return $user->banned_ips();
     }
 

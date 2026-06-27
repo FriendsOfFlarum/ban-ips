@@ -29,7 +29,7 @@ use FoF\BanIPs\Events\IPWasBanned;
 use FoF\BanIPs\Events\IPWasUnbanned;
 use FoF\BanIPs\Listeners\RemoveAccessToBannedUsers;
 use FoF\BanIPs\Middleware\RegisterMiddleware;
-use FoF\BanIPs\Relations\UserBannedIps;
+use FoF\BanIPs\Relations\UserBannedIPs;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Search\BannedIPSearcher;
 use FoF\BanIPs\Validators\BannedIPValidator;
@@ -114,6 +114,8 @@ return [
                     $actor = $context->getActor();
 
                     $events = resolve('events');
+
+                    /** @phpstan-ignore-next-line */
                     $bannedIPs = $user->banned_ips;
 
                     foreach ($bannedIPs as $bannedIP) {
@@ -136,6 +138,7 @@ return [
                     /** @var User $user */
                     $user = $context->model;
 
+                    /** @phpstan-ignore-next-line */
                     return $user->banned_ips;
                 })
                 ->response(fn (Context $context, $models) => JsonApiResponse::collection($context, 'banned_ips', $models, ['creator', 'user'])),
@@ -160,10 +163,10 @@ return [
                 ->includable(),
         ])
         ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['banned_ip'])->eagerLoadWhenIncluded([
-            ['banned_ip', ['banned_ip']],
+            'banned_ip' => ['banned_ip'],
         ]))
         ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->addDefaultInclude(['banned_ip'])->eagerLoadWhenIncluded([
-            ['banned_ip', ['banned_ip']],
+            'banned_ip' => ['banned_ip'],
         ]))
         ->endpoint(Endpoint\Create::class, fn (Endpoint\Create $endpoint) => $endpoint->addDefaultInclude(['banned_ip']))
         ->endpoint(Endpoint\Update::class, fn (Endpoint\Update $endpoint) => $endpoint->addDefaultInclude(['banned_ip'])),
@@ -183,7 +186,7 @@ return [
             return $user->hasMany(Post::class, 'user_id')->whereNotNull('ip_address')->select('user_id', 'ip_address')->distinct();
         })
         ->relationship('banned_ips', function (User $user) {
-            return new UserBannedIps(
+            return new UserBannedIPs(
                 BannedIP::query(),
                 $user,
                 'banned_ips.user_id',
