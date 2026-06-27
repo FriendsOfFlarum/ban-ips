@@ -66,7 +66,7 @@ return [
             Schema\Relationship\ToMany::make('banned_ips')
                 ->type('banned_ips')
                 ->includable()
-                ->visible(fn (User $user, Context $context) => $context->getActor()->can('fof.ban-ips.viewBannedIPList'))
+                ->visible(fn (User $user, Context $context) => $context->getActor()->can('fof.ban-ips.viewBannedIPList')),
         ])
         ->endpoints(fn () => [
             // Ban every IP address a user has posted from.
@@ -144,7 +144,7 @@ return [
         // single user is (de)serialized. The full user list is intentionally
         // excluded to avoid resolving bans for every row.
         ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['banned_ips'])->eagerLoadWhenIncluded([
-            'banned_ips' => ['banned_ips']
+            'banned_ips' => ['banned_ips'],
         ]))
         ->endpoint(Endpoint\Create::class, fn (Endpoint\Create $endpoint) => $endpoint->addDefaultInclude(['banned_ips']))
         ->endpoint(Endpoint\Update::class, fn (Endpoint\Update $endpoint) => $endpoint->addDefaultInclude(['banned_ips'])),
@@ -160,10 +160,10 @@ return [
                 ->includable(),
         ])
         ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['banned_ip'])->eagerLoadWhenIncluded([
-            ['banned_ip', ['banned_ip']]
+            ['banned_ip', ['banned_ip']],
         ]))
         ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->addDefaultInclude(['banned_ip'])->eagerLoadWhenIncluded([
-            ['banned_ip', ['banned_ip']]
+            ['banned_ip', ['banned_ip']],
         ]))
         ->endpoint(Endpoint\Create::class, fn (Endpoint\Create $endpoint) => $endpoint->addDefaultInclude(['banned_ip']))
         ->endpoint(Endpoint\Update::class, fn (Endpoint\Update $endpoint) => $endpoint->addDefaultInclude(['banned_ip'])),
@@ -171,11 +171,11 @@ return [
     (new Extend\ApiResource(DiscussionResource::class))
         ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->eagerLoadWhenIncluded([
             'lastPostedUser' => ['lastPostedUser.post_ips', 'lastPostedUser.banned_ips'],
-            'user' => ['user.post_ips', 'user.banned_ips'],
+            'user'           => ['user.post_ips', 'user.banned_ips'],
         ]))
         ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->eagerLoadWhenIncluded([
             'lastPostedUser' => ['lastPostedUser.post_ips', 'lastPostedUser.banned_ips'],
-            'user' => ['user.post_ips', 'user.banned_ips'],
+            'user'           => ['user.post_ips', 'user.banned_ips'],
         ])),
 
     (new Extend\Model(User::class))

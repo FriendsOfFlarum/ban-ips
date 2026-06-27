@@ -136,8 +136,8 @@ class BannedIPRepository
         $loadedIps = $user->relationLoaded('banned_ips') ? $user->banned_ips : null;
 
         return self::$bans[$user->id] = ($user->cannot('banIP') && (
-                $loadedIps ? $loadedIps->isNotEmpty() : $user->banned_ips()->exists()
-            ));
+            $loadedIps ? $loadedIps->isNotEmpty() : $user->banned_ips()->exists()
+        ));
     }
 
     public function getUserIPs(User $user): Collection
