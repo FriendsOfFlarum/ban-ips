@@ -69,6 +69,7 @@ class UserBannedIPs extends HasMany
 
     /**
      * For matching retrieved records back to parent models.
+     *
      * @param User[] $models
      */
     public function match(array $models, Collection $results, $relation)
