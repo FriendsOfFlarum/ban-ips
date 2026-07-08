@@ -17,6 +17,7 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource\PostResource;
 use Flarum\Api\Resource\UserResource;
 use Flarum\Api\Schema;
+use Flarum\Audit\Extend\Audit;
 use Flarum\Extend;
 use Flarum\Gdpr\Extend\UserData;
 use Flarum\Post\Post;
@@ -190,5 +191,20 @@ return [
         ->whenExtensionEnabled('flarum-gdpr', fn () => [
             (new UserData())
                 ->addType(Data\BannedIPData::class),
+        ]),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new Audit())
+                ->group('fof-ban-ips')
+                ->listen(IPWasBanned::class, 'fof_ban_ips.banned', fn ($e) => array_filter([
+                    'ip'      => $e->bannedIP->address,
+                    'reason'  => $e->bannedIP->reason,
+                    'user_id' => $e->bannedIP->user_id ?: null,
+                ], fn ($v) => $v !== null))
+                ->listen(IPWasUnbanned::class, 'fof_ban_ips.unbanned', fn ($e) => array_filter([
+                    'ip'      => $e->unbannedIP->address,
+                    'user_id' => $e->unbannedIP->user_id ?: null,
+                ], fn ($v) => $v !== null)),
         ]),
 ];
