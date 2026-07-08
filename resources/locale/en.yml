@@ -81,3 +81,13 @@ flarum-gdpr:
       bannedipdata:
         export_description: "If an IP ban record is associated with a user (i.e. the user was banned by IP), the user's IP address will be included in the export, along with the reason for the ban and the creation date."
         anonymize_description: "Any IP addresses linked to the user are decoupled, but the IP itself will remain banned, along with the reason. Ensure no PII data is stored in the 'reason' field."
+
+# Labels for the audit log entries this extension produces, rendered by the (optional)
+# flarum/audit browser. Defined under the flarum-audit namespace so the audit frontend
+# resolves them, but shipped here so they travel with the extension that owns the actions.
+flarum-audit:
+  lib:
+    browser:
+      fof_ban_ips:
+        banned: Banned ip {ip}
+        unbanned: Unbanned ip {ip}
