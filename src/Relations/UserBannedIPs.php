@@ -25,11 +25,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class UserBannedIPs extends HasMany
 {
-    public function addConstraints()
+    public function addConstraints(): void
     {
         if (static::$constraints) {
-            $this->query->where($this->foreignKey, '=', $this->getParentKey());
-
             // If not loaded, load it on the single parent model.
             // (loadMissing handles both collections and single models).
             $this->parent->loadMissing('post_ips');
@@ -37,9 +35,13 @@ class UserBannedIPs extends HasMany
             /** @phpstan-ignore-next-line */
             $ips = $this->parent->post_ips->pluck('ip_address');
 
-            if ($ips->isNotEmpty()) {
-                $this->query->orWhereIn('address', $ips);
-            }
+            $this->query->where(function ($query) use ($ips) {
+                $query->where($this->foreignKey, '=', $this->getParentKey());
+
+                if ($ips->isNotEmpty()) {
+                    $query->orWhereIn('address', $ips);
+                }
+            });
         }
     }
 
@@ -75,18 +77,18 @@ class UserBannedIPs extends HasMany
     public function match(array $models, Collection $results, $relation)
     {
         foreach ($models as $model) {
-            $matched = $results->filter(function (BannedIP $bannedIp) use ($model) {
+            // Since we ensured post_ips is loaded in addEagerConstraints,
+            // we can safely read it directly here.
+            /** @phpstan-ignore-next-line */
+            $ips = $model->post_ips->pluck('ip_address');
+
+            $matched = $results->filter(function (BannedIP $bannedIp) use ($model, $ips) {
                 if ($bannedIp->user_id == $model->id) {
                     return true;
                 }
 
-                // Since we ensured post_ips is loaded in addEagerConstraints,
-                // we can safely read it directly here.
-                /** @phpstan-ignore-next-line */
-                $ips = $model->post_ips->pluck('ip_address');
-
                 return $ips->contains($bannedIp->address);
-            });
+            })->values();
 
             $model->setRelation($relation, $matched);
         }
