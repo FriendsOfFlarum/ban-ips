@@ -100,7 +100,7 @@ class CheckIPsControllerTest extends TestCase
      * GET /api/banned_ips/check-users?ipAddress=10.9.9.9
      *     2.x    → user 5: [{"type":"banned_ips","id":"1"}]   user 6: [{"type":"banned_ips","id":"2"}]
      *     PR 57  → user 5: [{"type":"banned_ips","id":"1"}]   user 6: {"1":{"type":"banned_ips","id":"2"}}
-     * ```
+     * ```.
      */
     public function test_check_users_returns_list_linkage_for_each_user_banned_ips(): void
     {

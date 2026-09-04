@@ -49,7 +49,6 @@ class RelationshipRegressionTest extends TestCase
         ]);
     }
 
-
     /**
      * Prevent this regression. Post 1 does not have banned ip, yet retrieves an unrelated ban.
      * Post with no banned ip has ip_address converted to int and matched to BannedIP (203.... -> banned ip #203).
@@ -57,7 +56,7 @@ class RelationshipRegressionTest extends TestCase
      * GET /api/discussions/1  (guest)
      * 2.x    → post 1  banned_ip = {"data": null}
      * PR 57  → post 1  banned_ip = {"data": {"type":"banned_ips","id":"203"}}
-     * ```
+     * ```.
      */
     #[Test]
     public function discussion_show_does_not_attach_fake_banned_ip_to_unbanned_first_post(): void
@@ -86,7 +85,7 @@ class RelationshipRegressionTest extends TestCase
      * GET /api/users/5?include=banned_ips.user
      *    2.x    → ban 1 (userId: null)  user relationship = null
      *    PR 57  → ban 1 (userId: null)  user relationship = {"type":"users","id":"5"}
-     * ```
+     * ```.
      */
     #[Test]
     public function included_ban_user_relation_is_not_overwritten_for_address_matched_bans(): void
