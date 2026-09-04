@@ -199,7 +199,7 @@ return [
         }),
 
     (new Extend\Model(Post::class))
-        ->belongsTo('banned_ip', BannedIP::class, 'ip_address', 'address'),
+        ->hasOne('banned_ip', BannedIP::class, 'address', 'ip_address'),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
         ->addSearcher(BannedIP::class, BannedIPSearcher::class),
