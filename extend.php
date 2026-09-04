@@ -14,6 +14,7 @@ namespace FoF\BanIPs;
 use Carbon\Carbon;
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
+use Flarum\Api\Resource\DiscussionResource;
 use Flarum\Api\Resource\PostResource;
 use Flarum\Api\Resource\UserResource;
 use Flarum\Api\Schema;
@@ -29,6 +30,7 @@ use FoF\BanIPs\Events\IPWasBanned;
 use FoF\BanIPs\Events\IPWasUnbanned;
 use FoF\BanIPs\Listeners\RemoveAccessToBannedUsers;
 use FoF\BanIPs\Middleware\RegisterMiddleware;
+use FoF\BanIPs\Relations\UserBannedIPs;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Search\BannedIPSearcher;
 use FoF\BanIPs\Validators\BannedIPValidator;
@@ -64,14 +66,11 @@ return [
             // repository, and only when the actor is allowed to see them.
             Schema\Relationship\ToMany::make('banned_ips')
                 ->type('banned_ips')
+                // This relation can include bans matched by post IP (not by `user_id`),
+                // so the inverse `user` relation on BannedIP must not be auto-assigned.
+                ->inverse('bannedUser')
                 ->includable()
-                ->get(function (User $user, Context $context) {
-                    if (!$context->getActor()->can('fof.ban-ips.viewBannedIPList')) {
-                        return [];
-                    }
-
-                    return resolve(BannedIPRepository::class)->getUserBannedIPs($user)->get()->all();
-                }),
+                ->visible(fn (User $user, Context $context) => $context->getActor()->can('fof.ban-ips.viewBannedIPList')),
         ])
         ->endpoints(fn () => [
             // Ban every IP address a user has posted from.
@@ -118,15 +117,18 @@ return [
                     $user = $context->model;
                     $actor = $context->getActor();
 
-                    $repository = resolve(BannedIPRepository::class);
                     $events = resolve('events');
 
-                    $bannedIPs = $repository->getUserBannedIPs($user)->get();
+                    /** @phpstan-ignore-next-line */
+                    $bannedIPs = $user->banned_ips;
+
+                    if (!$bannedIPs->isEmpty()) {
+                        /** @phpstan-ignore-next-line */
+                        $user->banned_ips()->delete();
+                    }
 
                     foreach ($bannedIPs as $bannedIP) {
                         /** @var BannedIP $bannedIP */
-                        $bannedIP->delete();
-
                         $events->dispatch(new IPWasUnbanned($bannedIP, $actor));
                     }
 
@@ -143,14 +145,16 @@ return [
                     /** @var User $user */
                     $user = $context->model;
 
-                    return resolve(BannedIPRepository::class)->getUserBannedIPs($user)->get();
+                    /** @phpstan-ignore-next-line */
+                    return $user->banned_ips;
                 })
                 ->response(fn (Context $context, $models) => JsonApiResponse::collection($context, 'banned_ips', $models, ['creator', 'user'])),
         ])
         // Mirror the legacy behaviour of attaching a user's banned IPs when a
         // single user is (de)serialized. The full user list is intentionally
         // excluded to avoid resolving bans for every row.
-        ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['banned_ips']))
+        ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['banned_ips'])->eagerLoad(['banned_ips']))
+        ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->eagerLoad(['banned_ips']))
         ->endpoint(Endpoint\Create::class, fn (Endpoint\Create $endpoint) => $endpoint->addDefaultInclude(['banned_ips']))
         ->endpoint(Endpoint\Update::class, fn (Endpoint\Update $endpoint) => $endpoint->addDefaultInclude(['banned_ips'])),
 
@@ -164,13 +168,39 @@ return [
                 ->nullable()
                 ->includable(),
         ])
-        ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['banned_ip']))
-        ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->addDefaultInclude(['banned_ip']))
+        ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['banned_ip'])->eagerLoadWhenIncluded([
+            'banned_ip' => ['banned_ip'],
+            'user'      => ['user.banned_ips'],
+        ]))
+        ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->addDefaultInclude(['banned_ip'])->eagerLoadWhenIncluded([
+            'banned_ip' => ['banned_ip'],
+            'user'      => ['user.banned_ips'],
+        ]))
         ->endpoint(Endpoint\Create::class, fn (Endpoint\Create $endpoint) => $endpoint->addDefaultInclude(['banned_ip']))
         ->endpoint(Endpoint\Update::class, fn (Endpoint\Update $endpoint) => $endpoint->addDefaultInclude(['banned_ip'])),
 
+    (new Extend\ApiResource(DiscussionResource::class))
+        ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->eagerLoadWhenIncluded([
+            'lastPostedUser' => ['lastPostedUser.post_ips', 'lastPostedUser.banned_ips'],
+            'user'           => ['user.post_ips', 'user.banned_ips'],
+        ]))
+        ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->eagerLoadWhenIncluded([
+            'lastPostedUser' => ['lastPostedUser.post_ips', 'lastPostedUser.banned_ips'],
+            'user'           => ['user.post_ips', 'user.banned_ips'],
+        ])),
+
     (new Extend\Model(User::class))
-        ->hasMany('banned_ips', BannedIP::class),
+        ->relationship('post_ips', function (User $user) {
+            return $user->hasMany(Post::class, 'user_id')->whereNotNull('ip_address')->select('user_id', 'ip_address')->distinct();
+        })
+        ->relationship('banned_ips', function (User $user) {
+            return new UserBannedIPs(
+                BannedIP::query(),
+                $user,
+                'banned_ips.user_id',
+                'id'
+            );
+        }),
 
     (new Extend\Model(Post::class))
         ->hasOne('banned_ip', BannedIP::class, 'address', 'ip_address'),

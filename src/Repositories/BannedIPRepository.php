@@ -13,6 +13,7 @@ namespace FoF\BanIPs\Repositories;
 
 use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
+use FoF\BanIPs\Relations\UserBannedIPs;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
@@ -69,6 +70,10 @@ class BannedIPRepository
      */
     public function findByIPAddress($ipAddress)
     {
+        if (empty($ipAddress)) {
+            return null;
+        }
+
         return BannedIP::where('address', $ipAddress)->first();
     }
 
@@ -95,6 +100,10 @@ class BannedIPRepository
      */
     public function findUsers($ips)
     {
+        if (empty($ips)) {
+            return collect();
+        }
+
         // Select the distinct users who have posted from one of these IPs via a
         // subquery on `user_id`, rather than joining `posts` and using DISTINCT
         // over `users.*`. The latter forces the database to compare every user
@@ -123,7 +132,18 @@ class BannedIPRepository
             return (bool) self::$bans[$user->id];
         }
 
-        return self::$bans[$user->id] = $user->cannot('banIP') && $this->getUserBannedIPs($user)->exists();
+        // Use pre-loaded banned ips if available, otherwise run EXISTS query.
+        /** @phpstan-ignore-next-line */
+        $loadedIps = $user->relationLoaded('banned_ips') ? $user->banned_ips : null;
+
+        $value = $user->cannot('banIP');
+
+        if ($value) {
+            /** @phpstan-ignore-next-line */
+            $value = $value && ($loadedIps ? $loadedIps->isNotEmpty() : $user->banned_ips()->exists());
+        }
+
+        return self::$bans[$user->id] = $value;
     }
 
     public function getUserIPs(User $user): Collection
@@ -132,14 +152,14 @@ class BannedIPRepository
             return self::$ips[$user->id];
         }
 
-        return self::$ips[$user->id] = $user->posts()->whereNotNull('ip_address')->pluck('ip_address')->unique();
+        /** @phpstan-ignore-next-line */
+        return self::$ips[$user->id] = $user->post_ips->pluck('ip_address');
     }
 
-    public function getUserBannedIPs(User $user): Builder
+    public function getUserBannedIPs(User $user): UserBannedIPs
     {
-        $ips = $this->getUserIPs($user)->toArray();
-
-        return BannedIP::where('user_id', $user->id)->orWhere('address', empty($ips) ? null : $this->getUserIPs($user)->toArray());
+        /** @phpstan-ignore-next-line */
+        return $user->banned_ips();
     }
 
     /**

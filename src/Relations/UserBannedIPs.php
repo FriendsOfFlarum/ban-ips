@@ -1,0 +1,98 @@
+<?php
+
+/*
+ * This file is part of fof/ban-ips.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace FoF\BanIPs\Relations;
+
+use Flarum\User\User;
+use FoF\BanIPs\BannedIP;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+/**
+ * We use a custom relation due to the fact that a user can have banned IPs not associated with it.
+ * We need special logic for eager-loading and properly querying the user's post IPs to check for bans.
+ * If we do a simpler ->hasMany()->orWhereIn(), eager-loading doesn't work since $user->id is NULL.
+ *
+ * @extends HasMany<BannedIP, User>
+ */
+class UserBannedIPs extends HasMany
+{
+    public function addConstraints(): void
+    {
+        if (static::$constraints) {
+            // If not loaded, load it on the single parent model.
+            // (loadMissing handles both collections and single models).
+            $this->parent->loadMissing('post_ips');
+
+            /** @phpstan-ignore-next-line */
+            $ips = $this->parent->post_ips->pluck('ip_address');
+
+            $this->query->where(function ($query) use ($ips) {
+                $query->where($this->foreignKey, '=', $this->getParentKey());
+
+                if ($ips->isNotEmpty()) {
+                    $query->orWhereIn('address', $ips);
+                }
+            });
+        }
+    }
+
+    public function addEagerConstraints($models): void
+    {
+        $userIds = $this->getKeys($models, $this->localKey);
+
+        // Dynamically batch-load post_ips only for models that don't have it cached.
+        // This is N+1 safe as it executes a single query for all missing models.
+        Collection::make($models)->loadMissing('post_ips');
+
+        // Now post_ips is guaranteed to be cached on all models in the array
+        /** @phpstan-ignore-next-line -- flatMap and post_ips gives error */
+        $ips = collect($models)->flatMap(function (User $model) {
+            /** @phpstan-ignore-next-line */
+            return $model->post_ips->pluck('ip_address')->all();
+        })->filter()->unique();
+
+        $this->query->where(function ($query) use ($userIds, $ips) {
+            $query->whereIn($this->foreignKey, $userIds);
+
+            if ($ips->isNotEmpty()) {
+                $query->orWhereIn('address', $ips);
+            }
+        });
+    }
+
+    /**
+     * For matching retrieved records back to parent models.
+     *
+     * @param User[] $models
+     */
+    public function match(array $models, Collection $results, $relation)
+    {
+        foreach ($models as $model) {
+            // Since we ensured post_ips is loaded in addEagerConstraints,
+            // we can safely read it directly here.
+            /** @phpstan-ignore-next-line */
+            $ips = $model->post_ips->pluck('ip_address');
+
+            $matched = $results->filter(function (BannedIP $bannedIp) use ($model, $ips) {
+                if ($bannedIp->user_id == $model->id) {
+                    return true;
+                }
+
+                return $ips->contains($bannedIp->address);
+            })->values();
+
+            $model->setRelation($relation, $matched);
+        }
+
+        return $models;
+    }
+}
