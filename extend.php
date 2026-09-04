@@ -121,9 +121,12 @@ return [
                     /** @phpstan-ignore-next-line */
                     $bannedIPs = $user->banned_ips;
 
+                    if (!$bannedIPs->isEmpty()) {
+                        $user->banned_ips()->delete();
+                    }
+
                     foreach ($bannedIPs as $bannedIP) {
                         /** @var BannedIP $bannedIP */
-                        $bannedIP->delete();
 
                         $events->dispatch(new IPWasUnbanned($bannedIP, $actor));
                     }
