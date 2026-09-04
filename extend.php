@@ -127,7 +127,6 @@ return [
 
                     foreach ($bannedIPs as $bannedIP) {
                         /** @var BannedIP $bannedIP */
-
                         $events->dispatch(new IPWasUnbanned($bannedIP, $actor));
                     }
 
