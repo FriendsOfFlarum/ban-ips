@@ -146,9 +146,8 @@ return [
         // Mirror the legacy behaviour of attaching a user's banned IPs when a
         // single user is (de)serialized. The full user list is intentionally
         // excluded to avoid resolving bans for every row.
-        ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['banned_ips'])->eagerLoadWhenIncluded([
-            'banned_ips' => ['banned_ips'],
-        ]))
+        ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->eagerLoad(['banned_ips']))
+        ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->eagerLoad(['banned_ips']))
         ->endpoint(Endpoint\Create::class, fn (Endpoint\Create $endpoint) => $endpoint->addDefaultInclude(['banned_ips']))
         ->endpoint(Endpoint\Update::class, fn (Endpoint\Update $endpoint) => $endpoint->addDefaultInclude(['banned_ips'])),
 
@@ -164,9 +163,11 @@ return [
         ])
         ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['banned_ip'])->eagerLoadWhenIncluded([
             'banned_ip' => ['banned_ip'],
+            'user'      => ['user.banned_ips'],
         ]))
         ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->addDefaultInclude(['banned_ip'])->eagerLoadWhenIncluded([
             'banned_ip' => ['banned_ip'],
+            'user'      => ['user.banned_ips'],
         ]))
         ->endpoint(Endpoint\Create::class, fn (Endpoint\Create $endpoint) => $endpoint->addDefaultInclude(['banned_ip']))
         ->endpoint(Endpoint\Update::class, fn (Endpoint\Update $endpoint) => $endpoint->addDefaultInclude(['banned_ip'])),

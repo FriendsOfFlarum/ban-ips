@@ -13,7 +13,6 @@ namespace FoF\BanIPs\Repositories;
 
 use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
-use FoF\BanIPs\Relations\UserBannedIPs;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
