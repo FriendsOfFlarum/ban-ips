@@ -122,6 +122,7 @@ return [
                     $bannedIPs = $user->banned_ips;
 
                     if (!$bannedIPs->isEmpty()) {
+                        /** @phpstan-ignore-next-line */
                         $user->banned_ips()->delete();
                     }
 
