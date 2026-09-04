@@ -65,6 +65,9 @@ return [
             // repository, and only when the actor is allowed to see them.
             Schema\Relationship\ToMany::make('banned_ips')
                 ->type('banned_ips')
+                // This relation can include bans matched by post IP (not by `user_id`),
+                // so the inverse `user` relation on BannedIP must not be auto-assigned.
+                ->inverse('bannedUser')
                 ->includable()
                 ->visible(fn (User $user, Context $context) => $context->getActor()->can('fof.ban-ips.viewBannedIPList')),
         ])
