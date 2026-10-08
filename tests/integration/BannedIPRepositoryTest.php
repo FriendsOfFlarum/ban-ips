@@ -232,4 +232,80 @@ class BannedIPRepositoryTest extends TestCase
         $isBanned = $this->repository->isUserBanned($user);
         $this->assertTrue($isBanned, 'Normal user with a banned IP should be banned');
     }
+
+    #[Test]
+    public function queued_users_get_the_same_answers_as_the_single_check_in_two_queries()
+    {
+        $users = User::query()->whereIn('id', [1, 2, 3, 4, 5])->get();
+
+        $single = [];
+        foreach ($users as $user) {
+            BannedIPRepository::resetCache();
+            $single[$user->id] = (new BannedIPRepository())->isUserBanned($user);
+        }
+
+        BannedIPRepository::resetCache();
+        $repository = new BannedIPRepository();
+        foreach ($users as $user) {
+            $repository->queue($user);
+        }
+
+        $db = $this->database();
+        $db->enableQueryLog();
+        $db->flushQueryLog();
+
+        $batched = [];
+        foreach ($users as $user) {
+            $batched[$user->id] = $repository->isUserBanned($user);
+        }
+
+        $banQueries = array_filter(
+            array_column($db->getQueryLog(), 'query'),
+            fn (string $sql) => str_contains($sql, 'banned_ips')
+        );
+        $db->flushQueryLog();
+
+        $this->assertSame($single, $batched);
+        $this->assertTrue($batched[3], 'The user who posted from a banned IP is banned');
+        $this->assertFalse($batched[1], 'The admin, who may ban IPs, is never banned');
+        $this->assertLessThanOrEqual(2, count($banQueries), 'Five users are answered in two queries, not two each');
+
+        BannedIPRepository::resetCache();
+    }
+
+    #[Test]
+    public function a_user_banned_directly_is_banned_when_queued()
+    {
+        BannedIP::query()->insert(['address' => '203.0.113.77', 'user_id' => 5, 'creator_id' => 1, 'created_at' => Carbon::now()]);
+
+        BannedIPRepository::resetCache();
+        $repository = new BannedIPRepository();
+        $repository->queue(User::find(5));
+        $repository->queue(User::find(2));
+
+        $this->assertTrue($repository->isUserBanned(User::find(5)), 'Banned by user, with no posts at all');
+        $this->assertFalse($repository->isUserBanned(User::find(2)));
+
+        BannedIPRepository::resetCache();
+    }
+
+    #[Test]
+    public function the_user_list_reports_bans_correctly()
+    {
+        BannedIPRepository::resetCache();
+
+        $response = $this->send($this->request('GET', '/api/users', ['authenticatedAs' => 1]));
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $banned = [];
+        foreach (json_decode($response->getBody()->getContents(), true)['data'] as $user) {
+            $banned[$user['id']] = $user['attributes']['isBanned'] ?? null;
+        }
+
+        $this->assertTrue($banned['3']);
+        $this->assertFalse($banned['2']);
+        $this->assertFalse($banned['4']);
+
+        BannedIPRepository::resetCache();
+    }
 }
