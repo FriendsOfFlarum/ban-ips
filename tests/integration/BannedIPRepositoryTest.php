@@ -246,6 +246,8 @@ class BannedIPRepositoryTest extends TestCase
 
         BannedIPRepository::resetCache();
         $repository = new BannedIPRepository();
+        // Fresh models: the single checks above already loaded these users' groups.
+        $users = User::query()->whereIn('id', [1, 2, 3, 4, 5])->get();
         foreach ($users as $user) {
             $repository->queue($user);
         }
@@ -259,16 +261,16 @@ class BannedIPRepositoryTest extends TestCase
             $batched[$user->id] = $repository->isUserBanned($user);
         }
 
-        $banQueries = array_filter(
-            array_column($db->getQueryLog(), 'query'),
-            fn (string $sql) => str_contains($sql, 'banned_ips')
-        );
+        $log = array_column($db->getQueryLog(), 'query');
+        $banQueries = array_filter($log, fn (string $sql) => str_contains($sql, 'banned_ips'));
+        $groupQueries = array_filter($log, fn (string $sql) => str_contains($sql, 'group_user'));
         $db->flushQueryLog();
 
         $this->assertSame($single, $batched);
         $this->assertTrue($batched[3], 'The user who posted from a banned IP is banned');
         $this->assertFalse($batched[1], 'The admin, who may ban IPs, is never banned');
         $this->assertLessThanOrEqual(2, count($banQueries), 'Five users are answered in two queries, not two each');
+        $this->assertLessThanOrEqual(1, count($groupQueries), 'Their groups, for the permission check, load in one query');
 
         BannedIPRepository::resetCache();
     }

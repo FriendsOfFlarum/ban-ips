@@ -15,6 +15,7 @@ use Flarum\Post\Post;
 use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -163,7 +164,10 @@ class BannedIPRepository
         $users = self::$queued;
         self::$queued = [];
 
-        // Users who may ban IPs are never treated as banned.
+        // Users who may ban IPs are never treated as banned. Asking needs each
+        // user's groups: load them for the whole queue in one query first, or
+        // the permission check lazy-loads them user by user.
+        (new EloquentCollection(array_values($users)))->loadMissing('groups');
         $candidates = array_keys(array_filter($users, fn (User $user) => $user->cannot('banIP')));
 
         foreach (array_keys($users) as $id) {
