@@ -123,10 +123,13 @@ return [
 
                     $bannedIPs = $repository->getUserBannedIPs($user)->get();
 
+                    // One delete for every address, not one query each. The
+                    // events still go out per address: to anything listening
+                    // (the audit log), each is its own unban.
+                    BannedIP::query()->whereKey($bannedIPs->modelKeys())->delete();
+
                     foreach ($bannedIPs as $bannedIP) {
                         /** @var BannedIP $bannedIP */
-                        $bannedIP->delete();
-
                         $events->dispatch(new IPWasUnbanned($bannedIP, $actor));
                     }
 
