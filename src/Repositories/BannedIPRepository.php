@@ -164,32 +164,30 @@ class BannedIPRepository
         $users = self::$queued;
         self::$queued = [];
 
-        // Users who may ban IPs are never treated as banned. Asking needs each
-        // user's groups: load them for the whole queue in one query first, or
-        // the permission check lazy-loads them user by user.
-        (new EloquentCollection(array_values($users)))->loadMissing('groups');
-        $candidates = array_keys(array_filter($users, fn (User $user) => $user->cannot('banIP')));
-
         foreach (array_keys($users) as $id) {
             self::$bans[$id] = false;
         }
 
-        if ($candidates === []) {
-            return;
-        }
-
         // Banned directly, or posted from a banned address.
-        $banned = BannedIP::query()->whereIn('user_id', $candidates)->pluck('user_id')
+        $ids = array_keys($users);
+        $banned = BannedIP::query()->whereIn('user_id', $ids)->pluck('user_id')
             ->merge(
                 Post::query()
                     ->join('banned_ips', 'banned_ips.address', '=', 'posts.ip_address')
-                    ->whereIn('posts.user_id', $candidates)
+                    ->whereIn('posts.user_id', $ids)
                     ->distinct()
                     ->pluck('posts.user_id')
-            );
+            )
+            ->unique();
 
-        foreach ($banned as $id) {
-            self::$bans[(int) $id] = true;
+        // Users who may ban IPs are never treated as banned. Asked only of the
+        // few who matched a ban: it means working out a user's permissions,
+        // which loads their groups and runs every permission group processor.
+        $matched = array_values(array_intersect_key($users, array_flip($banned->map(fn ($id) => (int) $id)->all())));
+        (new EloquentCollection($matched))->loadMissing('groups');
+
+        foreach ($matched as $user) {
+            self::$bans[$user->id] = $user->cannot('banIP');
         }
     }
 
