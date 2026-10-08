@@ -310,4 +310,41 @@ class BannedIPRepositoryTest extends TestCase
 
         BannedIPRepository::resetCache();
     }
+
+    #[Test]
+    public function moderators_who_may_ban_ips_are_not_treated_as_banned()
+    {
+        $address = $this->getIPv4Banned()[2];
+        $db = $this->database();
+
+        // A moderator (not an admin) holding the ban permission, and a member,
+        // both posted from a banned address.
+        $db->table('users')->insert([
+            ['id' => 6, 'username' => 'moderator', 'email' => 'moderator@machine.local', 'password' => 'x', 'is_email_confirmed' => 1],
+            ['id' => 7, 'username' => 'member', 'email' => 'member@machine.local', 'password' => 'x', 'is_email_confirmed' => 1],
+        ]);
+        $db->table('group_user')->insert(['user_id' => 6, 'group_id' => 4]);
+        $db->table('group_permission')->insert(['group_id' => 4, 'permission' => 'fof.ban-ips.banIP']);
+        $db->table('posts')->insert([
+            ['id' => 10, 'discussion_id' => 5, 'number' => 10, 'created_at' => Carbon::now(), 'user_id' => 6, 'type' => 'comment', 'content' => '<t><p>moderator</p></t>', 'ip_address' => $address],
+            ['id' => 11, 'discussion_id' => 5, 'number' => 11, 'created_at' => Carbon::now(), 'user_id' => 7, 'type' => 'comment', 'content' => '<t><p>member</p></t>', 'ip_address' => $address],
+        ]);
+
+        BannedIPRepository::resetCache();
+        $this->assertFalse((new BannedIPRepository())->isUserBanned(User::find(6)), 'Checked alone');
+        $this->assertTrue((new BannedIPRepository())->isUserBanned(User::find(7)));
+
+        BannedIPRepository::resetCache();
+        $repository = new BannedIPRepository();
+        $moderator = User::find(6);
+        $member = User::find(7);
+        $repository->queue($moderator);
+        $repository->queue($member);
+        $this->assertFalse($repository->isUserBanned($moderator), 'Checked with the queue');
+        $this->assertTrue($repository->isUserBanned($member));
+
+        $this->assertSame([7], $repository->findUsers($address)->pluck('id')->map(fn ($id) => (int) $id)->values()->all(), 'Only the member is listed as affected by the ban');
+
+        BannedIPRepository::resetCache();
+    }
 }

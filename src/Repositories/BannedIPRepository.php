@@ -117,7 +117,7 @@ class BannedIPRepository
             })
             ->get()
             ->filter(function (User $user) {
-                return $user->cannot('banIP');
+                return !$this->exempt($user);
             });
     }
 
@@ -139,7 +139,7 @@ class BannedIPRepository
             return (bool) self::$bans[$user->id];
         }
 
-        return self::$bans[$user->id] = $user->cannot('banIP') && $this->getUserBannedIPs($user)->exists();
+        return self::$bans[$user->id] = !$this->exempt($user) && $this->getUserBannedIPs($user)->exists();
     }
 
     /**
@@ -180,19 +180,34 @@ class BannedIPRepository
             )
             ->unique();
 
-        // Users who may ban IPs are never treated as banned. Asked only of the
-        // few who matched a ban: it means working out a user's permissions,
-        // which loads their groups and runs every permission group processor.
+        // Users who may ban IPs are never treated as banned (see exempt()).
+        // Asked only of the few who matched a ban: it means working out a
+        // user's permissions, which loads their groups and runs every
+        // permission group processor.
         $matched = array_values(array_intersect_key($users, array_flip($banned->map(fn ($id) => (int) $id)->all())));
         (new EloquentCollection($matched))->loadMissing('groups');
 
         foreach ($matched as $user) {
-            self::$bans[$user->id] = $user->cannot('banIP');
+            self::$bans[$user->id] = !$this->exempt($user);
         }
     }
 
     /**
-     * Forget every answer and queued user. For long-running processes and tests.
+     * Users who may ban IPs are never treated as banned.
+     *
+     * Asked of the user's own permissions: `$user->cannot('banIP')`, with no
+     * model, matches no policy and falls back to a permission literally named
+     * `banIP`, which only admins have. Moderators granted
+     * `fof.ban-ips.banIP` were treated as banned, and logged out, after
+     * posting from a banned address.
+     */
+    private function exempt(User $user): bool
+    {
+        return $user->hasPermission('fof.ban-ips.banIP');
+    }
+
+    /**
+     * Forget every answer and queued user, for tests that check users one by one.
      */
     public static function resetCache(): void
     {
