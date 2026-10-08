@@ -21,10 +21,12 @@ use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * `canBanIP` and `isBanned` are serialized for every user on a page. Neither
- * may work out each user's own permissions to answer: that loads their groups
- * and runs every extension's permission group processor (fof/terms reads the
- * user's accepted policies there), once per user.
+ * `canBanIP` and `isBanned` are serialized for every user on a page. For a
+ * viewer who can't ban IPs (most viewers), neither may work out each user's
+ * own permissions to answer: that loads their groups and runs every
+ * extension's permission group processor (fof/terms reads the user's accepted
+ * policies there), once per user. A viewer who can ban IPs still needs each
+ * user's permissions for canBanIP.
  */
 class CanBanIPQueryCountTest extends TestCase
 {
