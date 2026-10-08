@@ -232,4 +232,119 @@ class BannedIPRepositoryTest extends TestCase
         $isBanned = $this->repository->isUserBanned($user);
         $this->assertTrue($isBanned, 'Normal user with a banned IP should be banned');
     }
+
+    #[Test]
+    public function queued_users_get_the_same_answers_as_the_single_check_in_two_queries()
+    {
+        $users = User::query()->whereIn('id', [1, 2, 3, 4, 5])->get();
+
+        $single = [];
+        foreach ($users as $user) {
+            BannedIPRepository::resetCache();
+            $single[$user->id] = (new BannedIPRepository())->isUserBanned($user);
+        }
+
+        BannedIPRepository::resetCache();
+        $repository = new BannedIPRepository();
+        // Fresh models: the single checks above already loaded these users' groups.
+        $users = User::query()->whereIn('id', [1, 2, 3, 4, 5])->get();
+        foreach ($users as $user) {
+            $repository->queue($user);
+        }
+
+        $db = $this->database();
+        $db->enableQueryLog();
+        $db->flushQueryLog();
+
+        $batched = [];
+        foreach ($users as $user) {
+            $batched[$user->id] = $repository->isUserBanned($user);
+        }
+
+        $log = array_column($db->getQueryLog(), 'query');
+        $banQueries = array_filter($log, fn (string $sql) => str_contains($sql, 'banned_ips'));
+        $groupQueries = array_filter($log, fn (string $sql) => str_contains($sql, 'group_user'));
+        $db->flushQueryLog();
+
+        $this->assertSame($single, $batched);
+        $this->assertTrue($batched[3], 'The user who posted from a banned IP is banned');
+        $this->assertFalse($batched[1], 'The admin, who may ban IPs, is never banned');
+        $this->assertLessThanOrEqual(2, count($banQueries), 'Five users are answered in two queries, not two each');
+        $this->assertLessThanOrEqual(1, count($groupQueries), 'Their groups, for the permission check, load in one query');
+
+        BannedIPRepository::resetCache();
+    }
+
+    #[Test]
+    public function a_user_banned_directly_is_banned_when_queued()
+    {
+        BannedIP::query()->insert(['address' => '203.0.113.77', 'user_id' => 5, 'creator_id' => 1, 'created_at' => Carbon::now()]);
+
+        BannedIPRepository::resetCache();
+        $repository = new BannedIPRepository();
+        $repository->queue(User::find(5));
+        $repository->queue(User::find(2));
+
+        $this->assertTrue($repository->isUserBanned(User::find(5)), 'Banned by user, with no posts at all');
+        $this->assertFalse($repository->isUserBanned(User::find(2)));
+
+        BannedIPRepository::resetCache();
+    }
+
+    #[Test]
+    public function the_user_list_reports_bans_correctly()
+    {
+        BannedIPRepository::resetCache();
+
+        $response = $this->send($this->request('GET', '/api/users', ['authenticatedAs' => 1]));
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $banned = [];
+        foreach (json_decode($response->getBody()->getContents(), true)['data'] as $user) {
+            $banned[$user['id']] = $user['attributes']['isBanned'] ?? null;
+        }
+
+        $this->assertTrue($banned['3']);
+        $this->assertFalse($banned['2']);
+        $this->assertFalse($banned['4']);
+
+        BannedIPRepository::resetCache();
+    }
+
+    #[Test]
+    public function moderators_who_may_ban_ips_are_not_treated_as_banned()
+    {
+        $address = $this->getIPv4Banned()[2];
+        $db = $this->database();
+
+        // A moderator (not an admin) holding the ban permission, and a member,
+        // both posted from a banned address.
+        $db->table('users')->insert([
+            ['id' => 6, 'username' => 'moderator', 'email' => 'moderator@machine.local', 'password' => 'x', 'is_email_confirmed' => 1],
+            ['id' => 7, 'username' => 'member', 'email' => 'member@machine.local', 'password' => 'x', 'is_email_confirmed' => 1],
+        ]);
+        $db->table('group_user')->insert(['user_id' => 6, 'group_id' => 4]);
+        $db->table('group_permission')->insert(['group_id' => 4, 'permission' => 'fof.ban-ips.banIP']);
+        $db->table('posts')->insert([
+            ['id' => 10, 'discussion_id' => 5, 'number' => 10, 'created_at' => Carbon::now(), 'user_id' => 6, 'type' => 'comment', 'content' => '<t><p>moderator</p></t>', 'ip_address' => $address],
+            ['id' => 11, 'discussion_id' => 5, 'number' => 11, 'created_at' => Carbon::now(), 'user_id' => 7, 'type' => 'comment', 'content' => '<t><p>member</p></t>', 'ip_address' => $address],
+        ]);
+
+        BannedIPRepository::resetCache();
+        $this->assertFalse((new BannedIPRepository())->isUserBanned(User::find(6)), 'Checked alone');
+        $this->assertTrue((new BannedIPRepository())->isUserBanned(User::find(7)));
+
+        BannedIPRepository::resetCache();
+        $repository = new BannedIPRepository();
+        $moderator = User::find(6);
+        $member = User::find(7);
+        $repository->queue($moderator);
+        $repository->queue($member);
+        $this->assertFalse($repository->isUserBanned($moderator), 'Checked with the queue');
+        $this->assertTrue($repository->isUserBanned($member));
+
+        $this->assertSame([7], $repository->findUsers($address)->pluck('id')->map(fn ($id) => (int) $id)->values()->all(), 'Only the member is listed as affected by the ban');
+
+        BannedIPRepository::resetCache();
+    }
 }
