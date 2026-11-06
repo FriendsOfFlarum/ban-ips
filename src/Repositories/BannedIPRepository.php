@@ -103,7 +103,7 @@ class BannedIPRepository
             ->distinct()
             ->get()
             ->filter(function (User $user) {
-                return $user->cannot('banIP');
+                return !$user->hasPermission('fof.ban-ips.banIP');
             });
     }
 
@@ -118,7 +118,7 @@ class BannedIPRepository
             return (bool) self::$bans[$user->id];
         }
 
-        return self::$bans[$user->id] = $user->cannot('banIP') && $this->getUserBannedIPs($user)->exists();
+        return self::$bans[$user->id] = !$user->hasPermission('fof.ban-ips.banIP') && $this->getUserBannedIPs($user)->exists();
     }
 
     public function getUserIPs(User $user): Collection
