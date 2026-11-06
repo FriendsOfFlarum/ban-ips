@@ -30,7 +30,9 @@ class BanUserAttributes
     public function __invoke(UserSerializer $serializer, User $user, array $attributes): array
     {
         $attributes['isBanned'] = $this->bannedIPs->isUserBanned($user);
-        $attributes['canBanIP'] = $serializer->getActor()->can('banIP', $user);
+        $actor = $serializer->getActor();
+        // Only someone who may ban IPs needs the per-user check, which works out that user's permissions.
+        $attributes['canBanIP'] = $actor->hasPermission('fof.ban-ips.banIP') && $actor->can('banIP', $user);
 
         return $attributes;
     }

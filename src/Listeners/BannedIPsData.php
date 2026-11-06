@@ -43,8 +43,10 @@ class BannedIPsData
         // (`$d['banned_ips'] = ...`) would store it in the model's attributes, causing a
         // later `$d->save()` by another extension to attempt to persist a non-existent
         // `banned_ips` column.
+        $bannedIPs = $canView ? $this->bannedIPs->getBannedIPsForUsers($data) : [];
+
         foreach ($data as $d) {
-            $d->setRelation('banned_ips', $canView ? $this->bannedIPs->getUserBannedIPs($d)->get() : new Collection());
+            $d->setRelation('banned_ips', $bannedIPs[$d->id] ?? new Collection());
         }
 
         return $data;

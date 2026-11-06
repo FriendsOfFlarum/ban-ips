@@ -62,7 +62,10 @@ return [
 
     (new Extend\ApiSerializer(Serializer\PostSerializer::class))
         ->attributes(function (AbstractSerializer $serializer, Post $post, array $attributes): array {
-            $attributes['canBanIP'] = $serializer->getActor()->can('banIP', $post->user);
+            $actor = $serializer->getActor();
+            // Ask the actor first: for everyone who may not ban IPs, this skips loading
+            // the author and working out the author's permissions.
+            $attributes['canBanIP'] = $actor->hasPermission('fof.ban-ips.banIP') && $actor->can('banIP', $post->user);
 
             return $attributes;
         })
@@ -103,6 +106,10 @@ return [
 
     (new Extend\ApiController(Controller\UpdatePostController::class))
         ->addInclude(['banned_ip', 'banned_ip.user']),
+
+    // Runs for every API controller, so isBanned is answered for all users in a response at once.
+    (new Extend\ApiController(Controller\AbstractSerializeController::class))
+        ->prepareDataForSerialization(Listeners\QueueUsersForBanCheck::class),
 
     (new Extend\SimpleFlarumSearch(Search\BannedIPSearcher::class))
         ->setFullTextGambit(Search\NxGambit::class),
