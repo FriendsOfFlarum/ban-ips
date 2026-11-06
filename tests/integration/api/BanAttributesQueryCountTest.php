@@ -52,10 +52,10 @@ class BanAttributesQueryCountTest extends TestCase
         $posts[] = ['id' => 50, 'number' => 50, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => self::MODERATOR, 'type' => 'comment', 'content' => '<t><p>post</p></t>', 'ip_address' => '10.0.0.'.self::BANNED_BY_ADDRESS];
 
         $this->prepareDatabase([
-            'users'       => $users,
-            'group_user'  => [['user_id' => self::MODERATOR, 'group_id' => Group::MODERATOR_ID]],
+            'users'            => $users,
+            'group_user'       => [['user_id' => self::MODERATOR, 'group_id' => Group::MODERATOR_ID]],
             'group_permission' => [['permission' => 'fof.ban-ips.banIP', 'group_id' => Group::MODERATOR_ID]],
-            'discussions' => [
+            'discussions'      => [
                 ['id' => 1, 'title' => __CLASS__, 'created_at' => Carbon::now(), 'last_posted_at' => Carbon::now(), 'user_id' => 3, 'first_post_id' => 1, 'comment_count' => self::POSTERS + 1, 'last_post_number' => 50],
             ],
             'posts'      => $posts,

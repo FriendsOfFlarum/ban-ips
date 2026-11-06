@@ -234,7 +234,7 @@ class BannedIPRepository
     }
 
     /**
-     * Users who may ban IPs are never treated as banned. (Admins hold every permission.)
+     * Users who may ban IPs are never treated as banned. (Admins hold every permission.).
      */
     protected function isExempt(User $user): bool
     {
