@@ -32,10 +32,8 @@ class BannedIPsData
 
     /**
      * @param iterable<User> $data
-     *
-     * @return iterable<User>
      */
-    public function __invoke(AbstractListController $controller, &$data, ServerRequestInterface $request)
+    public function __invoke(AbstractListController $controller, &$data, ServerRequestInterface $request): void
     {
         $canView = RequestUtil::getActor($request)->can('fof.ban-ips.viewBannedIPList');
 
@@ -43,10 +41,10 @@ class BannedIPsData
         // (`$d['banned_ips'] = ...`) would store it in the model's attributes, causing a
         // later `$d->save()` by another extension to attempt to persist a non-existent
         // `banned_ips` column.
-        foreach ($data as $d) {
-            $d->setRelation('banned_ips', $canView ? $this->bannedIPs->getUserBannedIPs($d)->get() : new Collection());
-        }
+        $bannedIPs = $canView ? $this->bannedIPs->getBannedIPsForUsers($data) : [];
 
-        return $data;
+        foreach ($data as $d) {
+            $d->setRelation('banned_ips', $bannedIPs[$d->id] ?? new Collection());
+        }
     }
 }

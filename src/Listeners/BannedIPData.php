@@ -32,10 +32,8 @@ class BannedIPData
 
     /**
      * @param User $data
-     *
-     * @return User
      */
-    public function __invoke(AbstractSerializeController $controller, &$data, ServerRequestInterface $request)
+    public function __invoke(AbstractSerializeController $controller, &$data, ServerRequestInterface $request): void
     {
         $canView = RequestUtil::getActor($request)->can('fof.ban-ips.viewBannedIPList');
 
@@ -44,7 +42,5 @@ class BannedIPData
         // later `$data->save()` by another extension to attempt to persist a non-existent
         // `banned_ips` column.
         $data->setRelation('banned_ips', $canView ? $this->bannedIPs->getUserBannedIPs($data)->get() : new Collection());
-
-        return $data;
     }
 }
