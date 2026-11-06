@@ -32,10 +32,8 @@ class BannedIPsData
 
     /**
      * @param iterable<User> $data
-     *
-     * @return iterable<User>
      */
-    public function __invoke(AbstractListController $controller, &$data, ServerRequestInterface $request)
+    public function __invoke(AbstractListController $controller, &$data, ServerRequestInterface $request): void
     {
         $canView = RequestUtil::getActor($request)->can('fof.ban-ips.viewBannedIPList');
 
@@ -48,7 +46,5 @@ class BannedIPsData
         foreach ($data as $d) {
             $d->setRelation('banned_ips', $bannedIPs[$d->id] ?? new Collection());
         }
-
-        return $data;
     }
 }
