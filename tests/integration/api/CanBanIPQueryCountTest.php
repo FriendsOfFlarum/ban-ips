@@ -21,9 +21,9 @@ use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * `canBanIP` and `isBanned` are serialized for every user on a page. For a
- * viewer who can't ban IPs (most viewers), neither may work out each user's
- * own permissions to answer: that loads their groups and runs every
+ * `canBanIP` is serialized for every user on a page, and `isBanned` is left
+ * out for a viewer who can't ban IPs (most viewers). For that viewer, neither
+ * may work out each user's own permissions: that loads their groups and runs every
  * extension's permission group processor (fof/terms reads the user's accepted
  * policies there), once per user. A viewer who can ban IPs still needs each
  * user's permissions for canBanIP.
@@ -84,7 +84,7 @@ class CanBanIPQueryCountTest extends TestCase
         foreach ($body['included'] as $resource) {
             if ($resource['type'] === 'users') {
                 $this->assertFalse($resource['attributes']['canBanIP']);
-                $this->assertFalse($resource['attributes']['isBanned']);
+                $this->assertArrayNotHasKey('isBanned', $resource['attributes']);
             }
         }
 

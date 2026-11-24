@@ -14,5 +14,5 @@ export default [
 
   new Extend.Model(User) //
     .attribute<boolean>('canBanIP')
-    .attribute<boolean>('isBanned'),
+    .attribute<boolean | undefined>('isBanned'),
 ];
