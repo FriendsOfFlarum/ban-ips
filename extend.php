@@ -33,8 +33,8 @@ use FoF\BanIPs\Events\IPWasUnbanned;
 use FoF\BanIPs\Listeners\RemoveAccessToBannedUsers;
 use FoF\BanIPs\Middleware\RegisterMiddleware;
 use FoF\BanIPs\Repositories\BannedIPRepository;
-use FoF\BanIPs\Search\IPBannedFilter;
 use FoF\BanIPs\Search\BannedIPSearcher;
+use FoF\BanIPs\Search\IPBannedFilter;
 use FoF\BanIPs\Validators\BannedIPValidator;
 use Illuminate\Support\Arr;
 
