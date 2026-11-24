@@ -52,8 +52,15 @@ return [
 
     (new Extend\ApiResource(UserResource::class))
         ->fields(fn () => [
+            // Queued, then read once every user on the page has been seen:
+            // two queries for the page instead of two per user.
             Schema\Boolean::make('isBanned')
-                ->get(fn (User $user) => resolve(BannedIPRepository::class)->isUserBanned($user)),
+                ->get(function (User $user) {
+                    $bans = resolve(BannedIPRepository::class);
+                    $bans->queue($user);
+
+                    return fn () => $bans->isUserBanned($user);
+                }),
 
             Schema\Boolean::make('canBanIP')
                 ->get(fn (User $user, Context $context) => $context->getActor()->can('banIP', $user)),

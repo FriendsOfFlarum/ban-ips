@@ -11,9 +11,11 @@
 
 namespace FoF\BanIPs\Repositories;
 
+use Flarum\Post\Post;
 use Flarum\User\User;
 use FoF\BanIPs\BannedIP;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -29,6 +31,13 @@ class BannedIPRepository
      * @var array
      */
     private static $ips = [];
+
+    /**
+     * Users whose ban status will be read soon, keyed by id.
+     *
+     * @var array<int, User>
+     */
+    private static array $queued = [];
 
     /**
      * Get a new query builder for the banned IP table.
@@ -108,7 +117,7 @@ class BannedIPRepository
             })
             ->get()
             ->filter(function (User $user) {
-                return $user->cannot('banIP');
+                return !$this->exempt($user);
             });
     }
 
@@ -123,7 +132,88 @@ class BannedIPRepository
             return (bool) self::$bans[$user->id];
         }
 
-        return self::$bans[$user->id] = $user->cannot('banIP') && $this->getUserBannedIPs($user)->exists();
+        // Queued alongside others (see queue()): answer them all at once.
+        if (isset(self::$queued[$user->id])) {
+            $this->loadQueued();
+
+            return (bool) self::$bans[$user->id];
+        }
+
+        return self::$bans[$user->id] = !$this->exempt($user) && $this->getUserBannedIPs($user)->exists();
+    }
+
+    /**
+     * Ask about a user later, together with every other user queued before the
+     * first answer is read.
+     *
+     * Serializing a page of users (the authors on a discussion list, a post
+     * stream, the user directory) used to cost two queries per user: one
+     * loading every IP address they had ever posted from, one checking those
+     * against the bans. Queued, the whole page is answered in two queries, and
+     * the addresses never leave the database.
+     */
+    public function queue(User $user): void
+    {
+        if (!Arr::has(self::$bans, [$user->id])) {
+            self::$queued[$user->id] = $user;
+        }
+    }
+
+    private function loadQueued(): void
+    {
+        $users = self::$queued;
+        self::$queued = [];
+
+        foreach (array_keys($users) as $id) {
+            self::$bans[$id] = false;
+        }
+
+        // Banned directly, or posted from a banned address.
+        $ids = array_keys($users);
+        $banned = BannedIP::query()->whereIn('user_id', $ids)->pluck('user_id')
+            ->merge(
+                Post::query()
+                    ->join('banned_ips', 'banned_ips.address', '=', 'posts.ip_address')
+                    ->whereIn('posts.user_id', $ids)
+                    ->distinct()
+                    ->pluck('posts.user_id')
+            )
+            ->unique();
+
+        // Users who may ban IPs are never treated as banned (see exempt()).
+        // Asked only of the few who matched a ban: it means working out a
+        // user's permissions, which loads their groups and runs every
+        // permission group processor.
+        $matched = array_values(array_intersect_key($users, array_flip($banned->map(fn ($id) => (int) $id)->all())));
+        (new EloquentCollection($matched))->loadMissing('groups');
+
+        foreach ($matched as $user) {
+            self::$bans[$user->id] = !$this->exempt($user);
+        }
+    }
+
+    /**
+     * Users who may ban IPs are never treated as banned.
+     *
+     * Asked of the user's own permissions: `$user->cannot('banIP')`, with no
+     * model, matches no policy and falls back to a permission literally named
+     * `banIP`, which only admins have. Moderators granted
+     * `fof.ban-ips.banIP` were treated as banned, and logged out, after
+     * posting from a banned address.
+     */
+    private function exempt(User $user): bool
+    {
+        return $user->hasPermission('fof.ban-ips.banIP');
+    }
+
+    /**
+     * Forget every answer and queued user, for tests that check users one by one.
+     */
+    public static function resetCache(): void
+    {
+        self::$bans = [];
+        self::$ips = [];
+        self::$queued = [];
     }
 
     public function getUserIPs(User $user): Collection

@@ -26,10 +26,17 @@ class UserPolicy extends AbstractPolicy
      */
     public function banIP(User $actor, ?User $user)
     {
+        // The actor first: most can't ban anyone, and asking whether the user
+        // could ban IPs themselves loads that user's groups and permissions,
+        // for every user on the page.
+        if (!$actor->hasPermission($this->key)) {
+            return false;
+        }
+
         if (!$user->isGuest() && ($actor->id === $user->id || $user->hasPermission($this->key))) {
             return $this->deny();
         }
 
-        return $actor->hasPermission($this->key);
+        return true;
     }
 }
