@@ -13,7 +13,7 @@ Unlike Flarum's built-in user suspension â€” which only stops a known account â€
 - **Catch shared accounts.** Before banning, the extension shows you which _other_ accounts have posted from the same IP address(es) so you know exactly who a ban will affect.
 - **Blocks login _and_ registration** from banned IPs. Banned users are also signed out the moment they make a request from a banned address.
 - **Won't lock out staff.** Users (and admins) who hold the ban permission can never be IP-banned, and a banned IP never blocks a non-banned user who simply happens to share it.
-- **"Banned" badge** displayed next to affected users so moderators can spot them at a glance.
+- **"Banned" badge** displayed next to affected users so moderators can spot them at a glance. Only users who may view or ban IPs see it.
 - **Manage existing bans** from the admin page: review the creator, associated user, address, reason and date, edit the reason, or remove a ban.
 - **GDPR aware.** When [FoF GDPR](https://github.com/FriendsOfFlarum/gdpr) is enabled, banned-IP records are included in data exports and decoupled from users on erasure (the IP itself stays banned).
 

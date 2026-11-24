@@ -3,7 +3,7 @@ import type BannedIP from '../common/models/BannedIP';
 declare module 'flarum/common/models/User' {
   export default interface User {
     canBanIP(): boolean;
-    isBanned(): boolean;
+    isBanned(): boolean | undefined;
     banned_ips(): (BannedIP | undefined)[] | false;
   }
 }
