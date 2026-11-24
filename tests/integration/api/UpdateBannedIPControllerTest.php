@@ -122,7 +122,7 @@ class UpdateBannedIPControllerTest extends TestCase
             ])
         );
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(404, $response->getStatusCode());
     }
 
     public function test_editing_a_missing_ban_returns_not_found()
