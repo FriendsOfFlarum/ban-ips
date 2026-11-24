@@ -77,7 +77,7 @@ class DeleteBannedIPControllerTest extends TestCase
             ])
         );
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(404, $response->getStatusCode());
         $this->assertNotNull(BannedIP::find(1));
     }
 

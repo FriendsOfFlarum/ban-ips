@@ -60,18 +60,16 @@ return [
 
             // The banned IPs associated with a user are not a plain Eloquent
             // relation: they include both bans tied to the user directly and bans
-            // on any IP address the user has posted from. Resolve them through the
-            // repository, and only when the actor is allowed to see them.
+            // on any IP address the user has posted from.
             Schema\Relationship\ToMany::make('banned_ips')
                 ->type('banned_ips')
                 ->includable()
-                ->get(function (User $user, Context $context) {
-                    if (!$context->getActor()->can('fof.ban-ips.viewBannedIPList')) {
-                        return [];
-                    }
-
-                    return resolve(BannedIPRepository::class)->getUserBannedIPs($user)->get()->all();
-                }),
+                ->visible(fn (User $user, Context $context) => BannedIP::isVisibleTo($context->getActor()))
+                // Empty for actors who may ban but not view the list: the bans would
+                // reveal which addresses the user has posted from.
+                ->get(fn (User $user, Context $context) => $context->getActor()->can('fof.ban-ips.viewBannedIPList')
+                    ? resolve(BannedIPRepository::class)->getUserBannedIPs($user)->get()->all()
+                    : []),
         ])
         ->endpoints(fn () => [
             // Ban every IP address a user has posted from.
@@ -170,7 +168,9 @@ return [
             Schema\Relationship\ToOne::make('banned_ip')
                 ->type('banned_ips')
                 ->nullable()
-                ->includable(),
+                ->includable()
+                // The ban's address is the post's IP, which core only shows to those who may view it.
+                ->visible(fn (Post $post, Context $context) => BannedIP::isVisibleTo($context->getActor()) && $context->getActor()->can('viewIps', $post)),
         ])
         ->endpoint(Endpoint\Show::class, fn (Endpoint\Show $endpoint) => $endpoint->addDefaultInclude(['banned_ip']))
         ->endpoint(Endpoint\Index::class, fn (Endpoint\Index $endpoint) => $endpoint->addDefaultInclude(['banned_ip']))

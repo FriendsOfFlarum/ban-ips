@@ -56,6 +56,11 @@ class BannedIP extends AbstractModel
         return $banIP;
     }
 
+    public static function isVisibleTo(User $actor): bool
+    {
+        return $actor->hasPermission('fof.ban-ips.viewBannedIPList') || $actor->hasPermission('fof.ban-ips.banIP');
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creator_id');

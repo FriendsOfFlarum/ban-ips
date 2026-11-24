@@ -28,6 +28,7 @@ use FoF\BanIPs\Events\IPWasBanned;
 use FoF\BanIPs\Events\IPWasUnbanned;
 use FoF\BanIPs\Repositories\BannedIPRepository;
 use FoF\BanIPs\Validators\BannedIPValidator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use Tobyz\JsonApiServer\Context as OriginalContext;
 
@@ -53,6 +54,13 @@ class BannedIPResource extends AbstractDatabaseResource
         return BannedIP::class;
     }
 
+    public function scope(Builder $query, OriginalContext $context): void
+    {
+        if (!BannedIP::isVisibleTo($context->getActor())) {
+            $query->whereRaw('1 = 0');
+        }
+    }
+
     public function endpoints(): array
     {
         return [
@@ -60,7 +68,10 @@ class BannedIPResource extends AbstractDatabaseResource
                 ->can('fof.ban-ips.viewBannedIPList')
                 ->defaultInclude(['creator', 'user'])
                 ->paginate(),
+            // Authorised before the address is validated.
             Endpoint\Create::make()
+                ->authenticated()
+                ->can('fof.ban-ips.banIP')
                 ->defaultInclude(['creator', 'user']),
             Endpoint\Update::make()
                 ->can('fof.ban-ips.banIP'),
