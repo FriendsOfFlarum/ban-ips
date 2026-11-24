@@ -134,9 +134,10 @@ export default class UnbanIPModal extends BanIPModal {
   }
 
   async getOtherUsers() {
+    const option = this.banOption();
     const params: { ipAddress?: string | null; skipValidation?: boolean } = {};
 
-    if (this.banOption() === 'only') {
+    if (option === 'only') {
       params.ipAddress = this.address || this.post!.ipAddress();
       params.skipValidation = true;
     }
@@ -146,18 +147,33 @@ export default class UnbanIPModal extends BanIPModal {
     if (this.user) url += `/${this.user.id()}`;
 
     try {
-      const response = await app.request<ApiPayloadPlural>({ params, url, method: 'GET' });
+      const [response, removing] = await Promise.all([app.request<ApiPayloadPlural>({ params, url, method: 'GET' }), this.bansToRemove(option)]);
+      const others = app.store.pushPayload<User[]>(response);
 
-      this.otherUsers[this.banOption()] = app.store.pushPayload<User[]>(response).filter((user) => {
+      this.otherUsers[option] = others.filter((user) => {
         const bannedIPs = user.banned_ips();
 
-        return !!bannedIPs && bannedIPs.length === 1;
+        return !!bannedIPs && bannedIPs.length > 0 && bannedIPs.every((ban) => !!ban && removing.includes(ban.id()!));
       });
     } catch (error) {
       this.onerror(error as RequestError);
     } finally {
       this.loaded();
     }
+  }
+
+  async bansToRemove(option: string): Promise<string[]> {
+    if (option === 'only') {
+      const bannedIP = this.post ? this.post.banned_ip() : app.store.getBy<BannedIP>('banned_ips', 'address', this.address!);
+
+      return bannedIP ? [bannedIP.id()!] : [];
+    }
+
+    // Fetched rather than read from the store: a user loaded as an include has no bans, and a
+    // loaded list can be out of date.
+    const user = await app.store.find<User>('users', this.user!.id()!);
+
+    return (user.banned_ips() || []).filter((ban): ban is BannedIP => !!ban).map((ban) => ban.id()!);
   }
 
   done(bannedIP?: BannedIP | ApiPayloadPlural) {
@@ -186,7 +202,15 @@ export default class UnbanIPModal extends BanIPModal {
     }
 
     if (bannedIP && Array.isArray((bannedIP as ApiPayloadPlural).data)) {
-      this.bannedIPs = (bannedIP as ApiPayloadPlural).data.map((b) => (b as SavedModelData).attributes!.address as string);
+      const removed = (bannedIP as ApiPayloadPlural).data as SavedModelData[];
+
+      this.bannedIPs = removed.map((b) => b.attributes!.address as string);
+
+      removed.forEach((b) => {
+        const model = app.store.getById<BannedIP>('banned_ips', b.id);
+
+        if (model) app.store.remove(model);
+      });
       this.loading = false;
 
       m.redraw();
