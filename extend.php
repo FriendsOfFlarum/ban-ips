@@ -21,6 +21,7 @@ use Flarum\Api\Schema;
 use Flarum\Audit\Extend\Audit;
 use Flarum\Extend;
 use Flarum\Gdpr\Extend\UserData;
+use Flarum\Mcp\Extend\Mcp;
 use Flarum\Post\Post;
 use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\User\Search\UserSearcher;
@@ -222,6 +223,16 @@ return [
         ->whenExtensionEnabled('flarum-gdpr', fn () => [
             (new UserData())
                 ->addType(Data\BannedIPData::class),
+        ]),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('flarum-mcp', fn () => [
+            // No allowWrites: banning goes through the user endpoints, not raw records.
+            (new Mcp())
+                ->describe('banned_ips', 'IP addresses banned from the forum, each with the reason, who banned it and the user it was banned for, if any. Nobody can sign up from a banned address, and a user banned for it or who posted from it is treated as banned: they cannot log in from it and are logged out. Listing them needs permission to view the ban list.')
+                ->endpointTool('users', 'fof-ban-ips.ban', 'ban_user_ips', 'Ban a user\'s IP addresses', 'Ban every IP address the user has posted from, giving the reason as attributes.reason. Everyone else who posted from those addresses is banned and logged out too, unless they may ban IPs, so confirm with the person you act for first. Addresses already banned are skipped. You cannot ban yourself or anyone who may ban IPs.')
+                ->endpointTool('users', 'fof-ban-ips.unban', 'unban_user_ips', 'Unban a user\'s IP addresses', 'Remove every ban that applies to the user: those made for them and those on any address they have posted from. Other users who were banned only through those bans are unbanned too.')
+                ->ability('fof.ban-ips.banIP', 'Ban IP addresses'),
         ]),
 
     (new Extend\Conditional())
