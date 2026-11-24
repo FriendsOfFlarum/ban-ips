@@ -1,10 +1,11 @@
 import ItemList from 'flarum/common/utils/ItemList';
 import type Mithril from 'mithril';
 import type { ApiPayloadPlural } from 'flarum/common/Store';
-import BanIPModal from './BanIPModal';
+import BanIPModal, { IBanIPModalAttrs } from './BanIPModal';
 import type BannedIP from '../models/BannedIP';
 export default class UnbanIPModal extends BanIPModal {
     protected bannedIPs?: string[];
+    oninit(vnode: Mithril.Vnode<IBanIPModalAttrs, this>): void;
     title(): string | any[];
     className(): string;
     content(): JSX.Element;
