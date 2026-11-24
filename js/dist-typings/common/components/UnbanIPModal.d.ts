@@ -16,6 +16,7 @@ export default class UnbanIPModal extends BanIPModal {
     submitLabel(): string | any[];
     onsubmit(e: SubmitEvent): Promise<void>;
     getOtherUsers(): Promise<void>;
+    bansToRemove(option: string): Promise<string[]>;
     done(bannedIP?: BannedIP | ApiPayloadPlural): void;
     hide(): void;
 }
