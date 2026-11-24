@@ -139,7 +139,13 @@ class BannedIPRepository
             return (bool) self::$bans[$user->id];
         }
 
-        return self::$bans[$user->id] = !$this->exempt($user) && $this->getUserBannedIPs($user)->exists();
+        return self::$bans[$user->id] = !$this->exempt($user) && (
+            BannedIP::query()->where('user_id', $user->id)->exists()
+            || Post::query()
+                ->join('banned_ips', 'banned_ips.address', '=', 'posts.ip_address')
+                ->where('posts.user_id', $user->id)
+                ->exists()
+        );
     }
 
     /**
@@ -227,9 +233,10 @@ class BannedIPRepository
 
     public function getUserBannedIPs(User $user): Builder
     {
-        $ips = $this->getUserIPs($user)->toArray();
-
-        return BannedIP::where('user_id', $user->id)->orWhere('address', empty($ips) ? null : $this->getUserIPs($user)->toArray());
+        return BannedIP::query()->where(function (Builder $query) use ($user) {
+            $query->where('user_id', $user->id)
+                ->orWhereIn('address', Post::query()->select('ip_address')->where('user_id', $user->id)->whereNotNull('ip_address'));
+        });
     }
 
     /**
