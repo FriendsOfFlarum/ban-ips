@@ -17,8 +17,7 @@ export default class UnbanIPModal extends BanIPModal {
   oninit(vnode: Mithril.Vnode<IBanIPModalAttrs, this>) {
     super.oninit(vnode);
 
-    // The post's ban record is only sent to actors who may view banned IPs, and is
-    // absent when the user is banned through another address.
+    // A user can be banned through another address, leaving this post's IP unbanned.
     if (this.post && !this.post.banned_ip()) {
       this.banOptions = this.banOptions.filter((key) => key !== 'only');
       this.banOption(this.banOptions[0]);

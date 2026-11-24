@@ -251,7 +251,8 @@ export default class BanIPModal extends FormModal<IBanIPModalAttrs> {
       id: bannedIP.id()!,
     };
 
-    if (this.post) {
+    // Banning all of a user's IPs calls this once per address; only the post's own belongs on it.
+    if (this.post && bannedIP.address() === this.post.ipAddress()) {
       this.post.data.relationships!.banned_ip = {
         data: obj,
       };
