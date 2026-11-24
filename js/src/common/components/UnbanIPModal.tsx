@@ -8,11 +8,22 @@ import type RequestError from 'flarum/common/utils/RequestError';
 import type { ModelIdentifier, SavedModelData } from 'flarum/common/Model';
 import type { ApiPayloadPlural } from 'flarum/common/Store';
 
-import BanIPModal from './BanIPModal';
+import BanIPModal, { IBanIPModalAttrs } from './BanIPModal';
 import type BannedIP from '../models/BannedIP';
 
 export default class UnbanIPModal extends BanIPModal {
   protected bannedIPs?: string[];
+
+  oninit(vnode: Mithril.Vnode<IBanIPModalAttrs, this>) {
+    super.oninit(vnode);
+
+    // The post's ban record is only sent to actors who may view banned IPs, and is
+    // absent when the user is banned through another address.
+    if (this.post && !this.post.banned_ip()) {
+      this.banOptions = this.banOptions.filter((key) => key !== 'only');
+      this.banOption(this.banOptions[0]);
+    }
+  }
 
   title() {
     return app.translator.trans('fof-ban-ips.lib.modal.unban_title');
@@ -100,7 +111,7 @@ export default class UnbanIPModal extends BanIPModal {
 
     try {
       if (this.banOption() === 'only') {
-        const bannedIP = (this.post ? this.post.bannedIP() : app.store.getBy<BannedIP>('banned_ips', 'address', this.address)) as BannedIP;
+        const bannedIP = (this.post ? this.post.banned_ip() : app.store.getBy<BannedIP>('banned_ips', 'address', this.address)) as BannedIP;
 
         await bannedIP.delete();
 

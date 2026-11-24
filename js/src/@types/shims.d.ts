@@ -12,6 +12,6 @@ declare module 'flarum/common/models/Post' {
   export default interface Post {
     canBanIP(): boolean;
     ipAddress(): string | null;
-    bannedIP(): BannedIP | false;
+    banned_ip(): BannedIP | false | undefined;
   }
 }
