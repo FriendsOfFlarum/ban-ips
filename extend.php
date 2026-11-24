@@ -14,6 +14,7 @@ namespace FoF\BanIPs;
 use Carbon\Carbon;
 use Flarum\Api\Context;
 use Flarum\Api\Endpoint;
+use Flarum\Api\Resource\ForumResource;
 use Flarum\Api\Resource\PostResource;
 use Flarum\Api\Resource\UserResource;
 use Flarum\Api\Schema;
@@ -22,6 +23,7 @@ use Flarum\Extend;
 use Flarum\Gdpr\Extend\UserData;
 use Flarum\Post\Post;
 use Flarum\Search\Database\DatabaseSearchDriver;
+use Flarum\User\Search\UserSearcher;
 use Flarum\User\User;
 use FoF\BanIPs\Api\JsonApiResponse;
 use FoF\BanIPs\Api\Resource\BannedIPResource;
@@ -30,6 +32,7 @@ use FoF\BanIPs\Events\IPWasUnbanned;
 use FoF\BanIPs\Listeners\RemoveAccessToBannedUsers;
 use FoF\BanIPs\Middleware\RegisterMiddleware;
 use FoF\BanIPs\Repositories\BannedIPRepository;
+use FoF\BanIPs\Search\IPBannedFilter;
 use FoF\BanIPs\Search\BannedIPSearcher;
 use FoF\BanIPs\Validators\BannedIPValidator;
 use Illuminate\Support\Arr;
@@ -191,7 +194,14 @@ return [
         ->hasOne('banned_ip', BannedIP::class, 'address', 'ip_address'),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
-        ->addSearcher(BannedIP::class, BannedIPSearcher::class),
+        ->addSearcher(BannedIP::class, BannedIPSearcher::class)
+        ->addFilter(UserSearcher::class, IPBannedFilter::class),
+
+    (new Extend\ApiResource(ForumResource::class))
+        ->fields(fn () => [
+            Schema\Boolean::make('canViewIPBans')
+                ->get(fn (object $model, Context $context) => BannedIP::isVisibleTo($context->getActor())),
+        ]),
 
     (new Extend\Middleware('forum'))
         ->add(RegisterMiddleware::class),

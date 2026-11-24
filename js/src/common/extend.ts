@@ -1,6 +1,7 @@
 import Extend from 'flarum/common/extenders';
 import User from 'flarum/common/models/User';
 import BannedIP from './models/BannedIP';
+import IPBannedGambit from './query/users/IPBannedGambit';
 
 export default [
   new Extend.Model(User) //
@@ -8,4 +9,7 @@ export default [
 
   new Extend.Store() //
     .add('banned_ips', BannedIP),
+
+  new Extend.Search() //
+    .gambit('users', IPBannedGambit),
 ];
