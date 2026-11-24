@@ -92,14 +92,20 @@ return [
                     $user = $context->model;
                     $actor = $context->getActor();
 
-                    $repository = resolve(BannedIPRepository::class);
                     $validator = resolve(BannedIPValidator::class);
                     $events = resolve('events');
 
                     $reason = Arr::get($context->body(), 'data.attributes.reason');
                     $banned = [];
 
-                    foreach ($repository->getUserIPs($user) as $address) {
+                    // Compared in the database, with the same equality as the unique address rule.
+                    $addresses = $user->posts()
+                        ->whereNotNull('ip_address')
+                        ->whereNotIn('ip_address', BannedIP::query()->select('address'))
+                        ->distinct()
+                        ->pluck('ip_address');
+
+                    foreach ($addresses as $address) {
                         $bannedIP = BannedIP::build($actor->id, $user->id, $address, $reason);
                         $bannedIP->created_at = Carbon::now();
 

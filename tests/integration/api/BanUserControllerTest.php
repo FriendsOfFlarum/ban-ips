@@ -75,6 +75,46 @@ class BanUserControllerTest extends TestCase
         $this->assertContains($this->getIPv6NotBanned()[0], $banned);
     }
 
+    public function test_addresses_that_are_already_banned_are_skipped()
+    {
+        $this->prepareDatabase([
+            'posts' => [
+                ['id' => 3, 'discussion_id' => 1, 'created_at' => Carbon::now(), 'user_id' => 5, 'type' => 'comment', 'content' => '<t><p>baz</p></t>', 'ip_address' => $this->getIPv4Banned()[0]],
+            ],
+        ]);
+
+        $before = $this->database()->table('banned_ips')->count();
+
+        $response = $this->send(
+            $this->request('POST', '/api/users/5/ban', [
+                'authenticatedAs' => 3,
+                'json'            => ['data' => ['attributes' => ['reason' => 'Spam']]],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+
+        $addresses = array_column(array_column(json_decode((string) $response->getBody(), true)['data'], 'attributes'), 'address');
+        $this->assertEqualsCanonicalizing([$this->getIPv4NotBanned()[0], $this->getIPv6NotBanned()[0]], $addresses);
+        $this->assertSame($before + 2, $this->database()->table('banned_ips')->count());
+    }
+
+    public function test_an_address_banned_with_different_letter_case_is_not_banned_twice()
+    {
+        $this->app();
+        $this->database()->table('posts')->insert(['id' => 3, 'discussion_id' => 1, 'number' => 3, 'created_at' => Carbon::now(), 'user_id' => 5, 'type' => 'comment', 'content' => '<t><p>baz</p></t>', 'ip_address' => '2001:db8::1']);
+        $this->database()->table('banned_ips')->insert(['creator_id' => 1, 'address' => '2001:DB8::1', 'created_at' => Carbon::now()]);
+
+        $response = $this->send(
+            $this->request('POST', '/api/users/5/ban', [
+                'authenticatedAs' => 3,
+                'json'            => ['data' => ['attributes' => ['reason' => 'Spam']]],
+            ])
+        );
+
+        $this->assertEquals(200, $response->getStatusCode(), (string) $response->getBody());
+    }
+
     public function test_user_without_permission_cannot_ban_a_user()
     {
         $response = $this->send(
