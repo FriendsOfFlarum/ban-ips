@@ -73,7 +73,7 @@ export default class SettingsPage<CustomAttrs extends ExtensionPageAttrs = Exten
             {this.loading ? (
               LoadingIndicator.component()
             ) : app.store.all<BannedIP>('banned_ips').length ? (
-              <table style={{ width: '100%', textAlign: 'left' }} className="table">
+              <table style={{ width: '100%', textAlign: 'start' }} className="table">
                 <thead>
                   <tr>
                     <th>#</th>

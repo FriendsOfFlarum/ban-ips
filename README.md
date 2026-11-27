@@ -15,6 +15,8 @@ Unlike Flarum's built-in user suspension â€” which only stops a known account â€
 - **Won't lock out staff.** Users (and admins) who hold the ban permission can never be IP-banned, and a banned IP never blocks a non-banned user who simply happens to share it.
 - **"Banned" badge** displayed next to affected users so moderators can spot them at a glance. Only users who may view or ban IPs see it.
 - **Manage existing bans** from the admin page: review the creator, associated user, address, reason and date, edit the reason, or remove a ban.
+- **Find banned users.** Search the admin user list with `is:ipbanned` to list the users an IP ban applies to, or `-is:ipbanned` for everyone else.
+- **AI assistants.** With Flarum's MCP extension enabled, assistants can ban and unban a user's IP addresses (`ban_user_ips`, `unban_user_ips`), with the permissions of the user they act for.
 - **GDPR aware.** When [FoF GDPR](https://github.com/FriendsOfFlarum/gdpr) is enabled, banned-IP records are included in data exports and decoupled from users on erasure (the IP itself stays banned).
 
 ## Permissions
